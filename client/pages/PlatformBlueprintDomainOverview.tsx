@@ -31,6 +31,7 @@ import {
   getPilotDomainBronzeIngestionJobsAsync,
   getPilotDomainLogicalModelAsync,
 } from "@/lib/domains/registry";
+import { loadDomainSilverTransformationCode } from "@/lib/domains/lazy-loader";
 import { getIngestionJobsByDomain } from "@/lib/operations/fis-data-ingestion";
 import { getFISTablesByDomain } from "@/lib/operations/fis-source-schema";
 import { TableDDLViewer } from "@/components/TableDDLViewer";
