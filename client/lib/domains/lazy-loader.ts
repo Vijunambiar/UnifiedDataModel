@@ -254,9 +254,7 @@ export async function loadDomainGoldTables(domainId: string) {
   } else if (domainId === "deposits") {
     promise = Promise.all([
       import("./deposits/metadata").then((m) => m.depositsGoldDimensions || []),
-      import("./deposits/gold-layer").then(
-        (m) => m.depositsGoldLayerComplete?.tables || [],
-      ),
+      import("./deposits/metadata").then((m) => m.depositsGoldFacts || []),
     ]).then(([dims, facts]) => [...dims, ...facts]);
   } else if (domainId === "transactions") {
     promise = Promise.all([
