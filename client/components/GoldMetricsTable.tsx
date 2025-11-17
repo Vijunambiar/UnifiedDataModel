@@ -76,6 +76,7 @@ export function GoldMetricsTable({ metrics, title, description }: MetricTablePro
                 <TableHead className="font-semibold">Description</TableHead>
                 <TableHead className="font-semibold">Category</TableHead>
                 <TableHead className="font-semibold">Type</TableHead>
+                <TableHead className="font-semibold">Grain</TableHead>
                 <TableHead className="font-semibold">Source Tables</TableHead>
                 <TableHead className="font-semibold">Business Logic</TableHead>
                 <TableHead className="font-semibold">SQL Definition</TableHead>
