@@ -24,7 +24,7 @@ import {
 
 const CODE_EXAMPLES = {
   fis: `-- FIS Source Table: Customer Master
--- Direct ingestion from Fiserv core banking system
+-- Direct ingestion from FIS core banking system
 -- Real-time CDC with daily batch backup
 
 SELECT

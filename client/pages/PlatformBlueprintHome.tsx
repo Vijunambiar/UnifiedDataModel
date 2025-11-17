@@ -243,7 +243,7 @@ export default function PlatformBlueprintHome() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
-              name: "Fiserv/FIS",
+              name: "FIS",
               description: "Core banking source system",
               icon: "🏦",
             },
