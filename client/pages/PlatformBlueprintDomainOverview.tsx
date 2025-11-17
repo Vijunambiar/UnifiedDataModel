@@ -1459,15 +1459,35 @@ export default function PlatformBlueprintDomainOverview() {
           <Card className="border-slate-200 shadow-sm">
             <CardHeader>
               <CardTitle>
-                Silver Transformation Code Example (Production Ready)
+                Silver Transformation Code (Production Ready)
               </CardTitle>
               <CardDescription>
-                SCD Type 2 implementation with deduplication and business logic
+                {silverTransformationCatalog?.models?.length ?
+                  `dbt Models: ${silverTransformationCatalog.models.map((m: any) => m.modelName).join(", ")} - ${silverTransformationCatalog.models[0]?.materializationType === 'incremental' ? 'Incremental with SCD Type 2' : 'Full Refresh'}`
+                  : 'SCD Type 2 implementation with deduplication and business logic'}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto">
-                <pre className="text-xs font-mono">{CODE_EXAMPLES.sql}</pre>
+              <div className="space-y-4">
+                {silverTransformationCatalog?.models ? (
+                  silverTransformationCatalog.models.map((model: any, idx: number) => (
+                    <div key={idx} className="border-l-4 border-blue-500 pl-4">
+                      <h4 className="font-semibold text-sm mb-2">
+                        Model {idx + 1}: {model.modelName}
+                      </h4>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {model.description}
+                      </p>
+                      <div className="bg-slate-900 text-slate-100 p-3 rounded-lg overflow-x-auto max-h-96">
+                        <pre className="text-xs font-mono">{model.dbtModel}</pre>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto">
+                    <pre className="text-xs font-mono">{CODE_EXAMPLES.sql}</pre>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
