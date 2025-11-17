@@ -163,7 +163,7 @@ export default function PlatformBlueprintDomainSTTM() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {domain.tableCoverage?.slice(0, 5).map((table, idx) => (
+            {domain.tableCoverage?.map((table, idx) => (
               <div key={table.name || `table-${idx}`} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">{table.name}</span>
