@@ -2495,6 +2495,376 @@ export const depositsGoldMetrics: GoldMetric[] = [
     sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Weekly"},
     relatedMetrics: ["DEP-CRIT-002", "DEP-INT-001"],
     dependencies: ["DIM_ACCOUNT", "FCT_DEPOSIT_DAILY_BALANCE"],
+    grain: "Product",
+  },
+  {
+    metricId: "DEP-NEW-001",
+    name: "Deposit Account Velocity (30-Day)",
+    description: "Rate of new account openings per day with momentum indicators and velocity acceleration",
+    category: "Growth",
+    type: "Operational",
+    grain: "Daily",
+    sqlDefinition: `
+      WITH daily_openings AS (
+        SELECT
+          OPEN_DATE as account_date,
+          COUNT(DISTINCT ACCOUNT_NUMBER) as accounts_opened
+        FROM CORE_DEPOSIT.DIM_ACCOUNT
+        WHERE OPEN_DATE >= DATEADD(day, -30, CURRENT_DATE())
+        GROUP BY OPEN_DATE
+      ),
+      velocity_metrics AS (
+        SELECT
+          account_date,
+          accounts_opened,
+          LAG(accounts_opened, 1) OVER (ORDER BY account_date) as prev_day,
+          LAG(accounts_opened, 7) OVER (ORDER BY account_date) as week_ago,
+          ROUND(AVG(accounts_opened) OVER (ORDER BY account_date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW), 2) as ma_7d,
+          ROUND(AVG(accounts_opened) OVER (ORDER BY account_date ROWS BETWEEN 29 PRECEDING AND CURRENT ROW), 2) as ma_30d
+        FROM daily_openings
+      )
+      SELECT * FROM velocity_metrics
+      ORDER BY account_date DESC
+    `,
+    sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
+    granularity: "Daily",
+    aggregationMethod: "COUNT",
+    dataType: "INTEGER",
+    unit: "accounts",
+    businessLogic: "Daily account opening velocity with 7-day and 30-day moving averages for trend momentum",
+    owner: "Growth Analytics",
+    sla: {maxLatencyHours: 24, targetAccuracy: 99.9, refreshFrequency: "Daily"},
+    relatedMetrics: ["DEP-VOL-001", "DEP-GRO-001"],
+    dependencies: ["DIM_ACCOUNT"],
+  },
+  {
+    metricId: "DEP-NEW-002",
+    name: "High-Value Customer Deposit Concentration",
+    description: "Percentage of total deposits from top 20% of customers by deposit size",
+    category: "Risk",
+    type: "Strategic",
+    grain: "Customer",
+    sqlDefinition: `
+      WITH customer_totals AS (
+        SELECT
+          CUSTOMER_ID,
+          SUM(CURRENT_BALANCE) as total_deposits,
+          PERCENT_RANK() OVER (ORDER BY SUM(CURRENT_BALANCE)) as deposit_percentile
+        FROM CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE
+        WHERE BALANCE_DATE = CURRENT_DATE()
+        GROUP BY CUSTOMER_ID
+      ),
+      top_customers AS (
+        SELECT
+          SUM(total_deposits) as top_20pct_deposits,
+          COUNT(*) as top_customer_count
+        FROM customer_totals
+        WHERE deposit_percentile >= 0.80
+      ),
+      total_deposits AS (
+        SELECT SUM(total_deposits) as all_deposits
+        FROM customer_totals
+      )
+      SELECT
+        tc.top_20pct_deposits,
+        td.all_deposits,
+        ROUND(CAST(tc.top_20pct_deposits AS FLOAT) / NULLIF(td.all_deposits, 0) * 100, 2) as pct_total_deposits,
+        tc.top_customer_count
+      FROM top_customers tc
+      CROSS JOIN total_deposits td
+    `,
+    sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE"],
+    granularity: "Daily",
+    aggregationMethod: "SUM",
+    dataType: "DECIMAL",
+    unit: "percentage",
+    businessLogic: "Calculate concentration risk from top 20% of customers by deposit balance",
+    owner: "Risk Management",
+    sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Daily"},
+    relatedMetrics: ["DEP-RIS-001", "DEP-REG-003"],
+    dependencies: ["FCT_DEPOSIT_DAILY_BALANCE"],
+  },
+  {
+    metricId: "DEP-NEW-003",
+    name: "Account Migration Rate (Product Upgrade)",
+    description: "Percentage of customers upgrading deposit products with trend analysis",
+    category: "Activity",
+    type: "Tactical",
+    grain: "Customer",
+    sqlDefinition: `
+      WITH monthly_migrations AS (
+        SELECT
+          DATE_TRUNC('month', OPEN_DATE) as migration_month,
+          COUNT(DISTINCT CUSTOMER_ID) as upgrading_customers,
+          COUNT(DISTINCT CASE WHEN ACCOUNT_TYPE = 'CD' THEN CUSTOMER_ID END) as cd_upgrades,
+          COUNT(DISTINCT CASE WHEN ACCOUNT_TYPE = 'MONEY_MARKET' THEN CUSTOMER_ID END) as mm_upgrades
+        FROM CORE_DEPOSIT.DIM_ACCOUNT
+        WHERE OPEN_DATE >= DATEADD(month, -12, CURRENT_DATE())
+          AND ACCOUNT_TYPE IN ('CD', 'MONEY_MARKET')
+        GROUP BY DATE_TRUNC('month', OPEN_DATE)
+      )
+      SELECT
+        migration_month,
+        upgrading_customers,
+        cd_upgrades,
+        mm_upgrades,
+        ROUND(CAST(cd_upgrades + mm_upgrades AS FLOAT) / NULLIF(upgrading_customers, 0) * 100, 2) as upgrade_success_rate
+      FROM monthly_migrations
+      ORDER BY migration_month DESC
+    `,
+    sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
+    granularity: "Monthly",
+    aggregationMethod: "DISTINCT",
+    dataType: "INTEGER",
+    unit: "customers",
+    businessLogic: "Track customer migration to higher-yield products (CD, Money Market) with success rates",
+    owner: "Product Management",
+    sla: {maxLatencyHours: 24, targetAccuracy: 99.5, refreshFrequency: "Daily"},
+    relatedMetrics: ["DEP-GRO-001", "DEP-MIX-001"],
+    dependencies: ["DIM_ACCOUNT"],
+  },
+  {
+    metricId: "DEP-NEW-004",
+    name: "Deposit Rate Competitiveness Gap",
+    description: "Delta between our rates and peer/market rates by product with trend direction",
+    category: "Interest",
+    type: "Strategic",
+    grain: "Product",
+    sqlDefinition: `
+      WITH current_rates AS (
+        SELECT
+          ACCOUNT_TYPE,
+          ROUND(AVG(APY_RATE), 4) as our_rate,
+          CURRENT_DATE() as rate_date
+        FROM CORE_DEPOSIT.DIM_ACCOUNT
+        WHERE IS_ACTIVE = TRUE
+        GROUP BY ACCOUNT_TYPE
+      ),
+      rate_history AS (
+        SELECT
+          ACCOUNT_TYPE,
+          our_rate,
+          LAG(our_rate, 1) OVER (PARTITION BY ACCOUNT_TYPE ORDER BY rate_date) as prev_day_rate,
+          LAG(our_rate, 30) OVER (PARTITION BY ACCOUNT_TYPE ORDER BY rate_date) as month_ago_rate
+        FROM current_rates
+      )
+      SELECT
+        ACCOUNT_TYPE,
+        our_rate,
+        prev_day_rate,
+        month_ago_rate,
+        ROUND(our_rate - COALESCE(prev_day_rate, our_rate), 4) as rate_change_1d,
+        ROUND(our_rate - COALESCE(month_ago_rate, our_rate), 4) as rate_change_30d
+      FROM rate_history
+    `,
+    sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
+    granularity: "Daily",
+    aggregationMethod: "AVG",
+    dataType: "DECIMAL",
+    unit: "basis points",
+    businessLogic: "Monitor rate competitiveness with trend analysis to support pricing decisions",
+    owner: "Pricing & Treasury",
+    sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Daily"},
+    relatedMetrics: ["DEP-INT-001", "DEP-COMP-001"],
+    dependencies: ["DIM_ACCOUNT"],
+  },
+  {
+    metricId: "DEP-NEW-005",
+    name: "Account Engagement Score (Composite)",
+    description: "Multi-dimensional engagement metric combining transaction frequency, balance maintenance, and tenure",
+    category: "Activity",
+    type: "Strategic",
+    grain: "Account",
+    sqlDefinition: `
+      WITH activity_metrics AS (
+        SELECT
+          ACCOUNT_NUMBER,
+          DATEDIFF(day, OPEN_DATE, CURRENT_DATE()) as tenure_days,
+          DATEDIFF(day, MAX(BALANCE_DATE), CURRENT_DATE()) as days_since_activity,
+          COUNT(*) as activity_count_30d,
+          AVG(CURRENT_BALANCE) as avg_balance
+        FROM CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb
+        JOIN CORE_DEPOSIT.DIM_ACCOUNT da ON fdb.ACCOUNT_NUMBER = da.ACCOUNT_NUMBER
+        WHERE BALANCE_DATE >= DATEADD(day, -30, CURRENT_DATE())
+        GROUP BY ACCOUNT_NUMBER, OPEN_DATE
+      ),
+      engagement_scoring AS (
+        SELECT
+          ACCOUNT_NUMBER,
+          TENURE_DAYS,
+          DAYS_SINCE_ACTIVITY,
+          ACTIVITY_COUNT_30D,
+          AVG_BALANCE,
+          ROUND((NULLIF(ACTIVITY_COUNT_30D, 0) / 30.0 * 40 +
+                 (30 - NULLIF(DAYS_SINCE_ACTIVITY, 0)) / 30.0 * 30 +
+                 CASE WHEN TENURE_DAYS > 365 THEN 30 ELSE (TENURE_DAYS / 365.0 * 30) END) / 100.0 * 100, 2) as engagement_score
+        FROM activity_metrics
+      )
+      SELECT
+        ACCOUNT_NUMBER,
+        ENGAGEMENT_SCORE,
+        CASE WHEN ENGAGEMENT_SCORE >= 75 THEN 'High'
+             WHEN ENGAGEMENT_SCORE >= 50 THEN 'Medium'
+             ELSE 'Low' END as engagement_level
+      FROM engagement_scoring
+    `,
+    sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE", "CORE_DEPOSIT.DIM_ACCOUNT"],
+    granularity: "Daily",
+    aggregationMethod: "AVG",
+    dataType: "DECIMAL",
+    unit: "score (0-100)",
+    businessLogic: "Composite engagement score weighting activity frequency (40%), recency (30%), tenure (30%)",
+    owner: "Customer Analytics",
+    sla: {maxLatencyHours: 24, targetAccuracy: 98.0, refreshFrequency: "Daily"},
+    relatedMetrics: ["DEP-ACT-001", "DEP-ACT-002"],
+    dependencies: ["FCT_DEPOSIT_DAILY_BALANCE", "DIM_ACCOUNT"],
+  },
+  {
+    metricId: "DEP-NEW-006",
+    name: "Deposit Product Profitability Margin",
+    description: "Net interest margin by deposit product with contribution to bank profitability",
+    category: "Balance",
+    type: "Strategic",
+    grain: "Product",
+    sqlDefinition: `
+      WITH product_financials AS (
+        SELECT
+          da.ACCOUNT_TYPE as product,
+          SUM(fdb.CURRENT_BALANCE) as total_balance,
+          COUNT(DISTINCT fdb.ACCOUNT_NUMBER) as account_count,
+          ROUND(AVG(da.APY_RATE), 4) as avg_paid_rate,
+          SUM(fdb.INTEREST_ACCRUED_TODAY) as daily_interest_cost
+        FROM CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb
+        JOIN CORE_DEPOSIT.DIM_ACCOUNT da ON fdb.ACCOUNT_NUMBER = da.ACCOUNT_NUMBER
+        WHERE fdb.BALANCE_DATE = CURRENT_DATE()
+        GROUP BY da.ACCOUNT_TYPE
+      ),
+      margin_analysis AS (
+        SELECT
+          product,
+          total_balance,
+          account_count,
+          avg_paid_rate,
+          daily_interest_cost,
+          ROUND((total_balance * 0.04) / 365.0, 2) as estimated_daily_income,
+          ROUND((total_balance * 0.04) / 365.0 - daily_interest_cost, 2) as estimated_daily_margin
+        FROM product_financials
+      )
+      SELECT
+        product,
+        total_balance,
+        account_count,
+        avg_paid_rate,
+        estimated_daily_income,
+        daily_interest_cost,
+        estimated_daily_margin,
+        ROUND(CAST(estimated_daily_margin AS FLOAT) / NULLIF(estimated_daily_income, 0) * 100, 2) as margin_pct
+      FROM margin_analysis
+    `,
+    sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE", "CORE_DEPOSIT.DIM_ACCOUNT"],
+    granularity: "Daily",
+    aggregationMethod: "SUM",
+    dataType: "DECIMAL",
+    unit: "dollars",
+    businessLogic: "Calculate product profitability using 4% assumed loan yield minus paid interest rates",
+    owner: "Treasury & Finance",
+    sla: {maxLatencyHours: 24, targetAccuracy: 98.5, refreshFrequency: "Daily"},
+    relatedMetrics: ["DEP-INT-002", "DEP-BAL-001"],
+    dependencies: ["FCT_DEPOSIT_DAILY_BALANCE", "DIM_ACCOUNT"],
+  },
+  {
+    metricId: "DEP-NEW-007",
+    name: "Deposit Account Onboarding Quality Score",
+    description: "Quality metrics for newly opened accounts including data completeness and early activation",
+    category: "Quality",
+    type: "Tactical",
+    grain: "Daily",
+    sqlDefinition: `
+      WITH new_accounts AS (
+        SELECT
+          ACCOUNT_NUMBER,
+          OPEN_DATE,
+          DATEDIFF(day, OPEN_DATE, CURRENT_DATE()) as days_old,
+          CASE WHEN EMAIL IS NOT NULL THEN 1 ELSE 0 END as has_email,
+          CASE WHEN PHONE IS NOT NULL THEN 1 ELSE 0 END as has_phone,
+          CASE WHEN ADDRESS IS NOT NULL THEN 1 ELSE 0 END as has_address,
+          CASE WHEN PRCS_DTE = OPEN_DATE THEN 1 ELSE 0 END as had_activity_on_open
+        FROM CORE_DEPOSIT.DIM_ACCOUNT
+        WHERE OPEN_DATE >= DATEADD(day, -30, CURRENT_DATE())
+      ),
+      quality_scores AS (
+        SELECT
+          OPEN_DATE,
+          COUNT(*) as new_accounts_count,
+          ROUND(AVG(has_email + has_phone + has_address) / 3.0 * 100, 2) as data_completeness_pct,
+          ROUND(AVG(had_activity_on_open) * 100, 2) as early_activation_pct
+        FROM new_accounts
+        GROUP BY OPEN_DATE
+      )
+      SELECT
+        OPEN_DATE,
+        new_accounts_count,
+        data_completeness_pct,
+        early_activation_pct,
+        ROUND((data_completeness_pct + early_activation_pct) / 2, 2) as overall_quality_score
+      FROM quality_scores
+    `,
+    sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
+    granularity: "Daily",
+    aggregationMethod: "AVG",
+    dataType: "DECIMAL",
+    unit: "percentage",
+    businessLogic: "Track data quality of new account onboarding with completeness and activation metrics",
+    owner: "Operations",
+    sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Daily"},
+    relatedMetrics: ["DEP-QUA-001", "DEP-GRO-001"],
+    dependencies: ["DIM_ACCOUNT"],
+  },
+  {
+    metricId: "DEP-NEW-008",
+    name: "Cross-Product Account Holders",
+    description: "Percentage of customers with multiple deposit product types (mix penetration)",
+    category: "Product Mix",
+    type: "Strategic",
+    grain: "Customer",
+    sqlDefinition: `
+      WITH customer_products AS (
+        SELECT
+          CUSTOMER_ID,
+          COUNT(DISTINCT ACCOUNT_TYPE) as product_count,
+          STRING_AGG(DISTINCT ACCOUNT_TYPE, ', ') as product_list
+        FROM CORE_DEPOSIT.DIM_ACCOUNT
+        WHERE IS_ACTIVE = TRUE
+        GROUP BY CUSTOMER_ID
+      ),
+      product_distribution AS (
+        SELECT
+          product_count,
+          COUNT(*) as customer_count,
+          ROUND(AVG(customer_count) OVER () / NULLIF((SELECT COUNT(*) FROM customer_products), 0) * 100, 2) as pct_of_total
+        FROM customer_products
+        GROUP BY product_count
+      )
+      SELECT
+        '1' as product_count,
+        (SELECT COUNT(*) FROM customer_products WHERE product_count = 1) as customers,
+        ROUND(CAST((SELECT COUNT(*) FROM customer_products WHERE product_count = 1) AS FLOAT) / NULLIF((SELECT COUNT(*) FROM customer_products), 0) * 100, 2) as pct
+      UNION ALL
+      SELECT
+        '2+' as product_count,
+        (SELECT COUNT(*) FROM customer_products WHERE product_count >= 2) as customers,
+        ROUND(CAST((SELECT COUNT(*) FROM customer_products WHERE product_count >= 2) AS FLOAT) / NULLIF((SELECT COUNT(*) FROM customer_products), 0) * 100, 2) as pct
+    `,
+    sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
+    granularity: "Daily",
+    aggregationMethod: "DISTINCT",
+    dataType: "DECIMAL",
+    unit: "percentage",
+    businessLogic: "Measure product mix penetration showing customers with multiple deposit product types",
+    owner: "Product Management",
+    sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Daily"},
+    relatedMetrics: ["DEP-MIX-001", "DEP-VOL-002"],
+    dependencies: ["DIM_ACCOUNT"],
   },
 ];
 
