@@ -1766,6 +1766,131 @@ export default function PlatformBlueprintDomainOverview() {
           </Card>
         </TabsContent>
 
+        {/* AI/ML Models Tab */}
+        <TabsContent value="aiml" className="pt-4 space-y-4">
+          <Card className="border-slate-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Cpu className="h-5 w-5 text-blue-600" />
+                AI/ML Models & Advanced Analytics
+              </CardTitle>
+              <CardDescription>
+                Critical predictive models and use cases leveraging Silver layer data
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(() => {
+                let aimlCatalog: any = null;
+
+                if (domainId === "customer") {
+                  const { customerAIMLCatalog } = require("@/lib/domains/customer/ai-ml-models");
+                  aimlCatalog = customerAIMLCatalog;
+                } else if (domainId === "deposits") {
+                  const { depositsAIMLCatalog } = require("@/lib/domains/deposits/ai-ml-models");
+                  aimlCatalog = depositsAIMLCatalog;
+                } else if (domainId === "transactions") {
+                  const { transactionsAIMLCatalog } = require("@/lib/domains/transactions/ai-ml-models");
+                  aimlCatalog = transactionsAIMLCatalog;
+                }
+
+                if (!aimlCatalog) {
+                  return <p className="text-slate-500">No AI/ML models available for this domain</p>;
+                }
+
+                return (
+                  <div className="space-y-4">
+                    {/* Model Cards Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {aimlCatalog.models.map((model: any, idx: number) => (
+                        <div
+                          key={model.id}
+                          className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start justify-between gap-3 mb-3">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-sm text-slate-900">
+                                {model.name}
+                              </h4>
+                              <p className="text-xs text-slate-500 mt-1">
+                                {model.category}
+                              </p>
+                            </div>
+                            <Badge variant="outline" className="text-xs">
+                              {model.estimatedAccuracy || "N/A"}
+                            </Badge>
+                          </div>
+
+                          <p className="text-xs text-slate-600 mb-3 leading-relaxed">
+                            {model.description}
+                          </p>
+
+                          <div className="space-y-2 mb-3">
+                            <div className="text-xs">
+                              <span className="font-semibold text-slate-700">Use Case:</span>
+                              <p className="text-slate-600">{model.businessUseCase}</p>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              const codeModal = document.getElementById(`code-${model.id}`);
+                              if (codeModal instanceof HTMLElement) {
+                                codeModal.classList.toggle("hidden");
+                              }
+                            }}
+                            className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                          >
+                            <Code className="h-3 w-3" />
+                            View Python Code
+                          </button>
+
+                          {/* Code Modal */}
+                          <div
+                            id={`code-${model.id}`}
+                            className="hidden mt-3 p-3 bg-slate-900 rounded text-xs text-slate-200 font-mono overflow-x-auto max-h-48 overflow-y-auto"
+                          >
+                            <pre>{model.pythonCode}</pre>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Key Capabilities */}
+                    <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <h4 className="font-semibold text-sm text-blue-900 mb-2">
+                        Key Capabilities
+                      </h4>
+                      <ul className="space-y-1">
+                        {aimlCatalog.keyCapabilities.map((capability: string, idx: number) => (
+                          <li key={idx} className="text-xs text-blue-800 flex gap-2">
+                            <span className="text-blue-600 font-bold">•</span>
+                            <span>{capability}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Implementation Notes */}
+                    <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                      <h4 className="font-semibold text-sm text-slate-900 mb-2">
+                        Implementation Notes
+                      </h4>
+                      <ul className="space-y-1">
+                        {aimlCatalog.implementationNotes.map((note: string, idx: number) => (
+                          <li key={idx} className="text-xs text-slate-700 flex gap-2">
+                            <span className="text-slate-600 font-bold">•</span>
+                            <span>{note}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                );
+              })()}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Data Lineage & Architecture Tab */}
         <TabsContent value="lineage" className="pt-4 space-y-4">
           {/* Architecture Overview */}
