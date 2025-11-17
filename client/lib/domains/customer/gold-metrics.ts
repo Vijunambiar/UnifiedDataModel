@@ -4136,6 +4136,266 @@ export const customerGoldMetrics: GoldMetric[] = [
     relatedMetrics: ["CUST-PROF-001", "CUST-VAL-001"],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "DIM_ACCOUNT"],
   },
+  {
+    metricId: "CUST-NEW-017",
+    name: "Customer Interest Rate Sensitivity",
+    description: "Measure of customer deposit flows and balance changes to rate environment shifts",
+    category: "Value",
+    type: "Strategic",
+    grain: "Customer",
+    sqlDefinition: `
+      WITH rate_changes AS (
+        SELECT
+          CUSTOMER_NUMBER,
+          MONTH(BALANCE_DATE) as month_num,
+          AVG(CURRENT_BALANCE) as avg_balance,
+          LAG(AVG(CURRENT_BALANCE)) OVER (PARTITION BY CUSTOMER_NUMBER ORDER BY MONTH(BALANCE_DATE)) as prev_month_balance
+        FROM CORE_DEPOSIT.DIM_ACCOUNT da
+        JOIN CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb ON da.ACCOUNT_NUMBER = fdb.ACCOUNT_NUMBER
+        WHERE BALANCE_DATE >= DATEADD(month, -12, CURRENT_DATE())
+        GROUP BY CUSTOMER_NUMBER, MONTH(BALANCE_DATE)
+      )
+      SELECT
+        CUSTOMER_NUMBER,
+        ROUND(AVG(CASE WHEN prev_month_balance IS NOT NULL THEN (avg_balance - prev_month_balance) / NULLIF(prev_month_balance, 0) * 100 ELSE 0 END), 2) as avg_balance_change_pct
+      FROM rate_changes
+      GROUP BY CUSTOMER_NUMBER
+    `,
+    sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT", "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE"],
+    granularity: "Monthly",
+    aggregationMethod: "AVG",
+    dataType: "DECIMAL",
+    unit: "percentage",
+    businessLogic: "Measure customer deposit elasticity to rate changes for pricing optimization",
+    owner: "Pricing Analytics",
+    sla: {maxLatencyHours: 24, targetAccuracy: 98.0, refreshFrequency: "Weekly"},
+    relatedMetrics: ["CUST-VAL-001", "CUST-VAL-002"],
+    dependencies: ["DIM_ACCOUNT", "FCT_DEPOSIT_DAILY_BALANCE"],
+  },
+  {
+    metricId: "CUST-NEW-018",
+    name: "Customer Vulnerability Index",
+    description: "Identifies financially vulnerable customers who may need assistance programs",
+    category: "Risk",
+    type: "Operational",
+    grain: "Customer",
+    sqlDefinition: `
+      WITH financial_indicators AS (
+        SELECT
+          CUSTOMER_NUMBER,
+          SUM(CURRENT_BALANCE) as total_balance,
+          COUNT(DISTINCT CASE WHEN CURRENT_BALANCE < 100 THEN ACCOUNT_NUMBER END) as low_balance_accounts,
+          COUNT(DISTINCT ACCOUNT_NUMBER) as total_accounts
+        FROM CORE_DEPOSIT.DIM_ACCOUNT da
+        JOIN CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb ON da.ACCOUNT_NUMBER = fdb.ACCOUNT_NUMBER
+        WHERE fdb.BALANCE_DATE = CURRENT_DATE()
+        GROUP BY CUSTOMER_NUMBER
+      )
+      SELECT
+        CUSTOMER_NUMBER,
+        CASE WHEN total_balance < 1000 AND low_balance_accounts > 0 THEN 'High Vulnerability'
+             WHEN total_balance < 5000 THEN 'Medium Vulnerability'
+             ELSE 'Low Vulnerability' END as vulnerability_level
+      FROM financial_indicators
+    `,
+    sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT", "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE"],
+    granularity: "Daily",
+    aggregationMethod: "DISTINCT",
+    dataType: "VARCHAR",
+    unit: "level",
+    businessLogic: "Identify vulnerable customers for proactive assistance and financial hardship programs",
+    owner: "Customer Advocacy",
+    sla: {maxLatencyHours: 24, targetAccuracy: 98.0, refreshFrequency: "Daily"},
+    relatedMetrics: ["CUST-RIS-004", "CUST-VAL-001"],
+    dependencies: ["DIM_ACCOUNT", "FCT_DEPOSIT_DAILY_BALANCE"],
+  },
+  {
+    metricId: "CUST-NEW-019",
+    name: "Customer Internal Transfer Activity",
+    description: "Tracks intra-bank transfer frequency and patterns for liquidity management",
+    category: "Activity",
+    type: "Tactical",
+    grain: "Customer",
+    sqlDefinition: `
+      WITH transfer_activity AS (
+        SELECT
+          CUSTOMER_NUMBER,
+          COUNT(DISTINCT TRANSACTION_ID) as transfer_count,
+          SUM(TRANSACTION_AMOUNT) as total_transfer_amount,
+          COUNT(DISTINCT CASE WHEN TRANSACTION_CHANNEL='ONLINE' THEN TRANSACTION_ID END) as online_transfers
+        FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY dcd
+        JOIN CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION fdat ON dcd.CUSTOMER_ID = fdat.CUSTOMER_ID
+        WHERE TRANSACTION_CODE='TRANSFER'
+          AND TRANSACTION_DATE >= DATEADD(month, -3, CURRENT_DATE())
+        GROUP BY CUSTOMER_NUMBER
+      )
+      SELECT
+        CUSTOMER_NUMBER,
+        transfer_count,
+        total_transfer_amount,
+        online_transfers,
+        ROUND(CAST(online_transfers AS FLOAT) / NULLIF(transfer_count, 0) * 100, 2) as online_transfer_pct
+      FROM transfer_activity
+    `,
+    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    granularity: "Monthly",
+    aggregationMethod: "COUNT",
+    dataType: "INTEGER",
+    unit: "transfers",
+    businessLogic: "Track internal transfer patterns for liquidity management and operational insights",
+    owner: "Operations Analytics",
+    sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Daily"},
+    relatedMetrics: ["CUST-ACT-001", "CUST-CHAN-002"],
+    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+  },
+  {
+    metricId: "CUST-NEW-020",
+    name: "Customer Debt-to-Asset Ratio",
+    description: "Financial health metric comparing customer debt obligations to assets",
+    category: "Risk",
+    type: "Strategic",
+    grain: "Customer",
+    sqlDefinition: `
+      WITH customer_financials AS (
+        SELECT
+          CUSTOMER_NUMBER,
+          SUM(CURRENT_BALANCE) as total_assets,
+          0 as liabilities  -- Placeholder: would join with loan/credit card data
+        FROM CORE_DEPOSIT.DIM_ACCOUNT da
+        JOIN CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb ON da.ACCOUNT_NUMBER = fdb.ACCOUNT_NUMBER
+        WHERE fdb.BALANCE_DATE = CURRENT_DATE()
+        GROUP BY CUSTOMER_NUMBER
+      )
+      SELECT
+        CUSTOMER_NUMBER,
+        total_assets,
+        liabilities,
+        CASE WHEN liabilities = 0 THEN 0
+             ELSE ROUND(CAST(liabilities AS FLOAT) / NULLIF(total_assets, 0) * 100, 2) END as debt_to_asset_ratio
+      FROM customer_financials
+    `,
+    sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT", "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE"],
+    granularity: "Daily",
+    aggregationMethod: "SUM",
+    dataType: "DECIMAL",
+    unit: "percentage",
+    businessLogic: "Calculate debt-to-asset ratio for financial health assessment and credit decisions",
+    owner: "Credit Analytics",
+    sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Weekly"},
+    relatedMetrics: ["CUST-VAL-001", "CUST-RIS-001"],
+    dependencies: ["DIM_ACCOUNT", "FCT_DEPOSIT_DAILY_BALANCE"],
+  },
+  {
+    metricId: "CUST-NEW-021",
+    name: "Customer Engagement Channel Mix",
+    description: "Distribution of customer interactions across different banking channels",
+    category: "Engagement",
+    type: "Tactical",
+    grain: "Customer",
+    sqlDefinition: `
+      WITH channel_activity AS (
+        SELECT
+          CUSTOMER_NUMBER,
+          TRANSACTION_CHANNEL,
+          COUNT(DISTINCT TRANSACTION_ID) as channel_transaction_count
+        FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY dcd
+        JOIN CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION fdat ON dcd.CUSTOMER_ID = fdat.CUSTOMER_ID
+        WHERE TRANSACTION_DATE >= DATEADD(month, -3, CURRENT_DATE())
+        GROUP BY CUSTOMER_NUMBER, TRANSACTION_CHANNEL
+      ),
+      total_activity AS (
+        SELECT
+          CUSTOMER_NUMBER,
+          SUM(channel_transaction_count) as total_transactions
+        FROM channel_activity
+        GROUP BY CUSTOMER_NUMBER
+      )
+      SELECT
+        ca.CUSTOMER_NUMBER,
+        ca.TRANSACTION_CHANNEL,
+        ca.channel_transaction_count,
+        ROUND(CAST(ca.channel_transaction_count AS FLOAT) / NULLIF(ta.total_transactions, 0) * 100, 2) as channel_mix_pct
+      FROM channel_activity ca
+      JOIN total_activity ta ON ca.CUSTOMER_NUMBER = ta.CUSTOMER_NUMBER
+    `,
+    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    granularity: "Monthly",
+    aggregationMethod: "COUNT",
+    dataType: "DECIMAL",
+    unit: "percentage",
+    businessLogic: "Measure customer preference distribution across banking channels (branch, online, mobile, ATM)",
+    owner: "Customer Experience",
+    sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Weekly"},
+    relatedMetrics: ["CUST-CHAN-001", "CUST-CHAN-002", "CUST-CHAN-003"],
+    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+  },
+  {
+    metricId: "CUST-NEW-022",
+    name: "Customer Educational Outreach Score",
+    description: "Tracks customer participation in financial literacy and product education programs",
+    category: "Engagement",
+    type: "Tactical",
+    grain: "Customer",
+    sqlDefinition: `
+      SELECT
+        CUSTOMER_NUMBER,
+        COUNT(DISTINCT WEBINAR_ID) as webinar_attendance,
+        COUNT(DISTINCT WORKSHOP_ID) as workshop_attendance,
+        CASE WHEN COUNT(DISTINCT WEBINAR_ID) + COUNT(DISTINCT WORKSHOP_ID) > 5 THEN 'High Engagement'
+             WHEN COUNT(DISTINCT WEBINAR_ID) + COUNT(DISTINCT WORKSHOP_ID) > 2 THEN 'Medium Engagement'
+             ELSE 'Low Engagement' END as education_engagement_level
+      FROM CORE_CUSTOMERS.CUSTOMER_EDUCATION_LOG
+      WHERE PARTICIPATION_DATE >= DATEADD(month, -12, CURRENT_DATE())
+      GROUP BY CUSTOMER_NUMBER
+    `,
+    sourceTables: ["CORE_CUSTOMERS.CUSTOMER_EDUCATION_LOG"],
+    granularity: "Monthly",
+    aggregationMethod: "COUNT",
+    dataType: "VARCHAR",
+    unit: "level",
+    businessLogic: "Track customer participation in financial education for engagement and product knowledge assessment",
+    owner: "Training & Development",
+    sla: {maxLatencyHours: 24, targetAccuracy: 98.0, refreshFrequency: "Weekly"},
+    relatedMetrics: ["CUST-ENG-001", "CUST-ENG-004"],
+    dependencies: ["CUSTOMER_EDUCATION_LOG"],
+  },
+  {
+    metricId: "CUST-NEW-023",
+    name: "Customer Referral Score",
+    description: "Propensity score indicating likelihood of customer making referrals",
+    category: "Growth",
+    type: "Strategic",
+    grain: "Customer",
+    sqlDefinition: `
+      WITH customer_traits AS (
+        SELECT
+          CUSTOMER_NUMBER,
+          DATEDIFF(month, CUSTOMER_ACQUISITION_DATE, CURRENT_DATE()) as tenure_months,
+          SUM(CURRENT_BALANCE) as total_balance,
+          COUNT(DISTINCT ACCOUNT_NUMBER) as product_count
+        FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY dcd
+        JOIN CORE_DEPOSIT.DIM_ACCOUNT da ON dcd.CUSTOMER_ID = da.CUSTOMER_ID
+        WHERE RECORD_STATUS='ACTIVE'
+        GROUP BY CUSTOMER_NUMBER, CUSTOMER_ACQUISITION_DATE
+      )
+      SELECT
+        CUSTOMER_NUMBER,
+        ROUND((CASE WHEN tenure_months > 24 THEN 25 ELSE (tenure_months / 24.0 * 25) END +
+               CASE WHEN total_balance > 100000 THEN 35 ELSE (total_balance / 100000.0 * 35) END +
+               CASE WHEN product_count >= 3 THEN 40 ELSE (product_count / 3.0 * 40) END) / 100 * 100, 2) as referral_propensity_score
+      FROM customer_traits
+    `,
+    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.DIM_ACCOUNT"],
+    granularity: "Monthly",
+    aggregationMethod: "AVG",
+    dataType: "DECIMAL",
+    unit: "score (0-100)",
+    businessLogic: "Propensity score for referrals based on tenure (25%), balance (35%), product count (40%)",
+    owner: "Growth Analytics",
+    sla: {maxLatencyHours: 24, targetAccuracy: 98.0, refreshFrequency: "Weekly"},
+    relatedMetrics: ["CUST-GRO-001", "CUST-NEW-012"],
+    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "DIM_ACCOUNT"],
+  },
 ];
 
 export const customerGoldMetricsComplete = {
