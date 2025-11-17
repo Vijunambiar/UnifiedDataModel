@@ -1695,6 +1695,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PER-001",
     name: "Customer Lifetime Value (CLV) - High",
+    grain: "Customer",
     description: "Estimated lifetime value for premium customers",
     category: "Value",
     type: "Strategic",
@@ -1731,6 +1732,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PER-002",
     name: "Inactive Customer Count",
+    grain: "Overall",
     description: "Number of customers with no transactions in last 90 days",
     category: "Engagement",
     type: "Operational",
@@ -1762,6 +1764,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PER-003",
     name: "Customer Satisfaction Score",
+    grain: "Overall",
     description: "Average customer satisfaction rating from surveys",
     category: "Engagement",
     type: "Strategic",
@@ -1789,6 +1792,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PER-004",
     name: "Net Promoter Score (NPS)",
+    grain: "Overall",
     description: "NPS sentiment index ranging from -100 to +100",
     category: "Engagement",
     type: "Strategic",
@@ -1825,6 +1829,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROF-001",
     name: "Average Customer Profit",
+    grain: "Customer",
     description: "Average profit contribution per customer",
     category: "Value",
     type: "Strategic",
@@ -1861,6 +1866,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROF-002",
     name: "Profitable Customer Count",
+    grain: "Overall",
     description: "Number of customers with positive profitability",
     category: "Value",
     type: "Operational",
@@ -1898,6 +1904,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROF-003",
     name: "Unprofitable Customer Count",
+    grain: "Overall",
     description: "Number of customers with negative profitability",
     category: "Risk",
     type: "Operational",
@@ -1939,6 +1946,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CHAN-001",
     name: "Mobile App Users",
+    grain: "Channel",
     description: "Number of customers with active mobile app usage",
     category: "Engagement",
     type: "Operational",
@@ -1968,6 +1976,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CHAN-002",
     name: "Online Banking Users",
+    grain: "Channel",
     description: "Number of customers with active online banking usage",
     category: "Engagement",
     type: "Operational",
@@ -1997,6 +2006,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CHAN-003",
     name: "Digital Adoption Rate",
+    grain: "Channel",
     description: "Percentage of customers using digital channels",
     category: "Engagement",
     type: "Strategic",
@@ -2025,6 +2035,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CHAN-004",
     name: "Branch Visit Frequency",
+    grain: "Channel",
     description: "Average number of branch visits per customer per month",
     category: "Engagement",
     type: "Operational",
@@ -2057,6 +2068,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROD-001",
     name: "Credit Card Holder Count",
+    grain: "Product",
     description: "Number of active credit card customers",
     category: "Volume",
     type: "Operational",
@@ -2086,6 +2098,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROD-002",
     name: "Loan Holder Count",
+    grain: "Product",
     description: "Number of active loan customers",
     category: "Volume",
     type: "Operational",
@@ -2115,6 +2128,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROD-003",
     name: "Investment Product Holders",
+    grain: "Product",
     description: "Number of customers with investment products",
     category: "Volume",
     type: "Operational",
@@ -2144,6 +2158,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROD-004",
     name: "Average Products Per Customer",
+    grain: "Customer",
     description: "Average number of distinct product types per customer",
     category: "Engagement",
     type: "Operational",
@@ -2182,6 +2197,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-BEH-001",
     name: "High Activity Customers",
+    grain: "Customer",
     description: "Number of customers with 10+ transactions in last 30 days",
     category: "Engagement",
     type: "Operational",
@@ -2212,6 +2228,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-BEH-002",
     name: "Low Activity Customers",
+    grain: "Customer",
     description: "Number of customers with 0-2 transactions in last 30 days",
     category: "Risk",
     type: "Operational",
@@ -2244,6 +2261,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-BEH-003",
     name: "New Product Adoption Rate",
+    grain: "Overall",
     description: "Percentage of customers adopting new products within 90 days",
     category: "Growth",
     type: "Strategic",
@@ -2272,6 +2290,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-BEH-004",
     name: "Product Cross-buy Rate",
+    grain: "Overall",
     description: "Percentage of customers buying cross-selling products",
     category: "Growth",
     type: "Strategic",
@@ -2310,6 +2329,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-SCORE-001",
     name: "High Risk Customer Count",
+    grain: "Overall",
     description: "Number of customers with high risk score",
     category: "Risk",
     type: "Strategic",
@@ -2338,6 +2358,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-SCORE-002",
     name: "Medium Risk Customer Count",
+    grain: "Overall",
     description: "Number of customers with medium risk score",
     category: "Risk",
     type: "Operational",
@@ -2366,6 +2387,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-SCORE-003",
     name: "Average Customer Risk Score",
+    grain: "Overall",
     description: "Average risk score across all customers",
     category: "Risk",
     type: "Strategic",
