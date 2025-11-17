@@ -4,6 +4,7 @@
 import { depositsBronzeTables, depositsBronzeLayerComplete } from './bronze-layer';
 import { depositsSilverTables, depositsSilverLayerComplete } from './silver-layer';
 import { depositsGoldLayerComplete } from './gold-layer';
+import { depositsGoldTableCatalog } from './gold/ddl-scripts';
 import { depositsGoldMetrics as depositsGoldMetricsFromFile } from './gold-metrics';
 
 export interface DomainMetadata {
