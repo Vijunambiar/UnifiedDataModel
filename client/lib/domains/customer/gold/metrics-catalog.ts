@@ -16,6 +16,7 @@ export interface GoldMetric {
   description: string;
   category: "Volume" | "Growth" | "Retention" | "Value" | "Risk" | "Engagement" | "Segmentation" | "Quality" | "Lifecycle" | "Profitability" | "Compliance";
   type: "Operational" | "Strategic" | "Tactical";
+  grain: "Customer" | "Segment" | "Product" | "Channel" | "Daily" | "Monthly" | "Overall";
   sqlDefinition: string;
   sourceTables: string[];
   granularity: "Daily" | "Weekly" | "Monthly" | "Quarterly" | "Annual";
