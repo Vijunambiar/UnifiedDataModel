@@ -45,6 +45,9 @@ import { ExportButton } from "@/components/ExportButton";
 import { customerERDComplete } from "@/lib/domains/customer/shared/erd-relationships";
 import { depositsERDComplete } from "@/lib/domains/deposits/erd-relationships";
 import { transactionsERDComplete } from "@/lib/domains/transactions/erd-relationships";
+import { customerAIMLCatalog } from "@/lib/domains/customer/ai-ml-models";
+import { depositsAIMLCatalog } from "@/lib/domains/deposits/ai-ml-models";
+import { transactionsAIMLCatalog } from "@/lib/domains/transactions/ai-ml-models";
 import {
   ArrowLeft,
   ArrowRight,
