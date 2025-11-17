@@ -1522,7 +1522,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of accounts with balance over $100K",
     category: "Value",
     type: "Operational",
-    grain: "Overall",
+    grain: "Daily",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT ACCOUNT_NUMBER) as high_balance_count
@@ -1551,6 +1551,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of accounts with balance under $1000",
     category: "Risk",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT ACCOUNT_NUMBER) as low_balance_count
@@ -1584,6 +1585,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Percentage of customers with valid email addresses",
     category: "Quality",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT
         ROUND((COUNT(CASE WHEN EMAIL IS NOT NULL AND EMAIL != '' THEN 1 END) /
@@ -1612,6 +1614,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Percentage of customers with valid phone contact",
     category: "Quality",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT
         ROUND((COUNT(CASE WHEN PHONE_NUMBER IS NOT NULL AND PHONE_NUMBER != '' THEN 1 END) /
@@ -1640,6 +1643,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Percentage of records updated within last 30 days",
     category: "Quality",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT
         ROUND((COUNT(CASE WHEN DATEDIFF(day, LAST_MODIFIED_DATE, CURRENT_DATE()) <= 30 THEN 1 END) /
@@ -1668,6 +1672,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Percentage of customer records with all required fields populated",
     category: "Quality",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT
         ROUND((COUNT(CASE WHEN NAME IS NOT NULL AND DOB IS NOT NULL AND ADDRESS IS NOT NULL THEN 1 END) /
