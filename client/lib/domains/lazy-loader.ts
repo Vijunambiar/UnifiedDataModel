@@ -321,6 +321,33 @@ export async function loadDomainLogicalModel(domainId: string) {
   return promise;
 }
 
+export async function loadDomainSilverTransformationCode(domainId: string) {
+  if (domainDataCache.has(`${domainId}-silverTransformation`)) {
+    return domainDataCache.get(`${domainId}-silverTransformation`)!;
+  }
+
+  let promise: Promise<any>;
+
+  if (domainId === "customer") {
+    promise = import("./customer/silver/transformation-code").then(
+      (m) => m.default,
+    );
+  } else if (domainId === "deposits") {
+    promise = import("./deposits/silver/transformation-code").then(
+      (m) => m.default,
+    );
+  } else if (domainId === "transactions") {
+    promise = import("./transactions/silver/transformation-code").then(
+      (m) => m.default,
+    );
+  } else {
+    promise = Promise.reject(new Error(`Unknown domain: ${domainId}`));
+  }
+
+  domainDataCache.set(`${domainId}-silverTransformation`, promise);
+  return promise;
+}
+
 export function clearDomainCache(domainId?: string) {
   if (domainId) {
     Array.from(domainDataCache.keys()).forEach((key) => {
