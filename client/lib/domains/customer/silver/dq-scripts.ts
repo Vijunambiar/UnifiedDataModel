@@ -3,7 +3,7 @@
  *
  * Data quality validation checks for Silver layer customer tables
  * Executed: Post-transformation, daily at 05:00 UTC
- * Purpose: Ensure data quality after MDM deduplication and standardization
+ * Purpose: Ensure data quality after deduplication and standardization
  */
 
 export interface DQCheck {
@@ -542,7 +542,7 @@ export const customerSilverReconciliation: DQCheck = {
     action: "ALERT_IF_VARIANCE_EXCEEDS_1_PERCENT",
   },
   description:
-    "Compare row counts between bronze and silver after MDM deduplication",
+    "Compare row counts between bronze and silver after deduplication",
   sqlStatement: `
 -- Bronze to Silver Reconciliation
 WITH bronze_counts AS (

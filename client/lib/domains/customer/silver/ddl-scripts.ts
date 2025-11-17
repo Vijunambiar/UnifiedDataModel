@@ -10,7 +10,7 @@
 export const customerDemographySilverDDL = `
 -- ============================================================================
 -- SILVER LAYER: Customer Demography (Golden Record)
--- Source: bronze.customer_master + MDM deduplication
+-- Source: bronze.customer_master + deduplication
 -- Purpose: Single source of truth for customer demographics
 -- SCD Type: Type 2
 -- ============================================================================
