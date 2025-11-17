@@ -492,20 +492,6 @@ export const bankingDomains: BankingDomain[] = [
       refreshFrequency: "Daily",
       latencySLA: "< 4 hours for balances, T+1 for regulatory",
     },
-    mdmEntities: [
-      {
-        entity: "Deposit Account",
-        mdmSystemOfRecord: "Core Banking Platform",
-        goldenCopyLocation: "Silver",
-        mdmStrategy: "Consolidation",
-      },
-      {
-        entity: "Interest Rate",
-        mdmSystemOfRecord: "Rate Management System",
-        goldenCopyLocation: "Gold",
-        mdmStrategy: "Centralized",
-      },
-    ],
     dataQuality: {
       accuracy: "High",
       completeness: "High",
@@ -758,20 +744,6 @@ export const bankingDomains: BankingDomain[] = [
       refreshFrequency: "Real-time",
       latencySLA: "< 1 second for authorization, < 5 minutes for settlement",
     },
-    mdmEntities: [
-      {
-        entity: "Payment Transaction",
-        mdmSystemOfRecord: "Payment Hub",
-        goldenCopyLocation: "Silver",
-        mdmStrategy: "Centralized",
-      },
-      {
-        entity: "Beneficiary",
-        mdmSystemOfRecord: "Payment Platform",
-        goldenCopyLocation: "Bronze",
-        mdmStrategy: "Registry",
-      },
-    ],
     dataQuality: {
       accuracy: "High",
       completeness: "High",
