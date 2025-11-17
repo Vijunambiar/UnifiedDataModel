@@ -245,8 +245,7 @@ export async function loadDomainBronzeIngestionJobs(domainId: string) {
   if (domainId === "customer") {
     promise = import("./customer/bronze/ingestion-jobs").then((m) => m.customerBronzeIngestionCatalog);
   } else if (domainId === "deposits") {
-    // For now, return empty for other domains - can be added later
-    promise = Promise.resolve({ jobs: [], domain: domainId, layer: "Bronze" });
+    promise = import("./deposits/bronze/ingestion-jobs").then((m) => m.depositsBronzeIngestionCatalog);
   } else if (domainId === "transactions") {
     promise = Promise.resolve({ jobs: [], domain: domainId, layer: "Bronze" });
   } else {
