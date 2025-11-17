@@ -331,7 +331,6 @@ export const transactionsBronzeIngestionCatalog = {
     tool: "Matillion ETL / Apache Airflow",
     dagName: "transactions_bronze_continuous_load",
     schedule: "Real-time (Money Transactions) + Hourly + Daily for maintenance",
-    sla: "Money transactions processed within 15 minutes of FIS posting",
     retryPolicy: "Exponential backoff, max 3-5 retries depending on job type",
     alerting:
       "Email + PagerDuty for HIGH priority failures, Email only for MEDIUM",

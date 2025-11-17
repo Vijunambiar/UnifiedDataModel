@@ -312,7 +312,6 @@ export const customerBronzeIngestionCatalog = {
     tool: "Matillion ETL / Airflow",
     dagName: "customer_bronze_daily_load",
     schedule: "Daily at 02:00 UTC",
-    sla: "Complete by 04:00 UTC",
     retryPolicy: "Exponential backoff, max 3 retries",
     alerting: "Email + PagerDuty for failures",
   },

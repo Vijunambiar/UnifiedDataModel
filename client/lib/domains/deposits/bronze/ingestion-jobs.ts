@@ -427,7 +427,6 @@ export const depositsBronzeIngestionCatalog = {
     tool: "Matillion ETL / Apache Airflow",
     dagName: "deposits_bronze_daily_load",
     schedule: "Daily at 02:30 UTC",
-    sla: "Complete by 06:00 UTC",
     retryPolicy: "Exponential backoff, max 3 retries per job",
     alerting:
       "Email + PagerDuty for HIGH priority failures, Email only for MEDIUM",
