@@ -368,7 +368,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Average deposit balance per active customer",
     category: "Value",
     type: "Operational",
-    grain: "Customer",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         ROUND(AVG(CURRENT_BALANCE), 2) as avg_deposit_balance
@@ -397,7 +397,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Total deposit balance across all active accounts",
     category: "Value",
     type: "Strategic",
-    grain: "Overall",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         SUM(CURRENT_BALANCE) as total_customer_deposits
@@ -425,7 +425,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Median deposit balance per active customer",
     category: "Value",
     type: "Operational",
-    grain: "Customer",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CURRENT_BALANCE) as median_deposit_balance
@@ -454,7 +454,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "90th percentile deposit balance across customers",
     category: "Value",
     type: "Operational",
-    grain: "Customer",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY CURRENT_BALANCE) as p90_balance
