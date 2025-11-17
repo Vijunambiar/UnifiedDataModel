@@ -289,7 +289,9 @@ export async function loadDomainBronzeIngestionJobs(domainId: string) {
       (m) => m.depositsBronzeIngestionCatalog,
     );
   } else if (domainId === "transactions") {
-    promise = Promise.resolve({ jobs: [], domain: domainId, layer: "Bronze" });
+    promise = import("./transactions/bronze/ingestion-jobs").then(
+      (m) => m.transactionsBronzeIngestionCatalog,
+    );
   } else {
     promise = Promise.reject(new Error(`Unknown domain: ${domainId}`));
   }
