@@ -1086,7 +1086,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of customers classified as premium tier",
     category: "Segmentation",
     type: "Operational",
-    grain: "Segment",
+    grain: "Customer",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT CUSTOMER_NUMBER) as premium_customer_count
@@ -1116,7 +1116,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of customers classified as standard tier",
     category: "Segmentation",
     type: "Operational",
-    grain: "Segment",
+    grain: "Customer",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT CUSTOMER_NUMBER) as standard_customer_count
@@ -1146,7 +1146,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Distribution of customers by geographic state/region",
     category: "Segmentation",
     type: "Operational",
-    grain: "Channel",
+    grain: "Customer",
     sqlDefinition: `
       SELECT
         STATE,
@@ -1178,7 +1178,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Distribution of customers by age group segments",
     category: "Segmentation",
     type: "Operational",
-    grain: "Segment",
+    grain: "Customer",
     sqlDefinition: `
       SELECT
         CASE
@@ -1214,7 +1214,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Distribution of customers by income level segments",
     category: "Segmentation",
     type: "Operational",
-    grain: "Segment",
+    grain: "Customer",
     sqlDefinition: `
       SELECT
         CASE
@@ -1249,7 +1249,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Distribution of customers by employment status",
     category: "Segmentation",
     type: "Operational",
-    grain: "Segment",
+    grain: "Customer",
     sqlDefinition: `
       SELECT
         EMPLOYMENT_STATUS,
