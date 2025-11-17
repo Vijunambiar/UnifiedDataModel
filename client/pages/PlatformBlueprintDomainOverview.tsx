@@ -799,23 +799,13 @@ export default function PlatformBlueprintDomainOverview() {
                     <p className="text-sm text-slate-600 mb-3">
                       {useCase.description}
                     </p>
-                    <div className="grid md:grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <p className="text-xs text-slate-500 mb-1">
-                          Business Problem
-                        </p>
-                        <p className="text-slate-700">
-                          {useCase.businessProblem}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-slate-500 mb-1">
-                          Expected ROI
-                        </p>
-                        <p className="font-semibold text-green-700">
-                          {useCase.expectedROI}
-                        </p>
-                      </div>
+                    <div className="text-sm">
+                      <p className="text-xs text-slate-500 mb-1">
+                        Business Problem
+                      </p>
+                      <p className="text-slate-700">
+                        {useCase.businessProblem}
+                      </p>
                     </div>
                   </div>
                 ))}
