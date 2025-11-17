@@ -11,6 +11,7 @@ export interface GoldMetric {
   description: string;
   category: "Volume" | "Value" | "Activity" | "Quality" | "Risk" | "Performance" | "Channel" | "Compliance" | "Fraud" | "Velocity" | "Revenue";
   type: "Operational" | "Strategic" | "Tactical";
+  grain: "Account" | "Customer" | "Transaction" | "Daily" | "Monthly" | "Overall";
   sqlDefinition: string;
   sourceTable: string;
   granularity: "Daily" | "Weekly" | "Monthly" | "Quarterly" | "Annual";
@@ -35,6 +36,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Daily transaction volume with DoD/WoW/YoY trends, hourly distribution, and channel breakdown",
     category: "Volume",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       WITH daily_volumes AS (
         SELECT
@@ -113,6 +115,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Monthly volume with MoM/YoY trends, daily average, and transaction type breakdown",
     category: "Volume",
     type: "Strategic",
+    grain: "Monthly",
     sqlDefinition: `
       WITH monthly_volumes AS (
         SELECT
@@ -187,6 +190,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Total transactions processed year-to-date",
     category: "Volume",
     type: "Strategic",
+    grain: "Overall",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as ytd_transaction_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -214,6 +218,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Number of transactions initiated from mobile channel",
     category: "Channel",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as mobile_txn_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -242,6 +247,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Number of transactions initiated from online channel",
     category: "Channel",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as online_txn_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -270,6 +276,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Number of transactions at ATM channel",
     category: "Channel",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as atm_txn_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -298,6 +305,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Number of transactions at branch channel",
     category: "Channel",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as branch_txn_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -327,6 +335,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Total transaction value with DoD/WoW/YoY trends, type breakdown, and 7-day moving average",
     category: "Value",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       WITH daily_values AS (
         SELECT
@@ -404,6 +413,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Average transaction amount with percentile distribution, channel breakdown, and MoM trend",
     category: "Value",
     type: "Operational",
+    grain: "Transaction",
     sqlDefinition: `
       WITH current_transactions AS (
         SELECT
@@ -461,6 +471,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Median monetary amount per transaction",
     category: "Value",
     type: "Operational",
+    grain: "Transaction",
     sqlDefinition: `
       SELECT 
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY TRANSACTION_AMOUNT) as median_transaction_amount
@@ -490,6 +501,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Highest single transaction amount on reporting day",
     category: "Value",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         MAX(TRANSACTION_AMOUNT) as max_transaction_amount
@@ -518,6 +530,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Total monetary value of transactions in current month",
     category: "Value",
     type: "Strategic",
+    grain: "Monthly",
     sqlDefinition: `
       SELECT 
         SUM(TRANSACTION_AMOUNT) as monthly_transaction_value
@@ -548,6 +561,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Percentage of transactions that failed to complete",
     category: "Quality",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       WITH transaction_summary AS (
         SELECT 
@@ -581,6 +595,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Count of transactions awaiting completion or approval",
     category: "Quality",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT TRANSACTION_ID) as pending_txn_count
@@ -609,6 +624,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Average time from submission to completion (in seconds)",
     category: "Performance",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         ROUND(AVG(DATEDIFF(second, SUBMISSION_TIME, COMPLETION_TIME)), 2) as avg_processing_seconds
@@ -639,6 +655,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Count of transactions flagged as potentially fraudulent",
     category: "Risk",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT TRANSACTION_ID) as suspicious_txn_count
@@ -667,6 +684,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Rate of suspicious transactions per 1000 completed transactions",
     category: "Risk",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       WITH fraud_metrics AS (
         SELECT 
@@ -700,6 +718,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Count of transactions exceeding $10K threshold (SAR reporting)",
     category: "Risk",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT TRANSACTION_ID) as high_risk_txn_count
@@ -728,6 +747,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Potential duplicate transactions within last 24 hours",
     category: "Quality",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       WITH duplicate_check AS (
         SELECT 
@@ -766,6 +786,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Transactions flagged for AML/CFT compliance review",
     category: "Compliance",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT TRANSACTION_ID) as aml_flagged_count
@@ -794,6 +815,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Transactions blocked due to OFAC sanctions list matches",
     category: "Compliance",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT TRANSACTION_ID) as ofac_blocked_count
@@ -822,6 +844,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Suspicious Activity Reports (SAR) filed with FinCEN",
     category: "Compliance",
     type: "Strategic",
+    grain: "Monthly",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT TRANSACTION_ID) as sar_filed_count
@@ -851,6 +874,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Percentage of total transaction volume from mobile",
     category: "Channel",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         ROUND((COUNT(CASE WHEN CHANNEL = 'MOBILE' THEN 1 END) / NULLIF(COUNT(*), 0)) * 100, 2) as mobile_volume_pct
@@ -879,6 +903,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Combined percentage of mobile + online transaction volume",
     category: "Channel",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         ROUND((COUNT(CASE WHEN CHANNEL IN ('MOBILE', 'ONLINE') THEN 1 END) / NULLIF(COUNT(*), 0)) * 100, 2) as digital_adoption_pct
@@ -907,6 +932,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Average transaction amount by channel (Mobile, Online, ATM, Branch)",
     category: "Channel",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         CHANNEL,
@@ -939,6 +965,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Percentage of suspicious transactions blocked before completion",
     category: "Fraud",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       WITH fraud_analysis AS (
         SELECT 
@@ -972,6 +999,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Total dollar amount of fraudulent transactions detected",
     category: "Fraud",
     type: "Strategic",
+    grain: "Monthly",
     sqlDefinition: `
       SELECT 
         SUM(TRANSACTION_AMOUNT) as fraud_loss_amount
@@ -1002,6 +1030,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Transactions flagged for unusual velocity patterns",
     category: "Velocity",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT TRANSACTION_ID) as velocity_flag_count
@@ -1030,6 +1059,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Hour of day with highest transaction volume",
     category: "Velocity",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         HOUR(SUBMISSION_TIME) as peak_hour,
@@ -1063,6 +1093,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Total fees collected from transaction services",
     category: "Revenue",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         SUM(TRANSACTION_FEE) as total_fee_revenue
@@ -1091,6 +1122,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Total transaction fee revenue for current month",
     category: "Revenue",
     type: "Strategic",
+    grain: "Monthly",
     sqlDefinition: `
       SELECT 
         SUM(TRANSACTION_FEE) as monthly_fee_revenue
@@ -1120,6 +1152,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Average fee amount per completed transaction",
     category: "Revenue",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         ROUND(AVG(TRANSACTION_FEE), 2) as avg_fee_per_txn
@@ -1150,6 +1183,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Percentage uptime of transaction processing system",
     category: "Performance",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         ROUND((1 - (COUNT(CASE WHEN TRANSACTION_STATUS = 'SYSTEM_ERROR' THEN 1 END) / NULLIF(COUNT(*), 0))) * 100, 2) as system_availability_pct
@@ -1177,6 +1211,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Maximum transactions per second during peak hours",
     category: "Performance",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT
         ROUND(MAX(txn_per_second), 2) as peak_txn_rate
@@ -1215,6 +1250,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Number of ACH transactions processed",
     category: "Volume",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as ach_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -1243,6 +1279,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Number of wire transfer transactions processed",
     category: "Volume",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as wire_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -1271,6 +1308,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Number of debit card transactions processed",
     category: "Volume",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as debit_card_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -1299,6 +1337,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Number of ATM withdrawal transactions",
     category: "Volume",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as atm_withdrawal_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -1327,6 +1366,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Number of bill pay transactions",
     category: "Volume",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as billpay_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -1355,6 +1395,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Number of peer-to-peer payment transactions",
     category: "Volume",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as p2p_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -1387,6 +1428,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Transactions at retail merchants",
     category: "Volume",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as retail_txn_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -1415,6 +1457,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Transactions at grocery stores and gas stations",
     category: "Volume",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as grocery_gas_txn_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -1443,6 +1486,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Online/e-commerce transactions",
     category: "Volume",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as online_txn_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
@@ -1471,6 +1515,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Number of recurring/subscription transactions",
     category: "Volume",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT TRANSACTION_ID) as recurring_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
