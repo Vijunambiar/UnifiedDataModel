@@ -238,26 +238,6 @@ export const bankingDomains: BankingDomain[] = [
       refreshFrequency: "Real-time",
       latencySLA: "< 1 second for events, < 5 minutes for batch",
     },
-    mdmEntities: [
-      {
-        entity: "Customer",
-        mdmSystemOfRecord: "Customer MDM Hub",
-        goldenCopyLocation: "Gold",
-        mdmStrategy: "Consolidation",
-      },
-      {
-        entity: "Customer Identifiers",
-        mdmSystemOfRecord: "Identity Resolution Service",
-        goldenCopyLocation: "Silver",
-        mdmStrategy: "Centralized",
-      },
-      {
-        entity: "Household",
-        mdmSystemOfRecord: "Customer MDM Hub",
-        goldenCopyLocation: "Gold",
-        mdmStrategy: "Consolidation",
-      },
-    ],
     dataQuality: {
       accuracy: "High",
       completeness: "High",
@@ -1269,7 +1249,7 @@ export const bankingDomains: BankingDomain[] = [
       "Finance",
       "International Banking",
     ],
-    icon: "🌍",
+    icon: "���",
     dataQualityTier: "Tier 2 (Important)",
     relationships: [
       {
