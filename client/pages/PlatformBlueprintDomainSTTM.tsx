@@ -113,7 +113,7 @@ export default function PlatformBlueprintDomainSTTM() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">
-              {totalMappings - (domain.sttmGaps?.length || 0)}
+              {totalMappings - sttmGaps.length}
             </p>
           </CardContent>
         </Card>
@@ -123,7 +123,7 @@ export default function PlatformBlueprintDomainSTTM() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-red-600">
-              {domain.sttmGaps?.length || 0}
+              {sttmGaps.length}
             </p>
           </CardContent>
         </Card>
