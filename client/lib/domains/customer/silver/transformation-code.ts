@@ -307,7 +307,7 @@ customer_contact AS (
 ),
 
 -- ============================================================================
--- STEP 6: MDM Deduplication - Match & Merge
+-- STEP 6: Deduplication - Match & Merge
 -- ============================================================================
 -- Exact matches on SSN/TIN
 exact_matches AS (
@@ -553,9 +553,9 @@ SELECT
   customer_since_date,
   last_contact_date,
   
-  -- Data Quality & MDM Metadata
+  -- Data Quality & Deduplication Metadata
   data_quality_score,
-  source_record_count AS mdm_source_count,
+  source_record_count AS source_count,
   CASE 
     WHEN source_record_count > 1 THEN TRUE 
     ELSE FALSE 
@@ -771,8 +771,8 @@ export const customerSilverTransformationCatalog = {
   totalModels: 3,
   estimatedDuration: "15-25 minutes",
 
-  // MDM Configuration
-  mdmConfig: {
+  // Deduplication Configuration
+  deduplicationConfig: {
     strategy: "Deterministic + Probabilistic Matching",
     exactMatchFields: ["ssn_hash", "tin_hash"],
     fuzzyMatchFields: ["name_soundex", "date_of_birth", "address_zip"],

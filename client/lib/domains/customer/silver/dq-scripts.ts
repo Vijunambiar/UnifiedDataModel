@@ -611,7 +611,7 @@ export const customerSilverDQCatalog = {
 
   remediation: {
     failedChecks:
-      "Quarantine failed records, block Gold load, investigate MDM rules",
+      "Quarantine failed records, block Gold load, investigate deduplication rules",
     warningChecks: "Log for data steward review, allow Gold load",
     autoRemediation: "Rerun transformation for transient failures",
   },
