@@ -150,13 +150,13 @@ export default function PlatformBlueprintDomainSTTM() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {domain.sttmMapping.map((mapping, idx) => (
+                {sttmData?.mappings?.map((mapping: any, idx: number) => (
                   <TableRow key={`mapping-${idx}`}>
                     <TableCell className="font-mono text-xs">
                       {mapping.sourceSystem}
                     </TableCell>
                     <TableCell className="font-mono text-xs">
-                      {mapping.sourceColumn}
+                      {mapping.sourceField || mapping.sourceColumn}
                     </TableCell>
                     <TableCell className="font-mono text-xs">
                       {mapping.targetTable}
