@@ -451,6 +451,12 @@ export default function PlatformBlueprintDomainOverview() {
       description: "Business metrics & analytics",
     },
     {
+      id: "aiml",
+      label: "AI/ML",
+      icon: Cpu,
+      description: "Predictive models & advanced analytics",
+    },
+    {
       id: "lineage",
       label: "Data Lineage & Architecture",
       icon: GitBranch,
