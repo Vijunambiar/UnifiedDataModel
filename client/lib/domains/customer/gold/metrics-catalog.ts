@@ -2415,6 +2415,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-COMP-001",
     name: "Compliance Review Flag Count",
+    grain: "Overall",
     description: "Customers flagged for compliance review",
     category: "Compliance",
     type: "Operational",
@@ -2443,6 +2444,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-COMP-002",
     name: "AML Compliance Rate",
+    grain: "Overall",
     description: "Percentage of customers with current AML certification",
     category: "Compliance",
     type: "Strategic",
@@ -2475,6 +2477,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-DEMO-001",
     name: "Married Customer Count",
+    grain: "Overall",
     description: "Number of customers with married status",
     category: "Segmentation",
     type: "Operational",
@@ -2503,6 +2506,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-DEMO-002",
     name: "Customer With Dependents",
+    grain: "Overall",
     description: "Number of customers with dependent children",
     category: "Segmentation",
     type: "Operational",
@@ -2531,6 +2535,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-DEMO-003",
     name: "College Educated Customers",
+    grain: "Overall",
     description: "Number of customers with college or higher education",
     category: "Segmentation",
     type: "Operational",
@@ -2559,6 +2564,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-DEMO-004",
     name: "Homeowner Count",
+    grain: "Overall",
     description: "Number of customers who own their residence",
     category: "Segmentation",
     type: "Operational",
@@ -2587,6 +2593,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-DEMO-005",
     name: "Business Owner Count",
+    grain: "Overall",
     description: "Number of customers who own a business",
     category: "Segmentation",
     type: "Operational",
@@ -2619,6 +2626,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-LIFE-001",
     name: "New Customers (30 Days)",
+    grain: "Customer",
     description: "Customers acquired in last 30 days",
     category: "Growth",
     type: "Operational",
@@ -2647,6 +2655,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-LIFE-002",
     name: "Mature Customers (5+ Years)",
+    grain: "Customer",
     description: "Number of customers with 5+ year tenure",
     category: "Segmentation",
     type: "Operational",
@@ -2675,6 +2684,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-LIFE-003",
     name: "At-Risk Customers",
+    grain: "Customer",
     description: "Customers showing early churn signals",
     category: "Risk",
     type: "Strategic",
@@ -2703,6 +2713,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-LIFE-004",
     name: "Win-Back Campaign Targets",
+    grain: "Customer",
     description: "Previously churned customers eligible for win-back",
     category: "Growth",
     type: "Tactical",
@@ -2736,6 +2747,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CAMP-001",
     name: "Campaign Reach",
+    grain: "Overall",
     description: "Number of unique customers targeted in current campaigns",
     category: "Growth",
     type: "Operational",
@@ -2764,6 +2776,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CAMP-002",
     name: "Campaign Response Rate",
+    grain: "Overall",
     description: "Percentage of targeted customers responding to campaigns",
     category: "Growth",
     type: "Strategic",
@@ -2792,6 +2805,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CAMP-003",
     name: "Email Engagement Rate",
+    grain: "Overall",
     description: "Percentage of customers opening marketing emails",
     category: "Engagement",
     type: "Operational",
@@ -2820,6 +2834,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CAMP-004",
     name: "SMS Opt-In Count",
+    grain: "Overall",
     description: "Number of customers opted in for SMS marketing",
     category: "Engagement",
     type: "Operational",
@@ -2848,6 +2863,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-OTHER-001",
     name: "Customer Relationship Manager Assigned",
+    grain: "Overall",
     description: "Customers assigned a dedicated relationship manager",
     category: "Engagement",
     type: "Operational",
@@ -2866,6 +2882,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-OTHER-002",
     name: "Call Center Interaction Volume",
+    grain: "Overall",
     description: "Total calls to customer service",
     category: "Engagement",
     type: "Operational",
@@ -2884,6 +2901,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-OTHER-003",
     name: "Average Call Duration",
+    grain: "Overall",
     description: "Average length of customer service calls",
     category: "Engagement",
     type: "Operational",
@@ -2902,6 +2920,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-OTHER-004",
     name: "Customer Service Issue Resolution Rate",
+    grain: "Overall",
     description: "Percentage of service issues resolved on first contact",
     category: "Quality",
     type: "Operational",
@@ -2920,6 +2939,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-OTHER-005",
     name: "Credit Score Distribution",
+    grain: "Overall",
     description: "Average credit score of customer base",
     category: "Risk",
     type: "Operational",
