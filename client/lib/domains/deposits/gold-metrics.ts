@@ -99,6 +99,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     },
     relatedMetrics: ["DEP-VOL-002", "DEP-GRO-001"],
     dependencies: ["DIM_ACCOUNT"],
+    grain: "Overall",
   },
   {
     metricId: "DEP-VOL-002",
@@ -106,6 +107,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Accounts by product type with market share, ranking, and MoM growth trends",
     category: "Volume",
     type: "Operational",
+    grain: "Product",
     sqlDefinition: `
       WITH current_counts AS (
         SELECT
