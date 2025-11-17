@@ -100,6 +100,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "New customer acquisitions with MoM trend, channel breakdown, and running total",
     category: "Growth",
     type: "Strategic",
+    grain: "Customer",
     sqlDefinition: `
       WITH monthly_acquisitions AS (
         SELECT
@@ -161,6 +162,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Churned customers with churn rate calculation, tenure distribution, and trend analysis",
     category: "Retention",
     type: "Strategic",
+    grain: "Customer",
     sqlDefinition: `
       WITH monthly_churn AS (
         SELECT
@@ -224,6 +226,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of inactive customers at end of period",
     category: "Retention",
     type: "Operational",
+    grain: "Overall",
     sqlDefinition: `
       SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as inactive_customers
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
@@ -255,6 +258,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Monthly customer churn rate as percentage",
     category: "Retention",
     type: "Strategic",
+    grain: "Overall",
     sqlDefinition: `
       WITH monthly_churn AS (
         SELECT 
@@ -289,6 +293,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Percentage of customers retained month-over-month",
     category: "Retention",
     type: "Strategic",
+    grain: "Overall",
     sqlDefinition: `
       SELECT 
         ROUND((1 - (churned_count / NULLIF(prev_total_customers, 0))) * 100, 2) as retention_rate_pct
@@ -322,6 +327,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Distribution of customers by account tenure ranges",
     category: "Engagement",
     type: "Tactical",
+    grain: "Customer",
     sqlDefinition: `
       SELECT
         CASE
@@ -362,6 +368,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Average deposit balance per active customer",
     category: "Value",
     type: "Operational",
+    grain: "Customer",
     sqlDefinition: `
       SELECT 
         ROUND(AVG(CURRENT_BALANCE), 2) as avg_deposit_balance
@@ -390,6 +397,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Total deposit balance across all active accounts",
     category: "Value",
     type: "Strategic",
+    grain: "Overall",
     sqlDefinition: `
       SELECT 
         SUM(CURRENT_BALANCE) as total_customer_deposits
@@ -417,6 +425,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Median deposit balance per active customer",
     category: "Value",
     type: "Operational",
+    grain: "Customer",
     sqlDefinition: `
       SELECT 
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CURRENT_BALANCE) as median_deposit_balance
@@ -445,6 +454,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "90th percentile deposit balance across customers",
     category: "Value",
     type: "Operational",
+    grain: "Customer",
     sqlDefinition: `
       SELECT 
         PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY CURRENT_BALANCE) as p90_balance
@@ -473,6 +483,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Month-over-month percentage change in total customer deposits",
     category: "Growth",
     type: "Strategic",
+    grain: "Monthly",
     sqlDefinition: `
       WITH monthly_totals AS (
         SELECT
@@ -513,6 +524,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Average number of accounts held per customer",
     category: "Engagement",
     type: "Operational",
+    grain: "Customer",
     sqlDefinition: `
       SELECT 
         ROUND(COUNT(DISTINCT ACCOUNT_NUMBER) / NULLIF(COUNT(DISTINCT CUSTOMER_NUMBER), 0), 2) as avg_accounts_per_customer
@@ -540,6 +552,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of customers holding multiple deposit accounts",
     category: "Engagement",
     type: "Operational",
+    grain: "Customer",
     sqlDefinition: `
       WITH customer_account_count AS (
         SELECT 
@@ -575,6 +588,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of customers by account product type",
     category: "Engagement",
     type: "Operational",
+    grain: "Product",
     sqlDefinition: `
       SELECT 
         ACCOUNT_TYPE,
@@ -604,6 +618,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of customers holding exactly one account",
     category: "Engagement",
     type: "Operational",
+    grain: "Customer",
     sqlDefinition: `
       WITH customer_account_count AS (
         SELECT 
@@ -639,6 +654,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of customers holding three or more accounts",
     category: "Engagement",
     type: "Operational",
+    grain: "Customer",
     sqlDefinition: `
       WITH customer_account_count AS (
         SELECT 
