@@ -44,6 +44,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of unique active customers with trend analysis (MoM, YoY, 7-day MA)",
     category: "Volume",
     type: "Operational",
+    grain: "Overall",
     sqlDefinition: `
       WITH daily_counts AS (
         SELECT
