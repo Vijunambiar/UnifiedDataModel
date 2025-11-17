@@ -273,7 +273,11 @@ export const depositAccountMaintenanceIngestionJob: IngestionJob = {
     onFailure: "RETRY",
     maxRetries: 3,
     errorTable: "bronze.account_maintenance_transaction_load_errors",
-    alertRecipients: ["data-engineering@bank.com", "deposits-ops@bank.com", "compliance@bank.com"],
+    alertRecipients: [
+      "data-engineering@bank.com",
+      "deposits-ops@bank.com",
+      "compliance@bank.com",
+    ],
   },
 
   priority: "HIGH",
@@ -389,7 +393,11 @@ export const depositDebitCardIngestionJob: IngestionJob = {
     onFailure: "RETRY",
     maxRetries: 3,
     errorTable: "bronze.debit_card_load_errors",
-    alertRecipients: ["data-engineering@bank.com", "deposits-ops@bank.com", "security@bank.com"],
+    alertRecipients: [
+      "data-engineering@bank.com",
+      "deposits-ops@bank.com",
+      "security@bank.com",
+    ],
   },
 
   priority: "MEDIUM",
@@ -421,7 +429,8 @@ export const depositsBronzeIngestionCatalog = {
     schedule: "Daily at 02:30 UTC",
     sla: "Complete by 06:00 UTC",
     retryPolicy: "Exponential backoff, max 3 retries per job",
-    alerting: "Email + PagerDuty for HIGH priority failures, Email only for MEDIUM",
+    alerting:
+      "Email + PagerDuty for HIGH priority failures, Email only for MEDIUM",
   },
 
   dependencies: {
@@ -453,18 +462,25 @@ export const depositsBronzeIngestionCatalog = {
   dataLineage: {
     source: "FIS-ADS Core Banking System (Fiserv)",
     sourceConnection: "JDBC connection to FIS_CORE schema",
-    extraction: "SQL query extraction with incremental loads based on PRCS_DTE and REFRESH_TIME",
+    extraction:
+      "SQL query extraction with incremental loads based on PRCS_DTE and REFRESH_TIME",
     landing: "Snowflake landing zone (staging) with CDC tracking",
     target: "Snowflake bronze schema with partitioning by PROCESS_DATE",
-    transformation: "Minimal transformations - column rename, type casting, audit columns, record hashing",
-    dataQuality: "Validation rules enforced at load time, error records routed to error tables",
+    transformation:
+      "Minimal transformations - column rename, type casting, audit columns, record hashing",
+    dataQuality:
+      "Validation rules enforced at load time, error records routed to error tables",
   },
 
   transformationLogic: {
-    columnRenaming: "FIS naming convention to standardized names (e.g., AC_ACCT_NBR → ACCOUNT_NUMBER)",
-    typeConversion: "Proper casting to Snowflake types (DECIMAL for money, DATE for dates, VARCHAR for text)",
-    auditColumns: "_LOAD_ID (batch ID), _LOAD_TIMESTAMP (load time), _SOURCE_SYSTEM (FIS-ADS), _RECORD_HASH (MD5)",
-    partitioning: "By PROCESS_DATE for most tables, enables efficient querying and incremental loads",
+    columnRenaming:
+      "FIS naming convention to standardized names (e.g., AC_ACCT_NBR → ACCOUNT_NUMBER)",
+    typeConversion:
+      "Proper casting to Snowflake types (DECIMAL for money, DATE for dates, VARCHAR for text)",
+    auditColumns:
+      "_LOAD_ID (batch ID), _LOAD_TIMESTAMP (load time), _SOURCE_SYSTEM (FIS-ADS), _RECORD_HASH (MD5)",
+    partitioning:
+      "By PROCESS_DATE for most tables, enables efficient querying and incremental loads",
     clustering: "By account-related columns for query performance",
   },
 

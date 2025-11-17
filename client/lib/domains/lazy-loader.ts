@@ -9,11 +9,17 @@ export async function loadDomainMetadata(domainId: string) {
   let promise: Promise<any>;
 
   if (domainId === "customer") {
-    promise = import("./customer/shared/metadata").then((m) => m.customerDomainMetadata);
+    promise = import("./customer/shared/metadata").then(
+      (m) => m.customerDomainMetadata,
+    );
   } else if (domainId === "deposits") {
-    promise = import("./deposits/metadata").then((m) => m.depositsDomainMetadata);
+    promise = import("./deposits/metadata").then(
+      (m) => m.depositsDomainMetadata,
+    );
   } else if (domainId === "transactions") {
-    promise = import("./transactions/metadata").then((m) => m.transactionsDomainMetadata);
+    promise = import("./transactions/metadata").then(
+      (m) => m.transactionsDomainMetadata,
+    );
   } else {
     promise = Promise.reject(new Error(`Unknown domain: ${domainId}`));
   }
@@ -30,11 +36,17 @@ export async function loadDomainGoldMetrics(domainId: string) {
   let promise: Promise<any>;
 
   if (domainId === "customer") {
-    promise = import("./customer/gold/metrics-catalog").then((m) => m.customerGoldMetrics);
+    promise = import("./customer/gold/metrics-catalog").then(
+      (m) => m.customerGoldMetrics,
+    );
   } else if (domainId === "deposits") {
-    promise = import("./deposits/gold-metrics").then((m) => m.depositsGoldMetrics);
+    promise = import("./deposits/gold-metrics").then(
+      (m) => m.depositsGoldMetrics,
+    );
   } else if (domainId === "transactions") {
-    promise = import("./transactions/gold-metrics").then((m) => m.transactionsGoldMetrics);
+    promise = import("./transactions/gold-metrics").then(
+      (m) => m.transactionsGoldMetrics,
+    );
   } else {
     promise = Promise.reject(new Error(`Unknown domain: ${domainId}`));
   }
@@ -51,11 +63,15 @@ export async function loadDomainSubDomains(domainId: string) {
   let promise: Promise<any>;
 
   if (domainId === "customer") {
-    promise = import("./customer/shared/metadata").then((m) => m.customerSubDomains);
+    promise = import("./customer/shared/metadata").then(
+      (m) => m.customerSubDomains,
+    );
   } else if (domainId === "deposits") {
     promise = import("./deposits/metadata").then((m) => m.depositsSubDomains);
   } else if (domainId === "transactions") {
-    promise = import("./transactions/metadata").then((m) => m.transactionsSubDomains);
+    promise = import("./transactions/metadata").then(
+      (m) => m.transactionsSubDomains,
+    );
   } else {
     promise = Promise.reject(new Error(`Unknown domain: ${domainId}`));
   }
@@ -72,11 +88,15 @@ export async function loadDomainUseCases(domainId: string) {
   let promise: Promise<any>;
 
   if (domainId === "customer") {
-    promise = import("./customer/shared/use-cases").then((m) => m.customerUseCases);
+    promise = import("./customer/shared/use-cases").then(
+      (m) => m.customerUseCases,
+    );
   } else if (domainId === "deposits") {
     promise = import("./deposits/use-cases").then((m) => m.depositsUseCases);
   } else if (domainId === "transactions") {
-    promise = import("./transactions/use-cases").then((m) => m.transactionsUseCases);
+    promise = import("./transactions/use-cases").then(
+      (m) => m.transactionsUseCases,
+    );
   } else {
     promise = Promise.reject(new Error(`Unknown domain: ${domainId}`));
   }
@@ -93,11 +113,15 @@ export async function loadDomainGlossary(domainId: string) {
   let promise: Promise<any>;
 
   if (domainId === "customer") {
-    promise = import("./customer/shared/glossary").then((m) => m.customerGlossary);
+    promise = import("./customer/shared/glossary").then(
+      (m) => m.customerGlossary,
+    );
   } else if (domainId === "deposits") {
     promise = import("./deposits/glossary").then((m) => m.depositsGlossary);
   } else if (domainId === "transactions") {
-    promise = import("./transactions/glossary").then((m) => m.transactionsGlossary);
+    promise = import("./transactions/glossary").then(
+      (m) => m.transactionsGlossary,
+    );
   } else {
     promise = Promise.reject(new Error(`Unknown domain: ${domainId}`));
   }
@@ -171,11 +195,15 @@ export async function loadDomainBronzeTables(domainId: string) {
   let promise: Promise<any>;
 
   if (domainId === "customer") {
-    promise = import("./customer/shared/metadata").then((m) => m.customerBronzeTables);
+    promise = import("./customer/shared/metadata").then(
+      (m) => m.customerBronzeTables,
+    );
   } else if (domainId === "deposits") {
     promise = import("./deposits/metadata").then((m) => m.depositsBronzeTables);
   } else if (domainId === "transactions") {
-    promise = import("./transactions/metadata").then((m) => m.transactionsBronzeTables);
+    promise = import("./transactions/metadata").then(
+      (m) => m.transactionsBronzeTables,
+    );
   } else {
     promise = Promise.reject(new Error(`Unknown domain: ${domainId}`));
   }
@@ -192,11 +220,15 @@ export async function loadDomainSilverTables(domainId: string) {
   let promise: Promise<any>;
 
   if (domainId === "customer") {
-    promise = import("./customer/shared/metadata").then((m) => m.customerSilverTables);
+    promise = import("./customer/shared/metadata").then(
+      (m) => m.customerSilverTables,
+    );
   } else if (domainId === "deposits") {
     promise = import("./deposits/metadata").then((m) => m.depositsSilverTables);
   } else if (domainId === "transactions") {
-    promise = import("./transactions/metadata").then((m) => m.transactionsSilverTables);
+    promise = import("./transactions/metadata").then(
+      (m) => m.transactionsSilverTables,
+    );
   } else {
     promise = Promise.reject(new Error(`Unknown domain: ${domainId}`));
   }
@@ -214,18 +246,26 @@ export async function loadDomainGoldTables(domainId: string) {
 
   if (domainId === "customer") {
     promise = Promise.all([
-      import("./customer/shared/metadata").then((m) => m.customerGoldDimensions),
+      import("./customer/shared/metadata").then(
+        (m) => m.customerGoldDimensions,
+      ),
       import("./customer/shared/metadata").then((m) => m.customerGoldFacts),
     ]).then(([dims, facts]) => [...dims, ...facts]);
   } else if (domainId === "deposits") {
     promise = Promise.all([
       import("./deposits/metadata").then((m) => m.depositsGoldDimensions || []),
-      import("./deposits/gold-layer").then((m) => m.depositsGoldLayerComplete?.tables || []),
+      import("./deposits/gold-layer").then(
+        (m) => m.depositsGoldLayerComplete?.tables || [],
+      ),
     ]).then(([dims, facts]) => [...dims, ...facts]);
   } else if (domainId === "transactions") {
     promise = Promise.all([
-      import("./transactions/metadata").then((m) => m.transactionsGoldDimensions || []),
-      import("./transactions/gold-layer").then((m) => m.transactionsGoldLayerComplete?.tables || []),
+      import("./transactions/metadata").then(
+        (m) => m.transactionsGoldDimensions || [],
+      ),
+      import("./transactions/gold-layer").then(
+        (m) => m.transactionsGoldLayerComplete?.tables || [],
+      ),
     ]).then(([dims, facts]) => [...dims, ...facts]);
   } else {
     promise = Promise.reject(new Error(`Unknown domain: ${domainId}`));
@@ -243,9 +283,13 @@ export async function loadDomainBronzeIngestionJobs(domainId: string) {
   let promise: Promise<any>;
 
   if (domainId === "customer") {
-    promise = import("./customer/bronze/ingestion-jobs").then((m) => m.customerBronzeIngestionCatalog);
+    promise = import("./customer/bronze/ingestion-jobs").then(
+      (m) => m.customerBronzeIngestionCatalog,
+    );
   } else if (domainId === "deposits") {
-    promise = import("./deposits/bronze/ingestion-jobs").then((m) => m.depositsBronzeIngestionCatalog);
+    promise = import("./deposits/bronze/ingestion-jobs").then(
+      (m) => m.depositsBronzeIngestionCatalog,
+    );
   } else if (domainId === "transactions") {
     promise = Promise.resolve({ jobs: [], domain: domainId, layer: "Bronze" });
   } else {
@@ -264,7 +308,9 @@ export async function loadDomainLogicalModel(domainId: string) {
   let promise: Promise<any>;
 
   if (domainId === "customer") {
-    promise = import("./customer/bronze/logical-model").then((m) => m.customerLogicalModel);
+    promise = import("./customer/bronze/logical-model").then(
+      (m) => m.customerLogicalModel,
+    );
   } else if (domainId === "deposits") {
     promise = Promise.resolve(null);
   } else if (domainId === "transactions") {
