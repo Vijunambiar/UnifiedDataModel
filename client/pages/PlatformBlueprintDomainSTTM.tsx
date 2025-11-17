@@ -185,22 +185,25 @@ export default function PlatformBlueprintDomainSTTM() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {domain.tableCoverage?.map((table, idx) => (
-              <div key={table.name || `table-${idx}`} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold">{table.name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {Math.round(table.coverage)}% mapped
-                  </span>
+            {tableCoverage.map((table: any, idx: number) => {
+              const coverage = (table.mappedCount / table.columnCount) * 100;
+              return (
+                <div key={table.fisTable || `table-${idx}`} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-sm">{table.fisTable || table.name}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {Math.round(coverage)}% ({table.mappedCount}/{table.columnCount})
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-green-600 h-2 rounded-full transition-all"
+                      style={{ width: `${coverage}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-green-600 h-2 rounded-full transition-all"
-                    style={{ width: `${table.coverage}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>
