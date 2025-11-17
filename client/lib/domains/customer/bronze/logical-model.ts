@@ -4,7 +4,7 @@
  * Business entities and their relationships from FIS source system
  * This represents the conceptual model before physical implementation
  * 
- * Source System: FIS (Fiserv)
+ * Source System: FIS
  * Domain: Customer Core
  * Layer: Bronze (Raw/Landing)
  */

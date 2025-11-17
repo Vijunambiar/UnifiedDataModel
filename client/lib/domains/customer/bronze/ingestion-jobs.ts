@@ -2,7 +2,7 @@
  * CUSTOMER DOMAIN - BRONZE LAYER - INGESTION JOBS
  *
  * Data ingestion job specifications from FIS to Bronze layer
- * Source System: FIS (Fiserv Core Banking)
+ * Source System: FIS
  * Target: Snowflake Bronze Layer
  * Orchestration: Matillion / dbt / Airflow
  */

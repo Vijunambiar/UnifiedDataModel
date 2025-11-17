@@ -1,5 +1,5 @@
 // Transactions Domain - FIS-ADS Bronze Layer
-// Real Fiserv FIS-ADS payment and transaction tables
+// Real FIS-ADS payment and transaction tables
 
 export interface BronzeTableDefinition {
   name: string;

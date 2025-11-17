@@ -1,5 +1,5 @@
 // Deposits Domain - FIS-ADS Bronze Layer
-// Real Fiserv FIS-ADS source tables mapped to Bronze layer
+// Real FIS-ADS source tables mapped to Bronze layer
 
 export interface BronzeTableDefinition {
   name: string;

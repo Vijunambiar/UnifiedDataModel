@@ -2,7 +2,7 @@
  * TRANSACTIONS DOMAIN - BRONZE LAYER - INGESTION JOBS
  *
  * Data ingestion job specifications from FIS-ADS to Bronze layer
- * Source System: FIS-ADS (Fiserv Core Banking)
+ * Source System: FIS-ADS
  * Target: Snowflake Bronze Layer
  * Orchestration: Matillion / dbt / Airflow
  */
@@ -372,7 +372,7 @@ export const transactionsBronzeIngestionCatalog = {
   },
 
   dataLineage: {
-    source: "FIS-ADS Core Banking System (Fiserv)",
+    source: "FIS-ADS Core Banking System",
     sourceConnection:
       "Kafka streams for real-time transactions, JDBC for historical and maintenance data",
     extraction:

@@ -2,7 +2,7 @@
  * CUSTOMER DOMAIN - BRONZE LAYER - DDL SCRIPTS
  * 
  * CREATE TABLE statements for Bronze layer tables
- * Source: FIS (Fiserv) raw data landing zone
+ * Source: FIS raw data landing zone
  * Schema: bronze / SNOWFLAKE_CURATED
  * Refresh: Daily batch loads from FIS
  */
@@ -353,7 +353,7 @@ export const customerBronzeDDLCatalog = {
   domain: "Customer Core",
   layer: "Bronze",
   schema: "bronze / SNOWFLAKE_CURATED",
-  sourceSystem: "FIS (Fiserv)",
+  sourceSystem: "FIS",
   scripts: [
     customerMasterBronzeDDL,
     customerIdentifiersBronzeDDL,

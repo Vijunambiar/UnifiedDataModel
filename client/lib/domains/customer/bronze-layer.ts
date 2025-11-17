@@ -1,5 +1,5 @@
 // Customer Domain - FIS-ADS Bronze Layer
-// Real Fiserv FIS-ADS source tables mapped to Bronze layer
+// Real FIS source tables mapped to Bronze layer
 // Source: FIS_RAW schema (Landing/Raw Layer) → Bronze Layer (Cleansed)
 // For FIS source table details, see lib/fis-source-tables.ts
 
