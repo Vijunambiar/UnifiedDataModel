@@ -199,7 +199,7 @@ export default function PlatformBlueprintDomainSTTM() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {domain.sttmGaps.slice(0, 5).map((gap, idx) => (
+              {domain.sttmGaps.map((gap, idx) => (
                 <div
                   key={`gap-${idx}`}
                   className="flex items-start gap-3 p-3 border border-red-100 bg-red-50 rounded-lg"
@@ -213,11 +213,6 @@ export default function PlatformBlueprintDomainSTTM() {
                   </div>
                 </div>
               ))}
-              {domain.sttmGaps.length > 5 && (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  +{domain.sttmGaps.length - 5} more gaps
-                </p>
-              )}
             </div>
           </CardContent>
         </Card>
