@@ -384,6 +384,10 @@ export default function PlatformBlueprintDomainOverview() {
 
         setDomain((prev) => {
           if (!prev) return null;
+          // Separate gold tables into dimensions and facts based on their type
+          const dimensions = (gold || []).filter((t: any) => t.type === "DIMENSION");
+          const facts = (gold || []).filter((t: any) => t.type === "FACT" || t.type === "AGGREGATE");
+
           return {
             ...prev,
             metadata,
@@ -393,8 +397,8 @@ export default function PlatformBlueprintDomainOverview() {
             glossary,
             bronzeTables: bronze,
             silverTables: silver,
-            goldFacts: gold,
-            goldDimensions: [],
+            goldFacts: facts,
+            goldDimensions: dimensions,
             sttmMapping: sttmData?.mappings || [],
             sttmGaps: sttmData?.gaps || [],
             tableCoverage: sttmData?.tableCoverage || [],
