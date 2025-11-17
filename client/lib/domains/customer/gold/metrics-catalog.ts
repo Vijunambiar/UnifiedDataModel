@@ -44,7 +44,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of unique active customers with trend analysis (MoM, YoY, 7-day MA)",
     category: "Volume",
     type: "Operational",
-    grain: "Overall",
+    grain: "Daily",
     sqlDefinition: `
       WITH daily_counts AS (
         SELECT
@@ -100,7 +100,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "New customer acquisitions with MoM trend, channel breakdown, and running total",
     category: "Growth",
     type: "Strategic",
-    grain: "Customer",
+    grain: "Monthly, Channel",
     sqlDefinition: `
       WITH monthly_acquisitions AS (
         SELECT
@@ -162,7 +162,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Churned customers with churn rate calculation, tenure distribution, and trend analysis",
     category: "Retention",
     type: "Strategic",
-    grain: "Customer",
+    grain: "Monthly",
     sqlDefinition: `
       WITH monthly_churn AS (
         SELECT
@@ -226,7 +226,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of inactive customers at end of period",
     category: "Retention",
     type: "Operational",
-    grain: "Overall",
+    grain: "Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as inactive_customers
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
@@ -258,7 +258,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Monthly customer churn rate as percentage",
     category: "Retention",
     type: "Strategic",
-    grain: "Overall",
+    grain: "Monthly",
     sqlDefinition: `
       WITH monthly_churn AS (
         SELECT 
@@ -293,7 +293,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Percentage of customers retained month-over-month",
     category: "Retention",
     type: "Strategic",
-    grain: "Overall",
+    grain: "Monthly",
     sqlDefinition: `
       SELECT 
         ROUND((1 - (churned_count / NULLIF(prev_total_customers, 0))) * 100, 2) as retention_rate_pct
