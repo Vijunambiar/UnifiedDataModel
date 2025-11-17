@@ -694,6 +694,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Total number of transactions in last 12 months",
     category: "Engagement",
     type: "Strategic",
+    grain: "Overall",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT TRANSACTION_ID) as total_transactions_12m
@@ -838,6 +839,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of customers with average deposit balance above $500K",
     category: "Risk",
     type: "Operational",
+    grain: "Customer, Daily",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT CUSTOMER_NUMBER) as high_value_customers
