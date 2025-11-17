@@ -138,6 +138,11 @@ export const depositsSubDomains = [
   },
 ];
 
+// Gold Table Dimension and Fact exports for UI display
+export const depositsGoldDimensions = depositsGoldTableCatalog.dimensions;
+export const depositsGoldFacts = depositsGoldTableCatalog.facts;
+export const depositsGoldAggregates = depositsGoldTableCatalog.aggregates;
+
 // Re-export layer definitions
 export {
   depositsBronzeTables,
@@ -145,4 +150,5 @@ export {
   depositsSilverTables,
   depositsSilverLayerComplete,
   depositsGoldLayerComplete,
+  depositsGoldTableCatalog,
 };
