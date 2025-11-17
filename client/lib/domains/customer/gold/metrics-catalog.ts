@@ -1281,6 +1281,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Total number of active deposit accounts",
     category: "Volume",
     type: "Operational",
+    grain: "Overall",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT ACCOUNT_NUMBER) as total_active_accounts
@@ -1309,6 +1310,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of active savings accounts",
     category: "Volume",
     type: "Operational",
+    grain: "Product",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT ACCOUNT_NUMBER) as savings_account_count
@@ -1338,6 +1340,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of active checking accounts",
     category: "Volume",
     type: "Operational",
+    grain: "Product",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT ACCOUNT_NUMBER) as checking_account_count
@@ -1367,6 +1370,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Average number of days since account opening",
     category: "Engagement",
     type: "Operational",
+    grain: "Overall",
     sqlDefinition: `
       SELECT
         ROUND(AVG(DATEDIFF(day, ACCOUNT_OPEN_DATE, CURRENT_DATE())), 0) as avg_account_tenure_days
@@ -1395,6 +1399,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of active money market accounts",
     category: "Volume",
     type: "Operational",
+    grain: "Product",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT ACCOUNT_NUMBER) as money_market_count
@@ -1424,6 +1429,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of active CD accounts",
     category: "Volume",
     type: "Operational",
+    grain: "Product",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT ACCOUNT_NUMBER) as cd_account_count
@@ -1457,6 +1463,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of accounts with balance below $100 minimum",
     category: "Risk",
     type: "Operational",
+    grain: "Overall",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT ACCOUNT_NUMBER) as below_minimum_balance
@@ -1485,6 +1492,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Highest account balance across all customer accounts",
     category: "Value",
     type: "Operational",
+    grain: "Overall",
     sqlDefinition: `
       SELECT
         MAX(CURRENT_BALANCE) as max_account_balance
@@ -1512,6 +1520,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of accounts with balance over $100K",
     category: "Value",
     type: "Operational",
+    grain: "Overall",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT ACCOUNT_NUMBER) as high_balance_count
