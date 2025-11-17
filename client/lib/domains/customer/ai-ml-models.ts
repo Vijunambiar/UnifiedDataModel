@@ -106,56 +106,330 @@ export const customerLTVModel: AIMLModel = {
   outputMetric: "Predicted Lifetime Value ($)",
   targetVariables: ["total_customer_value", "projected_net_income"],
   estimatedAccuracy: "80-85%",
-  pythonCode: `import pandas as pd, numpy as np
+  pythonCode: `import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta
+import logging
+from enum import Enum
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class AccountType(Enum):
+    """Account type classification for revenue/cost calculations"""
+    DDA = "DDA"
+    SAVINGS = "SAV"
+    MMA = "MMA"
+    CD = "CD"
+    AUTO_LOAN = "AUTO"
+    PERSONAL_LOAN = "PERSONAL"
+    HELOC = "HELOC"
+    MORTGAGE = "MORTGAGE"
+    CREDIT_CARD = "CC"
+    INVESTMENT = "INV"
 
 class CLTVCalculator:
-    def __init__(self, years=5, discount_rate=0.10, churn_rate=0.15):
+    """Production-grade Customer Lifetime Value (CLTV) calculator"""
+
+    COF_RATES = {'DDA': 0.015, 'SAV': 0.025, 'MMA': 0.035, 'CD': 0.045}
+    CREDIT_LOSS_RATES = {'AUTO': 0.002, 'PERSONAL': 0.025, 'HELOC': 0.015, 'MORTGAGE': 0.001}
+    ANNUAL_ACCOUNT_COST = 60.0
+    REGULATORY_CAPITAL_RATE = 0.08
+
+    CROSS_SELL_PROPENSITY = {
+        'DDA': {'SAV': 0.15, 'CD': 0.08, 'CC': 0.25, 'PERSONAL': 0.12},
+        'SAV': {'DDA': 0.10, 'CD': 0.20, 'CC': 0.18, 'AUTO': 0.08},
+        'CC': {'PERSONAL': 0.25, 'AUTO': 0.15, 'HELOC': 0.10}
+    }
+
+    PRODUCT_MARGINS = {
+        'DDA': 0.018, 'SAV': 0.020, 'MMA': 0.025, 'CD': 0.030,
+        'AUTO': 0.035, 'PERSONAL': 0.055, 'HELOC': 0.028,
+        'MORTGAGE': 0.015, 'CC': 0.025, 'INV': 0.012
+    }
+
+    def __init__(self, years=5, discount_rate=0.10, base_churn_rate=0.12):
+        if years <= 0 or discount_rate < 0 or not (0 <= base_churn_rate <= 1):
+            raise ValueError("Invalid parameters")
         self.years = years
         self.discount_rate = discount_rate
-        self.churn_rate = churn_rate
-    
-    def calc_interest_income(self, accounts):
-        deposits = accounts[accounts['type'].isin(['DDA','SAV','MMA'])]
-        loans = accounts[accounts['type'].isin(['AUTO','PERSONAL','HELOC'])]
-        cds = accounts[accounts['type'] == 'CD']
-        
+        self.base_churn_rate = base_churn_rate
+
+    def validate_customer_data(self, customer_data):
+        issues = []
+        if 'customer_id' not in customer_data:
+            raise ValueError("Missing customer_id")
+        if 'accounts' not in customer_data:
+            customer_data['accounts'] = pd.DataFrame()
+        if 'tenure_months' not in customer_data:
+            customer_data['tenure_months'] = 0
+        if 'credit_score' not in customer_data:
+            customer_data['credit_score'] = 650
+        return {'valid': len(issues) == 0, 'warnings': issues}
+
+    def adjust_churn_rate(self, base_churn, tenure_months, credit_score, account_count, recent_activity):
+        """Adjust churn rate based on customer characteristics"""
+        churn = base_churn
+
+        if tenure_months > 60:
+            churn *= 0.60
+        elif tenure_months > 24:
+            churn *= 0.75
+        elif tenure_months > 12:
+            churn *= 0.85
+
+        if credit_score >= 750:
+            churn *= 0.85
+        elif credit_score >= 700:
+            churn *= 0.90
+        elif credit_score < 600:
+            churn *= 1.25
+
+        account_factor = 1.0 - (min(account_count - 1, 4) * 0.08)
+        churn *= max(0.50, account_factor)
+
+        if recent_activity > 180:
+            churn *= 1.30
+        elif recent_activity > 90:
+            churn *= 1.15
+
+        return min(0.50, max(0.02, churn))
+
+    def calc_interest_income(self, accounts_df):
+        """Calculate net interest income from deposits and loans"""
+        if accounts_df.empty:
+            return {'deposit_interest': 0, 'loan_interest': 0, 'cof_expense': 0, 'net_interest': 0}
+
+        deposit_types = ['DDA', 'SAV', 'MMA', 'CD']
+        loan_types = ['AUTO', 'PERSONAL', 'HELOC', 'MORTGAGE']
+
+        deposit_accounts = accounts_df[accounts_df['type'].isin(deposit_types)]
+        deposit_interest = 0
+        cof_expense = 0
+
+        if not deposit_accounts.empty:
+            for _, acc in deposit_accounts.iterrows():
+                balance = acc.get('balance', 0) or 0
+                rate = acc.get('rate', 0) or 0
+                deposit_interest += balance * rate
+                cof = self.COF_RATES.get(acc['type'], 0.025) * balance
+                cof_expense += cof
+
+        loan_accounts = accounts_df[accounts_df['type'].isin(loan_types)]
+        loan_interest = 0
+
+        if not loan_accounts.empty:
+            for _, acc in loan_accounts.iterrows():
+                balance = acc.get('balance', 0) or 0
+                rate = acc.get('rate', 0) or 0
+                loan_interest += balance * rate
+
         return {
-            'deposit_cost': -deposits['balance'].sum() * deposits['rate'].mean(),
-            'loan_revenue': loans['balance'].sum() * loans['rate'].mean(),
-            'cd_cost': -cds['balance'].sum() * cds['rate'].mean()
+            'deposit_interest': deposit_interest,
+            'loan_interest': loan_interest,
+            'cof_expense': -cof_expense,
+            'net_interest': deposit_interest + loan_interest - cof_expense
         }
-    
-    def calc_fees(self, accounts, transactions):
+
+    def calc_fees(self, accounts_df, transactions_df=None):
+        """Calculate fee income from monthly fees and transactions"""
+        if accounts_df.empty:
+            return {'monthly_fees': 0, 'transaction_fees': 0, 'waived_fees': 0, 'total_fees': 0}
+
+        monthly_fees = 0
+        for _, acc in accounts_df.iterrows():
+            if 'monthly_fee' in acc.index:
+                monthly_fees += (acc['monthly_fee'] or 0) * 12
+
+        transaction_fees = 0
+        if transactions_df is not None and not transactions_df.empty:
+            transaction_fees = (transactions_df.get('fee', 0) or 0).sum()
+        else:
+            transaction_fees = monthly_fees * 0.15
+
+        waived_fees = 0
+        for _, acc in accounts_df.iterrows():
+            if 'waived_fees' in acc.index:
+                waived_fees += (acc['waived_fees'] or 0)
+
+        total_fees = monthly_fees + transaction_fees - waived_fees
+
         return {
-            'monthly_fees': accounts['monthly_fee'].sum() * 12,
-            'txn_fees': transactions['fee'].sum(),
-            'waived': -accounts['waived_fees'].sum()
+            'monthly_fees': monthly_fees,
+            'transaction_fees': transaction_fees,
+            'waived_fees': -waived_fees,
+            'total_fees': total_fees
         }
-    
-    def calc_costs(self, accounts):
-        deposits = accounts[accounts['type'].isin(['DDA','SAV','MMA'])]['balance'].sum()
-        loans = accounts[accounts['type'].isin(['AUTO','PERSONAL'])]['balance'].sum()
-        
+
+    def calc_credit_loss(self, accounts_df):
+        """Calculate credit loss provisions and capital impact"""
+        if accounts_df.empty:
+            return {'credit_loss_provision': 0, 'capital_charge': 0, 'total_credit_cost': 0}
+
+        loan_types = ['AUTO', 'PERSONAL', 'HELOC', 'MORTGAGE']
+        loan_accounts = accounts_df[accounts_df['type'].isin(loan_types)]
+
+        credit_loss = 0
+        risk_weighted_assets = 0
+
+        if not loan_accounts.empty:
+            for _, acc in loan_accounts.iterrows():
+                balance = acc.get('balance', 0) or 0
+                loan_type = acc['type']
+
+                pd = self.CREDIT_LOSS_RATES.get(loan_type, 0.01)
+                lgd = 0.45 if loan_type == 'MORTGAGE' else 0.60
+                credit_loss += balance * pd * lgd
+
+                rw = {'AUTO': 0.25, 'PERSONAL': 0.75, 'HELOC': 0.35, 'MORTGAGE': 0.35}
+                risk_weighted_assets += balance * rw.get(loan_type, 0.50)
+
+        capital_charge = risk_weighted_assets * self.REGULATORY_CAPITAL_RATE * self.discount_rate
+
         return {
-            'cost_of_funds': -deposits * 0.02,
-            'credit_loss': -loans * 0.03,
-            'operations': -len(accounts) * 60,
-            'tech': -100
+            'credit_loss_provision': -credit_loss,
+            'capital_charge': -capital_charge,
+            'total_credit_cost': -(credit_loss + capital_charge)
         }
-    
-    def calc_npv(self, customer):
-        annual_value = sum(self.calc_interest_income(customer['accounts']).values())
-        annual_value += sum(self.calc_fees(customer['accounts'], customer['txns']).values())
-        annual_value += sum(self.calc_costs(customer['accounts']).values())
-        
-        retention = 0.85 if customer['tenure'] > 2 else 0.70
-        
-        npv = sum(
-            (annual_value * (retention ** yr)) / ((1 + self.discount_rate) ** yr)
-            for yr in range(1, self.years + 1)
+
+    def calc_operational_costs(self, accounts_df, customer_segment='Standard'):
+        """Calculate operational costs including processing, service, and technology"""
+        account_count = len(accounts_df) if not accounts_df.empty else 0
+
+        cost_per_account = self.ANNUAL_ACCOUNT_COST
+        segment_multiplier = {'Premium': 0.70, 'Standard': 1.00, 'Value': 1.30}
+        cost_per_account *= segment_multiplier.get(customer_segment, 1.00)
+
+        account_costs = account_count * cost_per_account
+        tech_cost = 150.0 if customer_segment == 'Premium' else 100.0
+        service_cost = account_count * 30.0
+        total_operations = account_costs + tech_cost + service_cost
+
+        return {
+            'account_servicing': -account_costs,
+            'technology': -tech_cost,
+            'customer_service': -service_cost,
+            'total_operations': -total_operations
+        }
+
+    def calc_cross_sell_potential(self, current_products, customer_value, churn_rate):
+        """Estimate cross-sell revenue from account relationships"""
+        cross_sell_revenue = 0
+
+        for current_product, propensities in self.CROSS_SELL_PROPENSITY.items():
+            if current_product not in current_products:
+                continue
+
+            for target_product, propensity in propensities.items():
+                if target_product in current_products:
+                    continue
+
+                estimated_balance = customer_value * 0.20
+                margin = self.PRODUCT_MARGINS.get(target_product, 0.02)
+                survival = (1 - churn_rate)
+
+                cross_sell_revenue += estimated_balance * margin * propensity * survival
+
+        return {'cross_sell_revenue': max(0, cross_sell_revenue)}
+
+    def calc_annual_value(self, customer_data, accounts_df, transactions_df=None):
+        """Calculate total annual profitability for a customer"""
+        interest = self.calc_interest_income(accounts_df)
+        fees = self.calc_fees(accounts_df, transactions_df)
+        credit_loss = self.calc_credit_loss(accounts_df)
+        operations = self.calc_operational_costs(accounts_df, customer_data.get('segment', 'Standard'))
+
+        total_annual = (
+            interest['net_interest'] + fees['total_fees'] +
+            credit_loss['total_credit_cost'] + operations['total_operations']
         )
-        return max(0, npv)`,
+
+        return {
+            'interest_income': interest['net_interest'],
+            'fee_income': fees['total_fees'],
+            'credit_costs': credit_loss['total_credit_cost'],
+            'operational_costs': operations['total_operations'],
+            'annual_total': total_annual,
+            'components': {'interest': interest, 'fees': fees, 'credit': credit_loss, 'operations': operations}
+        }
+
+    def calculate_cltv(self, customer_data, accounts_df, transactions_df=None):
+        """
+        Calculate complete Customer Lifetime Value using discounted cash flow method
+
+        Returns dict with CLTV value and component breakdown
+        """
+        try:
+            validation = self.validate_customer_data(customer_data)
+            if not validation['valid']:
+                logger.warning("Validation warnings")
+
+            customer_id = customer_data['customer_id']
+            tenure_months = customer_data.get('tenure_months', 0)
+            credit_score = customer_data.get('credit_score', 650)
+            account_count = len(accounts_df) if not accounts_df.empty else 0
+            recent_activity_days = customer_data.get('days_since_last_txn', 365)
+
+            adjusted_churn = self.adjust_churn_rate(
+                self.base_churn_rate, tenure_months, credit_score,
+                account_count, recent_activity_days
+            )
+
+            annual_value = self.calc_annual_value(customer_data, accounts_df, transactions_df)
+            current_annual_profit = annual_value['annual_total']
+
+            current_products = accounts_df['type'].unique().tolist() if not accounts_df.empty else []
+            total_balance = accounts_df['balance'].sum() if not accounts_df.empty else 0
+            cross_sell = self.calc_cross_sell_potential(current_products, total_balance, adjusted_churn)
+            cross_sell_revenue = cross_sell['cross_sell_revenue']
+
+            total_cltv = 0
+            annual_cash_flows = []
+
+            for year in range(1, self.years + 1):
+                retention_probability = (1 - adjusted_churn) ** year
+                growth_factor = (1.02 ** year) if retention_probability > 0.5 else 0.95 ** year
+                projected_annual = (current_annual_profit + cross_sell_revenue) * growth_factor * retention_probability
+
+                discount_factor = 1 / ((1 + self.discount_rate) ** year)
+                discounted_cf = projected_annual * discount_factor
+
+                total_cltv += discounted_cf
+                annual_cash_flows.append({
+                    'year': year,
+                    'retention_prob': retention_probability,
+                    'projected_profit': projected_annual,
+                    'discount_factor': discount_factor,
+                    'pv': discounted_cf
+                })
+
+            final_cltv = max(0, total_cltv)
+            logger.info("CLTV calculation completed")
+
+            return {
+                'customer_id': customer_id,
+                'cltv': final_cltv,
+                'annual_value': current_annual_profit,
+                'adjusted_churn_rate': adjusted_churn,
+                'account_count': account_count,
+                'total_balance': total_balance,
+                'cross_sell_potential': cross_sell_revenue,
+                'cash_flows': annual_cash_flows,
+                'components': annual_value['components'],
+                'confidence': 'High' if account_count >= 2 and tenure_months > 12 else 'Medium' if account_count >= 1 else 'Low',
+                'calculation_date': datetime.now().isoformat()
+            }
+
+        except Exception as e:
+            logger.error("CLTV calculation error: " + str(e))
+            raise
+
+# Example usage:
+# calculator = CLTVCalculator(years=5, discount_rate=0.10, base_churn_rate=0.12)
+# result = calculator.calculate_cltv(customer_data, accounts_df, transactions_df)
+# cltv_value = result.get('cltv')
+# annual_contribution = result.get('annual_value')
+# print("CLTV calculation completed successfully")`,
 };
 
 // ============================================================================
