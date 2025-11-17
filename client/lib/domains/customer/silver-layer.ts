@@ -1,7 +1,7 @@
 /**
  * CUSTOMER DOMAIN - SILVER LAYER COMPREHENSIVE DDL
  * 
- * Purpose: Cleansed, conformed, and deduplicated customer data with MDM
+ * Purpose: Cleansed, conformed, and deduplicated customer data
  * Source: Bronze Layer (FIS raw tables)
  * Layer: Silver (Conformed)
  * Grain: One current row per customer, with SCD2 history
@@ -12,7 +12,7 @@
  * - Name standardization (proper case, accent removal, trimming)
  * - Address standardization (USPS validation, ZIP+4)
  * - Phone/Email validation and verification
- * - Deduplication using MDM matching rules
+ * - Deduplication using matching rules
  * - Survivorship rule application
  * - Data type conversion and validation
  * - Null value handling and defaults

@@ -2,7 +2,7 @@
  * CUSTOMER DOMAIN - SILVER LAYER - TRANSFORMATION CODE (PRODUCTION READY)
  *
  * Complete dbt models and SQL transformations for Bronze → Silver
- * Purpose: Cleanse, standardize, encrypt PII, deduplicate (MDM), apply SCD Type 2
+ * Purpose: Cleanse, standardize, encrypt PII, deduplicate, apply SCD Type 2
  * Technology: dbt Core 1.7+ / Snowflake SQL / Great Expectations
  *
  * Execution: dbt run --models tag:customer_silver
@@ -10,14 +10,14 @@
  */
 
 // ============================================================================
-// MODEL 1: CUSTOMER MASTER GOLDEN (MDM Deduplication)
+// MODEL 1: CUSTOMER MASTER GOLDEN (Deduplication)
 // ============================================================================
 export const customerMasterGoldenTransformation = {
   modelName: "customer_master_golden",
   sourceLayer: "Bronze",
   targetLayer: "Silver",
   description:
-    "Master Data Management - Create golden customer record from multiple bronze sources with intelligent deduplication",
+    "Create golden customer record from multiple bronze sources with intelligent deduplication",
   materializationType: "incremental",
   scdType: "Type 2",
 
@@ -28,7 +28,7 @@ export const customerMasterGoldenTransformation = {
     unique_key='customer_id',
     on_schema_change='sync_all_columns',
     cluster_by=['customer_id', 'effective_start_date'],
-    tags=['customer', 'silver', 'mdm', 'scd2', 'golden_record'],
+    tags=['customer', 'silver', 'scd2', 'golden_record'],
     partition_by={
       "field": "effective_start_date",
       "data_type": "date",
@@ -39,14 +39,14 @@ export const customerMasterGoldenTransformation = {
 
 -- ============================================================================
 -- dbt Model: customer_master_golden
--- Purpose: Golden customer record with MDM deduplication and SCD Type 2
+-- Purpose: Golden customer record with deduplication and SCD Type 2
 -- Sources: 
 --   - bronze.customer_master (demographics)
 --   - bronze.customer_identifiers (SSN, DL, Passport)
 --   - bronze.customer_name_address (contact info)
 --   - bronze.customer_email (email addresses)
 -- 
--- MDM Strategy:
+-- Deduplication Strategy:
 --   - Exact match on SSN/TIN
 --   - Fuzzy match on name + DOB + address
 --   - Survivorship rules for field-level resolution
