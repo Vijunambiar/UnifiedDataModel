@@ -339,6 +339,7 @@ export default function PlatformBlueprintDomainOverview() {
   const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
   const [expandedJobs, setExpandedJobs] = useState<Set<string>>(new Set());
   const [logicalModel, setLogicalModel] = useState<any>(null);
+  const [silverTransformationCatalog, setSilverTransformationCatalog] = useState<any>(null);
 
   useEffect(() => {
     const loadDomainData = async () => {
