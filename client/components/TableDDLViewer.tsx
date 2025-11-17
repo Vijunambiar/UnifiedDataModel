@@ -204,7 +204,7 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
                 </TableCell>
               </TableRow>,
 
-              expandedTable === table.name && (
+              ...(expandedTable === table.name ? [
                 <TableRow key={`${table.name}-expanded`}>
                   <TableCell colSpan={5} className="bg-muted/30 p-0">
                     <div className="p-4">
@@ -317,8 +317,8 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
                     </div>
                   </TableCell>
                 </TableRow>
-              )
-            ])}
+              ] : [])
+            ]).flat()}
           </TableBody>
         </Table>
       </div>
