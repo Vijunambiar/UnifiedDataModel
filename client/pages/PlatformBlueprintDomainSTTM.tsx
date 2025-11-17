@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,13 +17,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getPilotDomainById } from "@/lib/domains/registry";
+import { getPilotDomainById, getPilotDomainSTTMMappingAsync } from "@/lib/domains/registry";
 import { ArrowLeft, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
 
 export default function PlatformBlueprintDomainSTTM() {
   const { domainId } = useParams<{ domainId: string }>();
   const navigate = useNavigate();
   const domain = getPilotDomainById(domainId || "");
+  const [sttmData, setSTTMData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (domainId) {
+      getPilotDomainSTTMMappingAsync(domainId).then((data) => {
+        setSTTMData(data);
+        setLoading(false);
+      });
+    }
+  }, [domainId]);
 
   if (!domain) {
     return (
@@ -37,10 +49,20 @@ export default function PlatformBlueprintDomainSTTM() {
     );
   }
 
-  const totalMappings = domain.sttmMapping.length;
-  const coveragePercent = Math.round(
-    ((totalMappings - (domain.sttmGaps?.length || 0)) / totalMappings) * 100
-  );
+  if (loading) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-lg text-muted-foreground">Loading STTM mappings...</p>
+      </div>
+    );
+  }
+
+  const totalMappings = sttmData?.mappings?.length || 0;
+  const sttmGaps = sttmData?.gaps || [];
+  const tableCoverage = sttmData?.tableCoverage || [];
+  const coveragePercent = totalMappings > 0 ? Math.round(
+    ((totalMappings - sttmGaps.length) / totalMappings) * 100
+  ) : 0;
 
   return (
     <div className="min-h-screen">
