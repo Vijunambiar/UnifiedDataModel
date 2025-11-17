@@ -68,7 +68,7 @@ const RUNBOOK_SECTIONS = [
   {
     title: "FIS Connectivity Setup",
     steps: [
-      "Configure Fiserv/FIS ODBC connection string",
+      "Configure FIS ODBC connection string",
       "Set up database credentials and encryption",
       "Validate connectivity to source system",
       "Set up network routing and firewall rules",
@@ -208,7 +208,7 @@ export default function PlatformBlueprintDomainOperations() {
             <CardHeader>
               <CardTitle>FIS Source Tables</CardTitle>
               <CardDescription>
-                Real Fiserv core banking system tables for {domain.displayName}
+                Real FIS core banking system tables for {domain.displayName}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

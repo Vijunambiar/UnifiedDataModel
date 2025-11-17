@@ -156,7 +156,7 @@ const RUNBOOK_SECTIONS = [
   {
     title: "FIS Connectivity Setup",
     steps: [
-      "Configure Fiserv/FIS ODBC connection string",
+      "Configure FIS ODBC connection string",
       "Set up database credentials and encryption",
       "Validate connectivity to source system",
       "Set up network routing and firewall rules",
