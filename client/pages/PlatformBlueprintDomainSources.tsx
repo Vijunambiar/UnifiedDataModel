@@ -20,7 +20,7 @@ import {
 
 const SOURCE_SYSTEMS = [
   {
-    name: "Fiserv Core Banking - Customer",
+    name: "FIS - Customer",
     type: "OLTP Source",
     technology: "FIS CUSTOMER, CUSTOMER_CONTACT, CUSTOMER_RELATIONSHIP",
     loadPattern: "Daily CDC",
@@ -28,7 +28,7 @@ const SOURCE_SYSTEMS = [
     description: "Customer master, contact information, and relationships",
   },
   {
-    name: "Fiserv Core Banking - Deposits",
+    name: "FIS-ADS - Deposits",
     type: "OLTP Source",
     technology: "FIS ACCOUNT, ACCOUNT_BALANCE, ACCOUNT_TRANSACTION, DEPOSIT_PRODUCT",
     loadPattern: "Real-time CDC",
@@ -36,7 +36,7 @@ const SOURCE_SYSTEMS = [
     description: "Account details, balances, transactions, and product information",
   },
   {
-    name: "Fiserv Core Banking - Transactions",
+    name: "FIS-ADS - Transactions",
     type: "OLTP Source",
     technology: "FIS PAYMENT, ACH_ITEM, WIRE_TRANSFER, CHECK_ITEM",
     loadPattern: "Real-time CDC",
@@ -205,7 +205,7 @@ export default function PlatformBlueprintDomainSources() {
               <div className="border-l-4 border-blue-500 pl-4 py-2">
                 <p className="font-semibold text-sm">FIS Source Extraction</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  CDC and batch extraction from Fiserv core banking system tables
+                  CDC and batch extraction from FIS core banking system tables
                 </p>
               </div>
               <div className="border-l-4 border-green-500 pl-4 py-2">

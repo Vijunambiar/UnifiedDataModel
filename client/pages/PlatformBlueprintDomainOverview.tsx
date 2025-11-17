@@ -197,7 +197,7 @@ const RUNBOOK_SECTIONS = [
 
 const SOURCE_SYSTEMS = [
   {
-    name: "Fiserv Core Banking - Customer",
+    name: "FIS - Customer",
     type: "OLTP Source",
     technology: "FIS CUSTOMER, CUSTOMER_CONTACT, CUSTOMER_RELATIONSHIP",
     loadPattern: "Daily CDC",
@@ -205,7 +205,7 @@ const SOURCE_SYSTEMS = [
     description: "Customer master, contact information, and relationships",
   },
   {
-    name: "Fiserv Core Banking - Deposits",
+    name: "FIS-ADS - Deposits",
     type: "OLTP Source",
     technology:
       "FIS ACCOUNT, ACCOUNT_BALANCE, ACCOUNT_TRANSACTION, DEPOSIT_PRODUCT",
@@ -215,7 +215,7 @@ const SOURCE_SYSTEMS = [
       "Account details, balances, transactions, and product information",
   },
   {
-    name: "Fiserv Core Banking - Transactions",
+    name: "FIS-ADS - Transactions",
     type: "OLTP Source",
     technology: "FIS PAYMENT, ACH_ITEM, WIRE_TRANSFER, CHECK_ITEM",
     loadPattern: "Real-time CDC",
