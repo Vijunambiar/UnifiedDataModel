@@ -524,7 +524,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Average number of accounts held per customer",
     category: "Engagement",
     type: "Operational",
-    grain: "Customer",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         ROUND(COUNT(DISTINCT ACCOUNT_NUMBER) / NULLIF(COUNT(DISTINCT CUSTOMER_NUMBER), 0), 2) as avg_accounts_per_customer
@@ -552,7 +552,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of customers holding multiple deposit accounts",
     category: "Engagement",
     type: "Operational",
-    grain: "Customer",
+    grain: "Daily",
     sqlDefinition: `
       WITH customer_account_count AS (
         SELECT 
@@ -618,7 +618,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of customers holding exactly one account",
     category: "Engagement",
     type: "Operational",
-    grain: "Customer",
+    grain: "Daily",
     sqlDefinition: `
       WITH customer_account_count AS (
         SELECT 
@@ -654,7 +654,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Number of customers holding three or more accounts",
     category: "Engagement",
     type: "Operational",
-    grain: "Customer",
+    grain: "Daily",
     sqlDefinition: `
       WITH customer_account_count AS (
         SELECT 
