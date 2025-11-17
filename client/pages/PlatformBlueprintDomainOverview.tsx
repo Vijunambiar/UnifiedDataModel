@@ -1786,13 +1786,10 @@ export default function PlatformBlueprintDomainOverview() {
                 let aimlCatalog: any = null;
 
                 if (domainId === "customer") {
-                  const { customerAIMLCatalog } = require("@/lib/domains/customer/ai-ml-models");
                   aimlCatalog = customerAIMLCatalog;
                 } else if (domainId === "deposits") {
-                  const { depositsAIMLCatalog } = require("@/lib/domains/deposits/ai-ml-models");
                   aimlCatalog = depositsAIMLCatalog;
                 } else if (domainId === "transactions") {
-                  const { transactionsAIMLCatalog } = require("@/lib/domains/transactions/ai-ml-models");
                   aimlCatalog = transactionsAIMLCatalog;
                 }
 
