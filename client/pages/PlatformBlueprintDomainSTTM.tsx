@@ -128,7 +128,7 @@ export default function PlatformBlueprintDomainSTTM() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {domain.sttmMapping.slice(0, 10).map((mapping, idx) => (
+                {domain.sttmMapping.map((mapping, idx) => (
                   <TableRow key={`mapping-${idx}`}>
                     <TableCell className="font-mono text-xs">
                       {mapping.sourceSystem}
@@ -149,11 +149,6 @@ export default function PlatformBlueprintDomainSTTM() {
                 ))}
               </TableBody>
             </Table>
-            {domain.sttmMapping.length > 10 && (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                +{domain.sttmMapping.length - 10} more mappings
-              </p>
-            )}
           </div>
         </CardContent>
       </Card>
