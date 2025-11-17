@@ -377,6 +377,7 @@ export default function PlatformBlueprintDomainOverview() {
 
         setMetrics(metricsData || []);
         setTables(getFISTablesByDomain(domainId));
+        setSilverTransformationCatalog(silverTransformationData);
         setIngestionCatalog(bronzeIngestionCatalog);
         setJobs(bronzeIngestionCatalog?.jobs || []);
         setLogicalModel(logicalModelData);
