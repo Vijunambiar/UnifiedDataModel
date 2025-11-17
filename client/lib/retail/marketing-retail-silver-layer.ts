@@ -1,0 +1,282 @@
+/**
+ * MARKETING-RETAIL SILVER LAYER - Complete Implementation
+ * 
+ * Domain: Marketing Retail
+ * Area: Retail Banking
+ * Purpose: Cleansed marketing data with banking-specific transformations
+ * 
+ * All 26 silver tables for retail marketing domain
+ * Banking-focused, compliance-aware, attribution-ready
+ */
+
+export const marketingRetailSilverTables = [
+  // Banking-Specific Core Tables (8)
+  {
+    name: 'silver.mktg_campaigns_enriched',
+    description: 'Banking product campaigns with compliance validation',
+    grain: 'One row per campaign',
+    scdType: 'Type 2',
+    primaryKey: ['campaign_sk'],
+    transformations: [
+      'Standardize product_line (Deposits, Cards, Loans)',
+      'Validate compliance flags (TCPA, CAN-SPAM, CFPB)',
+      'Enrich with product master data',
+      'Calculate campaign duration and budget per day',
+      'Flag campaigns missing required compliance approvals',
+    ],
+  },
+  {
+    name: 'silver.mktg_leads_enriched',
+    description: 'Banking product leads with customer matching and credit scoring',
+    grain: 'One row per lead',
+    scdType: 'Type 1',
+    primaryKey: ['lead_sk'],
+    transformations: [
+      'Match leads to existing customers',
+      'Deduplicate leads (same customer + product + 30 days)',
+      'Enrich with demographic and financial data',
+      'Calculate lead age and conversion durations',
+      'Assign lead score based on income, credit, employment',
+      'Validate consent against consent management',
+    ],
+  },
+  {
+    name: 'silver.mktg_customer_journeys',
+    description: 'Banking customer journeys with branch integration',
+    grain: 'One row per journey',
+    scdType: 'Type 1',
+    primaryKey: ['journey_sk'],
+    transformations: [
+      'Group touchpoint events into journeys',
+      'Assign touchpoint sequence numbers',
+      'Identify first touch, last touch, assisted touches',
+      'Calculate journey duration and time between touches',
+      'Determine journey outcome (Converted, Abandoned, In Progress)',
+      'Integrate branch visits and call center interactions',
+    ],
+  },
+  {
+    name: 'silver.mktg_multi_touch_attribution',
+    description: 'Multi-touch attribution with 7 models',
+    grain: 'One row per conversion per attribution model',
+    scdType: 'Type 1',
+    primaryKey: ['attribution_sk'],
+    transformations: [
+      'Apply First-Touch attribution',
+      'Apply Last-Touch attribution',
+      'Apply Linear attribution (equal credit)',
+      'Apply Time-Decay attribution',
+      'Apply U-Shaped attribution',
+      'Apply W-Shaped attribution',
+      'Apply Custom Banking Model (30% branch, 70% digital)',
+    ],
+  },
+  {
+    name: 'silver.mktg_campaign_performance_daily',
+    description: 'Daily banking campaign performance with product KPIs',
+    grain: 'One row per campaign per day',
+    scdType: 'Type 1',
+    primaryKey: ['campaign_id', 'performance_date'],
+    transformations: [
+      'Aggregate leads, applications, accounts opened',
+      'Calculate conversion rates (lead-to-app, app-to-open)',
+      'Calculate costs (media + creative + technology + bonuses)',
+      'Calculate CAC (Customer Acquisition Cost)',
+      'Calculate product-specific metrics',
+    ],
+  },
+  {
+    name: 'silver.mktg_offer_performance',
+    description: 'Banking offer performance with redemption tracking',
+    grain: 'One row per offer',
+    scdType: 'Type 1',
+    primaryKey: ['offer_sk'],
+    transformations: [
+      'Calculate offer redemption rate',
+      'Calculate bonus payout rate',
+      'Track average account balance over time',
+      'Calculate incremental revenue',
+      'Flag offers with high early closure rate',
+      'Calculate ROI per offer',
+    ],
+  },
+  {
+    name: 'silver.mktg_consent_current',
+    description: 'Current consent status per customer (TCPA, CCPA, GDPR compliant)',
+    grain: 'One row per customer',
+    scdType: 'Type 1',
+    primaryKey: ['customer_id'],
+    transformations: [
+      'Filter to current records only',
+      'Pivot consent types to columns',
+      'Calculate days since last consent update',
+      'Flag expired consents',
+      'Create real-time suppression lists',
+    ],
+  },
+  {
+    name: 'silver.mktg_product_line_performance',
+    description: 'Banking product line performance aggregated monthly',
+    grain: 'One row per product_line per month',
+    scdType: 'Type 1',
+    primaryKey: ['product_line', 'performance_month'],
+    transformations: [
+      'Aggregate by product_line (Deposits, Cards, Loans)',
+      'Calculate product-specific KPIs',
+      'Calculate product-specific revenue',
+      'Calculate product-specific costs',
+      'Calculate ROI and payback period',
+    ],
+  },
+  
+  // Platform-Specific Tables (18)
+  {
+    name: 'silver.mktg_email_delivery_cleansed',
+    description: 'Cleansed email delivery with bounce classification',
+    grain: 'One row per email',
+    scdType: 'Type 1',
+    primaryKey: ['message_sk'],
+  },
+  {
+    name: 'silver.mktg_email_engagement_cleansed',
+    description: 'Cleansed email engagement with bot filtering',
+    grain: 'One row per engagement',
+    scdType: 'Type 1',
+    primaryKey: ['event_sk'],
+  },
+  {
+    name: 'silver.mktg_paid_search_cleansed',
+    description: 'Unified paid search from Google Ads',
+    grain: 'One row per campaign/day',
+    scdType: 'Type 1',
+    primaryKey: ['campaign_id', 'performance_date'],
+  },
+  {
+    name: 'silver.mktg_paid_social_cleansed',
+    description: 'Unified paid social from Meta, LinkedIn, Twitter',
+    grain: 'One row per ad/day',
+    scdType: 'Type 1',
+    primaryKey: ['ad_id', 'performance_date'],
+  },
+  {
+    name: 'silver.mktg_web_sessions_cleansed',
+    description: 'Cleansed web analytics with session stitching',
+    grain: 'One row per session',
+    scdType: 'Type 1',
+    primaryKey: ['session_sk'],
+  },
+  {
+    name: 'silver.mktg_sms_delivery_cleansed',
+    description: 'Cleansed SMS delivery with carrier data',
+    grain: 'One row per SMS',
+    scdType: 'Type 1',
+    primaryKey: ['message_sk'],
+  },
+  {
+    name: 'silver.mktg_customer_segments_unified',
+    description: 'Unified customer segmentation',
+    grain: 'One row per customer per segment',
+    scdType: 'Type 2',
+    primaryKey: ['customer_id', 'segment_id'],
+  },
+  {
+    name: 'silver.mktg_attribution_touchpoints_unified',
+    description: 'Unified attribution touchpoints across all channels',
+    grain: 'One row per touchpoint',
+    scdType: 'Type 1',
+    primaryKey: ['event_sk'],
+  },
+  {
+    name: 'silver.mktg_channel_performance_agg',
+    description: 'Channel performance aggregated',
+    grain: 'One row per channel per day',
+    scdType: 'Type 1',
+    primaryKey: ['channel', 'performance_date'],
+  },
+  {
+    name: 'silver.mktg_customer_engagement_agg',
+    description: 'Customer-level engagement aggregated',
+    grain: 'One row per customer per day',
+    scdType: 'Type 1',
+    primaryKey: ['customer_id', 'engagement_date'],
+  },
+  {
+    name: 'silver.mktg_attribution_revenue_agg',
+    description: 'Revenue attribution by channel and campaign',
+    grain: 'One row per channel per campaign per day',
+    scdType: 'Type 1',
+    primaryKey: ['channel', 'campaign_id', 'attribution_date'],
+  },
+  {
+    name: 'silver.mktg_segment_performance_agg',
+    description: 'Segment-level campaign performance',
+    grain: 'One row per segment per campaign per day',
+    scdType: 'Type 1',
+    primaryKey: ['segment_id', 'campaign_id', 'performance_date'],
+  },
+  {
+    name: 'silver.mktg_journey_analytics_agg',
+    description: 'Customer journey path analysis',
+    grain: 'One row per journey per step per day',
+    scdType: 'Type 1',
+    primaryKey: ['journey_id', 'journey_step', 'analytics_date'],
+  },
+  {
+    name: 'silver.mktg_google_ads_performance',
+    description: 'Google Ads performance aggregated',
+    grain: 'One row per campaign per day',
+    scdType: 'Type 1',
+    primaryKey: ['campaign_id', 'performance_date'],
+  },
+  {
+    name: 'silver.mktg_facebook_ads_performance',
+    description: 'Facebook Ads performance aggregated',
+    grain: 'One row per campaign per day',
+    scdType: 'Type 1',
+    primaryKey: ['campaign_id', 'performance_date'],
+  },
+  {
+    name: 'silver.mktg_content_performance',
+    description: 'Marketing content performance tracking',
+    grain: 'One row per content asset per day',
+    scdType: 'Type 1',
+    primaryKey: ['asset_id', 'performance_date'],
+  },
+  {
+    name: 'silver.mktg_ab_test_results',
+    description: 'A/B test results aggregated',
+    grain: 'One row per experiment',
+    scdType: 'Type 1',
+    primaryKey: ['experiment_sk'],
+  },
+  {
+    name: 'silver.mktg_referral_performance',
+    description: 'Referral program performance',
+    grain: 'One row per referral',
+    scdType: 'Type 1',
+    primaryKey: ['referral_sk'],
+  },
+];
+
+export const marketingRetailSilverLayerComplete = {
+  description: 'Complete silver layer for retail marketing domain',
+  layer: 'SILVER',
+  tables: marketingRetailSilverTables,
+  totalTables: 26,
+  estimatedSize: '500GB',
+  refreshFrequency: 'Daily batch processing with SCD2 for critical entities',
+  retention: '7 years',
+  
+  keyFeatures: [
+    'Banking-specific campaign and offer enrichment',
+    'Multi-touch attribution with 7 models',
+    'Lead matching and deduplication',
+    'Consent validation and compliance',
+    'Product-specific performance metrics',
+    'Channel performance aggregation',
+    'Customer journey analytics',
+    'ROI and CAC calculations',
+    'A/B test analysis',
+    'Referral program tracking',
+  ],
+};

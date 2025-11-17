@@ -1,0 +1,251 @@
+/**
+ * OPEN-BANKING-RETAIL ERD DEFINITIONS
+ * 
+ * Logical and Physical ERD definitions for open banking and API access
+ * Sources: API gateways, Third-party connections, Consent management
+ */
+
+// LOGICAL ERD
+export const openBankingRetailLogicalERD = {
+  entities: [
+    {
+      name: 'API Consumer',
+      type: 'core',
+      description: 'Third-party applications and fintechs',
+      attributes: [
+        { name: 'consumer_id', type: 'BIGINT', isPrimaryKey: true },
+        { name: 'consumer_name', type: 'STRING' },
+        { name: 'consumer_type', type: 'STRING', description: 'Fintech|Aggregator|Other Bank|Internal' },
+        { name: 'api_key', type: 'STRING' },
+        { name: 'registration_date', type: 'DATE' },
+        { name: 'status', type: 'STRING', description: 'Active|Suspended|Revoked' },
+        { name: 'rate_limit_tier', type: 'STRING', description: 'Basic|Premium|Enterprise' },
+      ],
+    },
+    {
+      name: 'Customer Consent',
+      type: 'core',
+      description: 'Customer authorization for data sharing',
+      attributes: [
+        { name: 'consent_id', type: 'BIGINT', isPrimaryKey: true },
+        { name: 'customer_id', type: 'BIGINT', isForeignKey: true },
+        { name: 'consumer_id', type: 'BIGINT', isForeignKey: true },
+        { name: 'consent_timestamp', type: 'TIMESTAMP' },
+        { name: 'consent_type', type: 'STRING', description: 'Account Info|Transactions|Payments|Identity' },
+        { name: 'scope', type: 'JSON', description: 'Permitted data/actions' },
+        { name: 'consent_status', type: 'STRING', description: 'Active|Expired|Revoked' },
+        { name: 'expiration_date', type: 'DATE' },
+        { name: 'revocation_timestamp', type: 'TIMESTAMP' },
+      ],
+    },
+    {
+      name: 'API Request',
+      type: 'event',
+      description: 'API calls made by third parties',
+      attributes: [
+        { name: 'request_id', type: 'BIGINT', isPrimaryKey: true },
+        { name: 'consumer_id', type: 'BIGINT', isForeignKey: true },
+        { name: 'consent_id', type: 'BIGINT', isForeignKey: true },
+        { name: 'customer_id', type: 'BIGINT', isForeignKey: true },
+        { name: 'request_timestamp', type: 'TIMESTAMP' },
+        { name: 'endpoint', type: 'STRING', description: 'API endpoint called' },
+        { name: 'http_method', type: 'STRING', description: 'GET|POST|PUT|DELETE' },
+        { name: 'response_code', type: 'INTEGER', description: 'HTTP response code' },
+        { name: 'response_time_ms', type: 'INTEGER' },
+        { name: 'data_accessed', type: 'STRING', description: 'Type of data accessed' },
+      ],
+    },
+    {
+      name: 'Payment Initiation',
+      type: 'event',
+      description: 'Payments initiated via open banking',
+      attributes: [
+        { name: 'payment_initiation_id', type: 'BIGINT', isPrimaryKey: true },
+        { name: 'consumer_id', type: 'BIGINT', isForeignKey: true },
+        { name: 'customer_id', type: 'BIGINT', isForeignKey: true },
+        { name: 'consent_id', type: 'BIGINT', isForeignKey: true },
+        { name: 'initiation_timestamp', type: 'TIMESTAMP' },
+        { name: 'payment_amount', type: 'DECIMAL(18,2)' },
+        { name: 'payment_status', type: 'STRING', description: 'Pending|Completed|Failed|Cancelled' },
+        { name: 'from_account_id', type: 'BIGINT', isForeignKey: true },
+        { name: 'to_account_id', type: 'BIGINT', isForeignKey: true },
+      ],
+    },
+    {
+      name: 'Aggregated Account',
+      type: 'core',
+      description: 'External accounts linked via aggregation',
+      attributes: [
+        { name: 'aggregated_account_id', type: 'BIGINT', isPrimaryKey: true },
+        { name: 'customer_id', type: 'BIGINT', isForeignKey: true },
+        { name: 'external_institution', type: 'STRING' },
+        { name: 'account_type', type: 'STRING' },
+        { name: 'last_synced_timestamp', type: 'TIMESTAMP' },
+        { name: 'sync_status', type: 'STRING', description: 'Active|Failed|Pending Reconnect' },
+        { name: 'balance', type: 'DECIMAL(18,2)' },
+      ],
+    },
+  ],
+  
+  relationships: [
+    {
+      from: 'Customer Consent',
+      to: 'API Consumer',
+      type: 'many-to-one',
+      cardinality: 'N:1',
+      foreignKey: 'consumer_id',
+      description: 'Consents for consumer',
+    },
+    {
+      from: 'API Request',
+      to: 'Customer Consent',
+      type: 'many-to-one',
+      cardinality: 'N:1',
+      foreignKey: 'consent_id',
+      description: 'Requests under consent',
+    },
+    {
+      from: 'Payment Initiation',
+      to: 'Customer Consent',
+      type: 'many-to-one',
+      cardinality: 'N:1',
+      foreignKey: 'consent_id',
+      description: 'Payments under consent',
+    },
+  ],
+};
+
+// PHYSICAL ERD
+export const openBankingRetailPhysicalERD = {
+  tables: [
+    {
+      name: 'bronze.retail_open_banking_consumers',
+      description: 'Third-party API consumers',
+      source: 'API Gateway',
+      updateFrequency: 'Daily',
+      recordCount: '~5,000 consumers',
+      attributes: [
+        { name: 'consumer_id', type: 'BIGINT', isPrimaryKey: true },
+        { name: 'consumer_name', type: 'VARCHAR(200)' },
+        { name: 'consumer_type', type: 'VARCHAR(50)' },
+        { name: 'api_key', type: 'VARCHAR(100)' },
+        { name: 'registration_date', type: 'DATE' },
+        { name: 'status', type: 'VARCHAR(50)' },
+        { name: 'rate_limit_tier', type: 'VARCHAR(50)' },
+        { name: 'created_timestamp', type: 'TIMESTAMP' },
+        { name: 'source_system', type: 'VARCHAR(50)' },
+      ],
+    },
+    {
+      name: 'bronze.retail_open_banking_consents',
+      description: 'Customer consent records',
+      source: 'Consent Management Platform',
+      updateFrequency: 'Real-time',
+      recordCount: '~10M consents',
+      attributes: [
+        { name: 'consent_id', type: 'BIGINT', isPrimaryKey: true },
+        { name: 'customer_id', type: 'BIGINT' },
+        { name: 'consumer_id', type: 'BIGINT' },
+        { name: 'consent_timestamp', type: 'TIMESTAMP' },
+        { name: 'consent_type', type: 'VARCHAR(100)' },
+        { name: 'scope', type: 'JSON' },
+        { name: 'consent_status', type: 'VARCHAR(50)' },
+        { name: 'expiration_date', type: 'DATE' },
+        { name: 'revocation_timestamp', type: 'TIMESTAMP' },
+        { name: 'created_timestamp', type: 'TIMESTAMP' },
+        { name: 'source_system', type: 'VARCHAR(50)' },
+      ],
+    },
+    {
+      name: 'bronze.retail_open_banking_api_requests',
+      description: 'API request logs',
+      source: 'API Gateway',
+      updateFrequency: 'Real-time',
+      recordCount: '~500M requests/month',
+      attributes: [
+        { name: 'request_id', type: 'BIGINT', isPrimaryKey: true },
+        { name: 'consumer_id', type: 'BIGINT' },
+        { name: 'consent_id', type: 'BIGINT' },
+        { name: 'customer_id', type: 'BIGINT' },
+        { name: 'request_timestamp', type: 'TIMESTAMP' },
+        { name: 'endpoint', type: 'VARCHAR(200)' },
+        { name: 'http_method', type: 'VARCHAR(10)' },
+        { name: 'response_code', type: 'INTEGER' },
+        { name: 'response_time_ms', type: 'INTEGER' },
+        { name: 'data_accessed', type: 'VARCHAR(200)' },
+        { name: 'created_timestamp', type: 'TIMESTAMP' },
+        { name: 'source_system', type: 'VARCHAR(50)' },
+      ],
+    },
+    {
+      name: 'bronze.retail_open_banking_payment_initiations',
+      description: 'Payment initiation via open banking',
+      source: 'Payment API',
+      updateFrequency: 'Real-time',
+      recordCount: '~5M payments/year',
+      attributes: [
+        { name: 'payment_initiation_id', type: 'BIGINT', isPrimaryKey: true },
+        { name: 'consumer_id', type: 'BIGINT' },
+        { name: 'customer_id', type: 'BIGINT' },
+        { name: 'consent_id', type: 'BIGINT' },
+        { name: 'initiation_timestamp', type: 'TIMESTAMP' },
+        { name: 'payment_amount', type: 'DECIMAL(18,2)' },
+        { name: 'payment_status', type: 'VARCHAR(50)' },
+        { name: 'from_account_id', type: 'BIGINT' },
+        { name: 'to_account_id', type: 'BIGINT' },
+        { name: 'created_timestamp', type: 'TIMESTAMP' },
+        { name: 'source_system', type: 'VARCHAR(50)' },
+      ],
+    },
+    {
+      name: 'bronze.retail_aggregated_accounts',
+      description: 'External account aggregation data',
+      source: 'Account Aggregation Service',
+      updateFrequency: 'Daily',
+      recordCount: '~20M linked accounts',
+      attributes: [
+        { name: 'aggregated_account_id', type: 'BIGINT', isPrimaryKey: true },
+        { name: 'customer_id', type: 'BIGINT' },
+        { name: 'external_institution', type: 'VARCHAR(200)' },
+        { name: 'account_type', type: 'VARCHAR(50)' },
+        { name: 'last_synced_timestamp', type: 'TIMESTAMP' },
+        { name: 'sync_status', type: 'VARCHAR(50)' },
+        { name: 'balance', type: 'DECIMAL(18,2)' },
+        { name: 'created_timestamp', type: 'TIMESTAMP' },
+        { name: 'source_system', type: 'VARCHAR(50)' },
+      ],
+    },
+  ],
+  
+  relationships: [
+    {
+      from: 'bronze.retail_open_banking_consents',
+      to: 'bronze.retail_open_banking_consumers',
+      type: 'many-to-one',
+      cardinality: 'N:1',
+      foreignKey: 'consumer_id',
+      description: 'Consents for consumers',
+    },
+    {
+      from: 'bronze.retail_open_banking_api_requests',
+      to: 'bronze.retail_open_banking_consents',
+      type: 'many-to-one',
+      cardinality: 'N:1',
+      foreignKey: 'consent_id',
+      description: 'API requests under consents',
+    },
+    {
+      from: 'bronze.retail_open_banking_payment_initiations',
+      to: 'bronze.retail_open_banking_consents',
+      type: 'many-to-one',
+      cardinality: 'N:1',
+      foreignKey: 'consent_id',
+      description: 'Payment initiations under consents',
+    },
+  ],
+};
+
+export default {
+  openBankingRetailLogicalERD,
+  openBankingRetailPhysicalERD,
+};
