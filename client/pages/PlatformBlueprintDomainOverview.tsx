@@ -359,6 +359,7 @@ export default function PlatformBlueprintDomainOverview() {
           sttmData,
           bronzeIngestionCatalog,
           logicalModelData,
+          silverTransformationData,
         ] = await Promise.all([
           getPilotDomainMetadataAsync(domainId),
           getPilotDomainGoldMetricsAsync(domainId),
@@ -371,6 +372,7 @@ export default function PlatformBlueprintDomainOverview() {
           getPilotDomainSTTMMappingAsync(domainId),
           getPilotDomainBronzeIngestionJobsAsync(domainId),
           getPilotDomainLogicalModelAsync(domainId),
+          loadDomainSilverTransformationCode(domainId),
         ]);
 
         setMetrics(metricsData || []);
