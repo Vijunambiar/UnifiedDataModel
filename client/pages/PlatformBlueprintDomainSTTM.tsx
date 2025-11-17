@@ -209,7 +209,7 @@ export default function PlatformBlueprintDomainSTTM() {
       </Card>
 
       {/* Gaps & Issues */}
-      {domain.sttmGaps && domain.sttmGaps.length > 0 && (
+      {sttmGaps && sttmGaps.length > 0 && (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -219,21 +219,21 @@ export default function PlatformBlueprintDomainSTTM() {
                   Source columns that need mapping or resolution
                 </CardDescription>
               </div>
-              <Badge variant="destructive">{domain.sttmGaps.length}</Badge>
+              <Badge variant="destructive">{sttmGaps.length}</Badge>
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {domain.sttmGaps.map((gap, idx) => (
+              {sttmGaps.map((gap: any, idx: number) => (
                 <div
                   key={`gap-${idx}`}
                   className="flex items-start gap-3 p-3 border border-red-100 bg-red-50 rounded-lg"
                 >
                   <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="font-semibold text-sm">{gap.sourceColumn}</p>
+                    <p className="font-semibold text-sm">{gap.sourceColumn || gap.sourceField}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {gap.reason}
+                      {gap.reason || "Unmapped column"}
                     </p>
                   </div>
                 </div>
