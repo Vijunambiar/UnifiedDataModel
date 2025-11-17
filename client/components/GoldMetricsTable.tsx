@@ -108,9 +108,14 @@ export function GoldMetricsTable({ metrics, title, description }: MetricTablePro
                         {metric.type}
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      <Badge className={getGrainColor(metric.grain)} variant="default">
+                        {metric.grain || "N/A"}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="max-w-xs">
                       <div className="space-y-1">
-                        {(metric.sourceTables || []).map((table: string, tableIdx: number) => (
+                        {(metric.sourceTables || metric.sourceTable ? [metric.sourceTable] : []).map((table: string, tableIdx: number) => (
                           <div
                             key={`${metricId}-table-${tableIdx}`}
                             className="text-xs font-mono bg-gray-100 px-2 py-1 rounded whitespace-nowrap"
