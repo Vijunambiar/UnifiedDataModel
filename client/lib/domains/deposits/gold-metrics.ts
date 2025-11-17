@@ -11,8 +11,10 @@ export interface GoldMetric {
   description: string;
   category: "Volume" | "Balance" | "Activity" | "Growth" | "Risk" | "Product Mix" | "Interest" | "Regulatory" | "Liquidity" | "Performance" | "Quality";
   type: "Operational" | "Strategic" | "Tactical";
+  grain: "Account" | "Customer" | "Product" | "Daily" | "Monthly" | "Branch" | "Overall";
   sqlDefinition: string;
-  sourceTable: string;
+  sourceTable?: string;
+  sourceTables?: string[];
   granularity: "Daily" | "Weekly" | "Monthly" | "Quarterly" | "Annual";
   aggregationMethod: "SUM" | "AVG" | "COUNT" | "MAX" | "MIN" | "DISTINCT";
   dataType: "INTEGER" | "DECIMAL" | "VARCHAR" | "DATE" | "FLOAT";
