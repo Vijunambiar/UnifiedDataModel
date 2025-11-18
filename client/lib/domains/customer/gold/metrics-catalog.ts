@@ -722,6 +722,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Average daily deposit transaction amount in last 30 days",
     category: "Engagement",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         ROUND(AVG(TRANSACTION_AMOUNT), 2) as avg_daily_deposit_30d
@@ -750,6 +751,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of customers with at least one transaction on reporting day",
     category: "Engagement",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT CUSTOMER_NUMBER) as daily_active_customers
@@ -778,6 +780,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of customers with at least one transaction in current month",
     category: "Engagement",
     type: "Operational",
+    grain: "Monthly",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT CUSTOMER_NUMBER) as monthly_active_customers
@@ -807,6 +810,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Average number of transactions per customer with activity",
     category: "Engagement",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         ROUND(COUNT(DISTINCT TRANSACTION_ID) / NULLIF(COUNT(DISTINCT CUSTOMER_NUMBER), 0), 2) as avg_txn_per_customer
