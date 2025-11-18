@@ -22,7 +22,7 @@ export interface ColumnMapping {
 }
 
 // Import all new individual table mappings
-import { brgCustToAcctRelationshipMappings } from "./sttm-mapping-full-excel";
+import { brgCustToAcctRelationship } from "./sttm-mapping-full-excel";
 import { dimCustomerDemographyMappings } from "./sttm-dim-customer-demography";
 import { dimCustomerIdentifierMappings } from "./sttm-dim-customer-identifier";
 import { dimCustomerEmailMappings } from "./sttm-dim-customer-email";
@@ -35,7 +35,7 @@ import { dimCustomerAttributeMappings } from "./sttm-dim-customer-attribute";
 // COMBINE ALL CUSTOMER STTM MAPPINGS - 100% Coverage (230 columns)
 // ============================================================================
 export const customerSTTMMapping_Complete: ColumnMapping[] = [
-  ...brgCustToAcctRelationshipMappings,      // 19 columns
+  ...brgCustToAcctRelationship,              // 19 columns
   ...dimCustomerDemographyMappings,          // 20 columns
   ...dimCustomerIdentifierMappings,          // 32 columns
   ...dimCustomerEmailMappings,               // 14 columns
