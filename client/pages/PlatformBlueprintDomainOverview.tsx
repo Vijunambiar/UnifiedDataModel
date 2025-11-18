@@ -1234,9 +1234,7 @@ export default function PlatformBlueprintDomainOverview() {
                       <TableHead>Source System</TableHead>
                       <TableHead>Source Table</TableHead>
                       <TableHead>Source Column</TableHead>
-                      <TableHead>Bronze Schema</TableHead>
                       <TableHead>Bronze Table</TableHead>
-                      <TableHead>Silver Schema</TableHead>
                       <TableHead>Silver Table</TableHead>
                       <TableHead>Silver Column</TableHead>
                       <TableHead>Status</TableHead>
@@ -1258,17 +1256,7 @@ export default function PlatformBlueprintDomainOverview() {
                           </TableCell>
                           <TableCell className="font-mono text-xs">
                             <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
-                              {mapping.bronzeSchema}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
-                            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
                               {mapping.bronzeTable}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
-                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
-                              {mapping.silverSchema}
                             </Badge>
                           </TableCell>
                           <TableCell className="font-mono text-xs">
