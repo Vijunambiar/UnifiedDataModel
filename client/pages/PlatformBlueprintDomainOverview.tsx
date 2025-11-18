@@ -963,93 +963,11 @@ export default function PlatformBlueprintDomainOverview() {
                         {source.technology}
                       </p>
                     </div>
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-xs text-slate-500">Source Type</p>
-                        <p className="font-semibold">{source.type}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-slate-500">Load Pattern</p>
-                        <p className="font-semibold">{source.loadPattern}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-slate-500">Tables</p>
-                        <p className="font-semibold">{source.tables}</p>
-                      </div>
-                    </div>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
-
-          {/* Orchestration Overview */}
-          {ingestionCatalog?.orchestration && (
-            <Card className="border-slate-200 shadow-sm bg-blue-50/30">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <RefreshCw className="h-5 w-5 text-blue-600" />
-                  Orchestration Configuration
-                </CardTitle>
-                <CardDescription>
-                  Data pipeline orchestration setup and requirements
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                  <div>
-                    <p className="text-xs text-slate-500 mb-1">
-                      Orchestration Tool
-                    </p>
-                    <p className="font-semibold text-sm">
-                      {ingestionCatalog.orchestration.tool}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 mb-1">Schedule</p>
-                    <p className="font-semibold text-sm">
-                      {ingestionCatalog.orchestration.schedule}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 mb-1">SLA</p>
-                    <p className="font-semibold text-sm text-green-600">
-                      {ingestionCatalog.orchestration.sla}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 mb-1">Total Jobs</p>
-                    <p className="font-semibold text-sm">
-                      {ingestionCatalog.totalJobs}
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-3 w-3 text-green-600 mt-0.5" />
-                    <span>
-                      <strong>Retry Policy:</strong>{" "}
-                      {ingestionCatalog.orchestration.retryPolicy}
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-3 w-3 text-green-600 mt-0.5" />
-                    <span>
-                      <strong>Alerting:</strong>{" "}
-                      {ingestionCatalog.orchestration.alerting}
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-3 w-3 text-green-600 mt-0.5" />
-                    <span>
-                      <strong>Monitoring Dashboard:</strong>{" "}
-                      {ingestionCatalog.monitoring?.dashboard}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Comprehensive Ingestion Jobs */}
           <Card className="border-slate-200 shadow-sm">
