@@ -1823,18 +1823,13 @@ export default function PlatformBlueprintDomainOverview() {
                           key={model.id}
                           className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                         >
-                          <div className="flex items-start justify-between gap-3 mb-3">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-sm text-slate-900">
-                                {model.name}
-                              </h4>
-                              <p className="text-xs text-slate-500 mt-1">
-                                {model.category}
-                              </p>
-                            </div>
-                            <Badge variant="outline" className="text-xs">
-                              {model.estimatedAccuracy || "N/A"}
-                            </Badge>
+                          <div className="mb-3">
+                            <h4 className="font-semibold text-sm text-slate-900">
+                              {model.name}
+                            </h4>
+                            <p className="text-xs text-slate-500 mt-1">
+                              {model.category}
+                            </p>
                           </div>
 
                           <p className="text-xs text-slate-600 mb-3 leading-relaxed">
