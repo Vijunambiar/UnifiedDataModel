@@ -75,7 +75,16 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
 
   const getTableColumns = (table: TableDefinition): Column[] => {
     if (table.columns && Array.isArray(table.columns)) {
-      return table.columns;
+      // Handle both 'name' and 'columnName' properties
+      return table.columns.map((col: any) => ({
+        name: col.name || col.columnName,
+        dataType: col.dataType,
+        nullable: col.nullable,
+        businessMeaning: col.businessMeaning,
+        sourceSchema: col.sourceSchema,
+        sourceTable: col.sourceTable,
+        sourceColumn: col.sourceColumn,
+      }));
     }
     if (table.schema && typeof table.schema === "object") {
       return parseSchemaToColumns(table.schema);
