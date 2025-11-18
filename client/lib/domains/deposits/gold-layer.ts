@@ -519,6 +519,17 @@ export const aggAccountHealthMetrics: GoldTable = {
 // EXPORT
 // ============================================================================
 
+// Re-export for compatibility
+export const depositsGoldDimensions: GoldTable[] = [];
+
+// Note: For UI purposes, aggregates are exported as part of "facts" array
+export const depositsGoldFacts = [
+  aggAccountBalanceSummary,
+  aggAccountMonthlyBalance,
+  aggCDMaturityTracking,
+  aggAccountHealthMetrics,
+];
+
 export const depositsGoldLayerComplete = {
   aggregates: [
     aggAccountBalanceSummary,
@@ -526,8 +537,8 @@ export const depositsGoldLayerComplete = {
     aggCDMaturityTracking,
     aggAccountHealthMetrics,
   ],
-  dimensions: [], // No dimension tables - reference data in Silver
-  facts: [], // No fact tables - all moved to Silver
+  dimensions: depositsGoldDimensions,
+  facts: depositsGoldFacts,
   totalTables: 4,
   totalAggregates: 4,
   totalDimensions: 0,

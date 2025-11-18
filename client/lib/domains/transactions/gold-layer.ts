@@ -452,18 +452,28 @@ export const dimMerchantCategory: GoldTable = {
 // EXPORT
 // ============================================================================
 
+// Re-export for compatibility - dimensions and aggregates are exported separately
+export const transactionsGoldDimensions = [
+  dimTransactionType,
+  dimTransactionChannel,
+  dimMerchantCategory,
+];
+
+// Note: For UI purposes, aggregates are exported as part of "facts" array
+export const transactionsGoldFacts = [
+  aggTransactionDailySummary,
+  aggTransactionMonthlySummary,
+  aggCustomerTransactionBehavior,
+];
+
 export const transactionsGoldLayerComplete = {
   aggregates: [
     aggTransactionDailySummary,
     aggTransactionMonthlySummary,
     aggCustomerTransactionBehavior,
   ],
-  dimensions: [
-    dimTransactionType,
-    dimTransactionChannel,
-    dimMerchantCategory,
-  ],
-  facts: [], // No fact tables - all moved to Silver
+  dimensions: transactionsGoldDimensions,
+  facts: transactionsGoldFacts,
   totalTables: 6,
   totalAggregates: 3,
   totalDimensions: 3,
