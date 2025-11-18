@@ -138,50 +138,59 @@ export async function loadDomainSTTM(domainId: string) {
   let promise: Promise<any>;
 
   if (domainId === "customer") {
-    promise = import("./customer/sttm-mapping").then((m) => ({
-      mappings: m.customerSTTMMapping_Combined.map((col: any) => ({
+    promise = import("./customer/sttm-mapping-complete").then((m) => ({
+      mappings: m.customerSTTMMapping_Complete.map((col: any) => ({
         sourceSystem: col.sourceSystem,
         sourceTable: col.sourceTable,
         sourceColumn: col.sourceColumn,
         bronzeTable: col.bronzeTable,
         targetTable: col.silverTable,
         targetColumn: col.silverColumn,
+        mappingType: col.mappingType || "Direct",
       })),
-      gaps: m.customerSTTMGaps,
-      tableCoverage: m.customerTableCoverage.map((t: any) => ({
+      gaps: m.customerSTTMGaps_Complete,
+      tableCoverage: m.customerTableCoverage_Complete.map((t: any) => ({
         name: t.fisTable,
+        columnCount: t.columnCount,
+        mappedCount: t.mappedCount,
         coverage: parseInt(t.coverage.replace("%", "")) || 0,
       })),
     }));
   } else if (domainId === "deposits") {
-    promise = import("./deposits/sttm-mapping").then((m) => ({
-      mappings: m.depositsSTTMMapping_Combined.map((col: any) => ({
+    promise = import("./deposits/sttm-mapping-complete").then((m) => ({
+      mappings: m.depositsSTTMMapping_Complete.map((col: any) => ({
         sourceSystem: col.sourceSystem,
         sourceTable: col.sourceTable,
         sourceColumn: col.sourceColumn,
         bronzeTable: col.bronzeTable,
         targetTable: col.silverTable,
         targetColumn: col.silverColumn,
+        mappingType: col.mappingType || "Direct",
       })),
-      gaps: m.depositsSTTMGaps,
-      tableCoverage: m.depositsTableCoverage.map((t: any) => ({
+      gaps: m.depositsSTTMGaps_Complete,
+      tableCoverage: m.depositsTableCoverage_Complete.map((t: any) => ({
         name: t.fisTable,
+        columnCount: t.columnCount,
+        mappedCount: t.mappedCount,
         coverage: parseInt(t.coverage.replace("%", "")) || 0,
       })),
     }));
   } else if (domainId === "transactions") {
-    promise = import("./transactions/sttm-mapping").then((m) => ({
-      mappings: m.transactionsSTTMMapping.map((col: any) => ({
+    promise = import("./transactions/sttm-mapping-complete").then((m) => ({
+      mappings: m.transactionsSTTMMapping_Complete.map((col: any) => ({
         sourceSystem: col.sourceSystem,
         sourceTable: col.sourceTable,
         sourceColumn: col.sourceColumn,
         bronzeTable: col.bronzeTable,
         targetTable: col.silverTable,
         targetColumn: col.silverColumn,
+        mappingType: col.mappingType || "Direct",
       })),
-      gaps: m.transactionsSTTMGaps,
-      tableCoverage: m.transactionsTableCoverage.map((t: any) => ({
+      gaps: m.transactionsSTTMGaps_Complete,
+      tableCoverage: m.transactionsTableCoverage_Complete.map((t: any) => ({
         name: t.fisTable,
+        columnCount: t.columnCount,
+        mappedCount: t.mappedCount,
         coverage: parseInt(t.coverage.replace("%", "")) || 0,
       })),
     }));
