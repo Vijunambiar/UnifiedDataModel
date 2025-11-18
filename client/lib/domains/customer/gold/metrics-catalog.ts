@@ -2204,7 +2204,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-BEH-001",
     name: "High Activity Customers",
-    grain: "Customer",
+    grain: "Customer, Monthly",
     description: "Number of customers with 10+ transactions in last 30 days",
     category: "Engagement",
     type: "Operational",
@@ -2235,7 +2235,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-BEH-002",
     name: "Low Activity Customers",
-    grain: "Customer",
+    grain: "Customer, Monthly",
     description: "Number of customers with 0-2 transactions in last 30 days",
     category: "Risk",
     type: "Operational",
@@ -2268,7 +2268,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-BEH-003",
     name: "New Product Adoption Rate",
-    grain: "Overall",
+    grain: "Monthly",
     description: "Percentage of customers adopting new products within 90 days",
     category: "Growth",
     type: "Strategic",
@@ -2297,7 +2297,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-BEH-004",
     name: "Product Cross-buy Rate",
-    grain: "Overall",
+    grain: "Daily",
     description: "Percentage of customers buying cross-selling products",
     category: "Growth",
     type: "Strategic",
@@ -2336,7 +2336,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-SCORE-001",
     name: "High Risk Customer Count",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Number of customers with high risk score",
     category: "Risk",
     type: "Strategic",
@@ -2365,7 +2365,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-SCORE-002",
     name: "Medium Risk Customer Count",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Number of customers with medium risk score",
     category: "Risk",
     type: "Operational",
@@ -2394,7 +2394,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-SCORE-003",
     name: "Average Customer Risk Score",
-    grain: "Overall",
+    grain: "Daily",
     description: "Average risk score across all customers",
     category: "Risk",
     type: "Strategic",
@@ -2422,7 +2422,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-COMP-001",
     name: "Compliance Review Flag Count",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Customers flagged for compliance review",
     category: "Compliance",
     type: "Operational",
@@ -2451,7 +2451,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-COMP-002",
     name: "AML Compliance Rate",
-    grain: "Overall",
+    grain: "Daily",
     description: "Percentage of customers with current AML certification",
     category: "Compliance",
     type: "Strategic",
@@ -2484,7 +2484,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-DEMO-001",
     name: "Married Customer Count",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Number of customers with married status",
     category: "Segmentation",
     type: "Operational",
@@ -2513,7 +2513,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-DEMO-002",
     name: "Customer With Dependents",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Number of customers with dependent children",
     category: "Segmentation",
     type: "Operational",
@@ -2542,7 +2542,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-DEMO-003",
     name: "College Educated Customers",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Number of customers with college or higher education",
     category: "Segmentation",
     type: "Operational",
@@ -2571,7 +2571,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-DEMO-004",
     name: "Homeowner Count",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Number of customers who own their residence",
     category: "Segmentation",
     type: "Operational",
