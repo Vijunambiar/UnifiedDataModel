@@ -215,9 +215,6 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
                       )}
 
                       {(table.grain ||
-                        table.recordEstimate ||
-                        table.estimatedRows ||
-                        table.scd2 ||
                         (table.primaryKey && table.primaryKey.length > 0)) && (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-xs">
                           {table.grain && (
@@ -226,20 +223,6 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
                               <p className="text-muted-foreground">
                                 {table.grain}
                               </p>
-                            </div>
-                          )}
-                          {(table.recordEstimate || table.estimatedRows) && (
-                            <div>
-                              <span className="font-semibold">Records:</span>
-                              <p className="text-muted-foreground">
-                                {table.recordEstimate || table.estimatedRows}
-                              </p>
-                            </div>
-                          )}
-                          {table.scd2 && (
-                            <div>
-                              <span className="font-semibold">SCD2:</span>
-                              <Badge variant="outline">Yes</Badge>
                             </div>
                           )}
                           {table.primaryKey && table.primaryKey.length > 0 && (
