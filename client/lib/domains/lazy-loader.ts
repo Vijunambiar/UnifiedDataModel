@@ -138,7 +138,7 @@ export async function loadDomainSTTM(domainId: string) {
   let promise: Promise<any>;
 
   if (domainId === "customer") {
-    promise = import("./customer/silver/sttm-mapping").then((m) => ({
+    promise = import("./customer/sttm-mapping").then((m) => ({
       mappings: m.customerSTTMMapping_Combined.map((col: any) => ({
         sourceSystem: col.sourceSystem,
         sourceTable: col.sourceTable,
