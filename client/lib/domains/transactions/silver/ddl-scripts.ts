@@ -257,6 +257,41 @@ export const transactionsSilverDDLCatalog = {
       scdType: "Type 1",
       estimatedRows: "500M",
       grain: "ACCOUNT_NUMBER X TRANSACTION_DATE X TRANSACTION_CATEGORY X TRANSACTION_TYPE"
+    },
+    {
+      name: "FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+      ddl: `-- DDL for FCT_DEPOSIT_ACCOUNT_TRANSACTION moved from Deposits domain\n-- Schema: CORE_TRANSACTIONS\n-- TODO: Update full DDL with CORE_TRANSACTIONS schema`,
+      scdType: "Type 1",
+      estimatedRows: "500M",
+      grain: "ACCOUNT_NUMBER X TRANSACTION_ID"
+    },
+    {
+      name: "FCT_DEPOSIT_CERTIFICATE_TRANSACTION",
+      ddl: `-- DDL for FCT_DEPOSIT_CERTIFICATE_TRANSACTION moved from Deposits domain\n-- Schema: CORE_TRANSACTIONS\n-- TODO: Update full DDL with CORE_TRANSACTIONS schema`,
+      scdType: "Type 1",
+      estimatedRows: "50M",
+      grain: "ACCOUNT_NUMBER X TRANSACTION_ID"
+    },
+    {
+      name: "FCT_DEPOSIT_HOLD_TRANSACTION",
+      ddl: `-- DDL for FCT_DEPOSIT_HOLD_TRANSACTION moved from Deposits domain\n-- Schema: CORE_TRANSACTIONS\n-- TODO: Update full DDL with CORE_TRANSACTIONS schema`,
+      scdType: "Type 1",
+      estimatedRows: "20M",
+      grain: "ACCOUNT_NUMBER X TRANSACTION_ID"
+    },
+    {
+      name: "FCT_DEPOSIT_MAINTENANCE_TRANSACTION",
+      ddl: `-- DDL for FCT_DEPOSIT_MAINTENANCE_TRANSACTION moved from Deposits domain\n-- Schema: CORE_TRANSACTIONS\n-- TODO: Update full DDL with CORE_TRANSACTIONS schema`,
+      scdType: "Type 1",
+      estimatedRows: "30M",
+      grain: "ACCOUNT_NUMBER X TRANSACTION_ID"
+    },
+    {
+      name: "FCT_DEPOSIT_STOP_TRANSACTION",
+      ddl: `-- DDL for FCT_DEPOSIT_STOP_TRANSACTION moved from Deposits domain\n-- Schema: CORE_TRANSACTIONS\n-- TODO: Update full DDL with CORE_TRANSACTIONS schema`,
+      scdType: "Type 1",
+      estimatedRows: "15M",
+      grain: "ACCOUNT_NUMBER X TRANSACTION_ID"
     }
   ]
 };
