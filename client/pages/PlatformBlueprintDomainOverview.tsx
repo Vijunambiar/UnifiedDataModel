@@ -65,7 +65,6 @@ import {
   Target,
   Calculator,
   AlertCircle,
-  RefreshCw,
   Clock,
   Code,
   FileCode,
