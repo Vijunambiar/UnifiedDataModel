@@ -141,7 +141,9 @@ export async function loadDomainSTTM(domainId: string) {
     promise = import("./customer/silver/sttm-mapping").then((m) => ({
       mappings: m.customerSTTMMapping_Combined.map((col: any) => ({
         sourceSystem: col.sourceSystem,
+        sourceTable: col.sourceTable,
         sourceColumn: col.sourceColumn,
+        bronzeTable: col.bronzeTable,
         targetTable: col.silverTable,
         targetColumn: col.silverColumn,
       })),
@@ -155,7 +157,9 @@ export async function loadDomainSTTM(domainId: string) {
     promise = import("./deposits/sttm-mapping").then((m) => ({
       mappings: m.depositsSTTMMapping_Combined.map((col: any) => ({
         sourceSystem: col.sourceSystem,
+        sourceTable: col.sourceTable,
         sourceColumn: col.sourceColumn,
+        bronzeTable: col.bronzeTable,
         targetTable: col.silverTable,
         targetColumn: col.silverColumn,
       })),
@@ -169,7 +173,9 @@ export async function loadDomainSTTM(domainId: string) {
     promise = import("./transactions/sttm-mapping").then((m) => ({
       mappings: m.transactionsSTTMMapping.map((col: any) => ({
         sourceSystem: col.sourceSystem,
+        sourceTable: col.sourceTable,
         sourceColumn: col.sourceColumn,
+        bronzeTable: col.bronzeTable,
         targetTable: col.silverTable,
         targetColumn: col.silverColumn,
       })),
