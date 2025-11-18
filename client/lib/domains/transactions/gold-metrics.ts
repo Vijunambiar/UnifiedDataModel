@@ -628,7 +628,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT TRANSACTION_ID) as active_holds_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_HOLD_TRANSACTION
       WHERE HOLD_STATUS = 'ACTIVE'
-        AND TRANSACTION_DATE <= CURRENT_DATE()
+        AND HOLD_START_DATE <= CURRENT_DATE()
     `,
     sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_HOLD_TRANSACTION"],
     granularity: "Daily",
