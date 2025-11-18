@@ -48,13 +48,13 @@ export const customerGoldMetrics: GoldMetric[] = [
     sqlDefinition: `
       WITH daily_counts AS (
         SELECT
-          PRCS_DTE as report_date,
+          BUSINESS_DATE as report_date,
           COUNT(DISTINCT CUSTOMER_NUMBER) as active_customers
         FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
         WHERE RECORD_STATUS = 'ACTIVE'
-          AND IS_CURRENT = TRUE
-          AND PRCS_DTE >= DATEADD(month, -13, CURRENT_DATE())
-        GROUP BY PRCS_DTE
+          AND RECORD_FLAG = 'current'
+          AND BUSINESS_DATE >= DATEADD(month, -13, CURRENT_DATE())
+        GROUP BY BUSINESS_DATE
       ),
       trend_analysis AS (
         SELECT
@@ -111,7 +111,7 @@ export const customerGoldMetrics: GoldMetric[] = [
           COUNT(DISTINCT CASE WHEN ACQUISITION_CHANNEL = 'MOBILE' THEN CUSTOMER_NUMBER END) as mobile_acquisitions
         FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
         WHERE CUSTOMER_ACQUISITION_DATE >= DATEADD(month, -12, CURRENT_DATE())
-          AND IS_CURRENT = TRUE
+          AND RECORD_FLAG = 'current'
           AND RECORD_STATUS = 'ACTIVE'
         GROUP BY DATE_TRUNC('month', CUSTOMER_ACQUISITION_DATE)
       ),
@@ -174,20 +174,20 @@ export const customerGoldMetrics: GoldMetric[] = [
           COUNT(DISTINCT CASE WHEN DATEDIFF(month, CUSTOMER_ACQUISITION_DATE, RECORD_END_DATE) BETWEEN 4 AND 12 THEN CUSTOMER_NUMBER END) as churn_4_12m,
           COUNT(DISTINCT CASE WHEN DATEDIFF(month, CUSTOMER_ACQUISITION_DATE, RECORD_END_DATE) > 12 THEN CUSTOMER_NUMBER END) as churn_over_12m
         FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
-        WHERE IS_CURRENT = FALSE
+        WHERE RECORD_FLAG = 'history'
           AND RECORD_STATUS = 'INACTIVE'
           AND RECORD_END_DATE >= DATEADD(month, -12, CURRENT_DATE())
         GROUP BY DATE_TRUNC('month', RECORD_END_DATE)
       ),
       active_base AS (
         SELECT
-          DATE_TRUNC('month', PRCS_DTE) as base_month,
+          DATE_TRUNC('month', BUSINESS_DATE) as base_month,
           COUNT(DISTINCT CUSTOMER_NUMBER) as active_customers
         FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
         WHERE RECORD_STATUS = 'ACTIVE'
-          AND IS_CURRENT = TRUE
-          AND PRCS_DTE >= DATEADD(month, -12, CURRENT_DATE())
-        GROUP BY DATE_TRUNC('month', PRCS_DTE)
+          AND RECORD_FLAG = 'current'
+          AND BUSINESS_DATE >= DATEADD(month, -12, CURRENT_DATE())
+        GROUP BY DATE_TRUNC('month', BUSINESS_DATE)
       )
       SELECT
         mc.churn_month,
@@ -231,7 +231,7 @@ export const customerGoldMetrics: GoldMetric[] = [
       SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as inactive_customers
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
       WHERE RECORD_STATUS = 'INACTIVE'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
@@ -262,11 +262,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     sqlDefinition: `
       WITH monthly_churn AS (
         SELECT 
-          COUNT(DISTINCT CASE WHEN IS_CURRENT = FALSE THEN CUSTOMER_NUMBER END) as churned_count,
+          COUNT(DISTINCT CASE WHEN RECORD_FLAG = 'history' THEN CUSTOMER_NUMBER END) as churned_count,
           COUNT(DISTINCT CUSTOMER_NUMBER) as total_customers
         FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
-        WHERE MONTH(PRCS_DTE) = MONTH(CURRENT_DATE())
-          AND YEAR(PRCS_DTE) = YEAR(CURRENT_DATE())
+        WHERE MONTH(BUSINESS_DATE) = MONTH(CURRENT_DATE())
+          AND YEAR(BUSINESS_DATE) = YEAR(CURRENT_DATE())
       )
       SELECT 
         ROUND((churned_count / NULLIF(total_customers, 0)) * 100, 2) as churn_rate_pct
@@ -299,11 +299,11 @@ export const customerGoldMetrics: GoldMetric[] = [
         ROUND((1 - (churned_count / NULLIF(prev_total_customers, 0))) * 100, 2) as retention_rate_pct
       FROM (
         SELECT 
-          COUNT(DISTINCT CASE WHEN IS_CURRENT = FALSE THEN CUSTOMER_NUMBER END) as churned_count,
-          LAG(COUNT(DISTINCT CUSTOMER_NUMBER), 1) OVER (ORDER BY MONTH(PRCS_DTE)) as prev_total_customers
+          COUNT(DISTINCT CASE WHEN RECORD_FLAG = 'history' THEN CUSTOMER_NUMBER END) as churned_count,
+          LAG(COUNT(DISTINCT CUSTOMER_NUMBER), 1) OVER (ORDER BY MONTH(BUSINESS_DATE)) as prev_total_customers
         FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
-        WHERE IS_CURRENT = TRUE
-        GROUP BY MONTH(PRCS_DTE)
+        WHERE RECORD_FLAG = 'current'
+        GROUP BY MONTH(BUSINESS_DATE)
       )
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
@@ -339,7 +339,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         END as tenure_range,
         COUNT(DISTINCT CUSTOMER_NUMBER) as customer_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
-      WHERE IS_CURRENT = TRUE
+      WHERE RECORD_FLAG = 'current'
         AND RECORD_STATUS = 'ACTIVE'
       GROUP BY tenure_range
     `,
@@ -879,7 +879,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         ROUND((COUNT(CASE WHEN KYC_VERIFICATION_STATUS = 'VERIFIED' THEN 1 END) /
                NULLIF(COUNT(DISTINCT CUSTOMER_NUMBER), 0)) * 100, 2) as kyc_verification_pct
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_IDENTIFER
-      WHERE IS_CURRENT = TRUE
+      WHERE RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_IDENTIFER"],
     granularity: "Daily",
@@ -908,7 +908,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as unverified_customers
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_IDENTIFER
       WHERE KYC_VERIFICATION_STATUS IN ('PENDING', 'FAILED')
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_IDENTIFER"],
     granularity: "Daily",
@@ -1037,7 +1037,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         ROUND(AVG(DATEDIFF(day, cd.CUSTOMER_ACQUISITION_DATE, ft.FIRST_TRANSACTION_DATE)), 0) as avg_days_to_first_transaction
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY cd
       LEFT JOIN CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION ft ON cd.CUSTOMER_NUMBER = ft.CUSTOMER_NUMBER
-      WHERE cd.IS_CURRENT = TRUE
+      WHERE cd.RECORD_FLAG = 'current'
         AND ft.TRANSACTION_DATE IS NOT NULL
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
@@ -1103,7 +1103,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as premium_customer_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
       WHERE CUSTOMER_SEGMENT = 'PREMIUM'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
         AND RECORD_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
@@ -1133,7 +1133,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as standard_customer_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
       WHERE CUSTOMER_SEGMENT = 'STANDARD'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
         AND RECORD_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
@@ -1163,7 +1163,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         STATE,
         COUNT(DISTINCT CUSTOMER_NUMBER) as customer_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_NAMES_ADDRESSES
-      WHERE IS_CURRENT = TRUE
+      WHERE RECORD_FLAG = 'current'
         AND ADDRESS_TYPE = 'PRIMARY'
       GROUP BY STATE
       ORDER BY customer_count DESC
@@ -1201,7 +1201,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         END as age_group,
         COUNT(DISTINCT CUSTOMER_NUMBER) as customer_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
-      WHERE IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'
+      WHERE RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'
       GROUP BY age_group
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
@@ -1236,7 +1236,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         END as income_segment,
         COUNT(DISTINCT CUSTOMER_NUMBER) as customer_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
-      WHERE IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'
+      WHERE RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'
       GROUP BY income_segment
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
@@ -1266,7 +1266,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         EMPLOYMENT_STATUS,
         COUNT(DISTINCT CUSTOMER_NUMBER) as customer_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
-      WHERE IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'
+      WHERE RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'
       GROUP BY EMPLOYMENT_STATUS
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
@@ -1300,7 +1300,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT ACCOUNT_NUMBER) as total_active_accounts
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE ACCOUNT_STATUS = 'ACTIVE'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
     granularity: "Daily",
@@ -1330,7 +1330,7 @@ export const customerGoldMetrics: GoldMetric[] = [
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE ACCOUNT_TYPE = 'SAVINGS'
         AND ACCOUNT_STATUS = 'ACTIVE'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
     granularity: "Daily",
@@ -1360,7 +1360,7 @@ export const customerGoldMetrics: GoldMetric[] = [
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE ACCOUNT_TYPE = 'CHECKING'
         AND ACCOUNT_STATUS = 'ACTIVE'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
     granularity: "Daily",
@@ -1389,7 +1389,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         ROUND(AVG(DATEDIFF(day, ACCOUNT_OPEN_DATE, CURRENT_DATE())), 0) as avg_account_tenure_days
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE ACCOUNT_STATUS = 'ACTIVE'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
     granularity: "Daily",
@@ -1419,7 +1419,7 @@ export const customerGoldMetrics: GoldMetric[] = [
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE ACCOUNT_TYPE = 'MONEY_MARKET'
         AND ACCOUNT_STATUS = 'ACTIVE'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
     granularity: "Daily",
@@ -1449,7 +1449,7 @@ export const customerGoldMetrics: GoldMetric[] = [
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE ACCOUNT_TYPE = 'CD'
         AND ACCOUNT_STATUS = 'ACTIVE'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
     granularity: "Daily",
@@ -1600,7 +1600,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         ROUND((COUNT(CASE WHEN EMAIL IS NOT NULL AND EMAIL != '' THEN 1 END) /
                 NULLIF(COUNT(DISTINCT CUSTOMER_NUMBER), 0)) * 100, 2) as email_completeness_pct
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_NAMES_ADDRESSES
-      WHERE IS_CURRENT = TRUE
+      WHERE RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_NAMES_ADDRESSES"],
     granularity: "Daily",
@@ -1628,7 +1628,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         ROUND((COUNT(CASE WHEN PHONE_NUMBER IS NOT NULL AND PHONE_NUMBER != '' THEN 1 END) /
                 NULLIF(COUNT(DISTINCT CUSTOMER_NUMBER), 0)) * 100, 2) as phone_completeness_pct
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_NAMES_ADDRESSES
-      WHERE IS_CURRENT = TRUE
+      WHERE RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_NAMES_ADDRESSES"],
     granularity: "Daily",
@@ -1656,7 +1656,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         ROUND((COUNT(CASE WHEN DATEDIFF(day, LAST_MODIFIED_DATE, CURRENT_DATE()) <= 30 THEN 1 END) /
                 NULLIF(COUNT(*), 0)) * 100, 2) as data_freshness_pct
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
-      WHERE IS_CURRENT = TRUE
+      WHERE RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
@@ -1684,7 +1684,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         ROUND((COUNT(CASE WHEN NAME IS NOT NULL AND DOB IS NOT NULL AND ADDRESS IS NOT NULL THEN 1 END) /
                 NULLIF(COUNT(DISTINCT CUSTOMER_NUMBER), 0)) * 100, 2) as record_completeness_pct
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
-      WHERE IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'
+      WHERE RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
@@ -1753,7 +1753,7 @@ export const customerGoldMetrics: GoldMetric[] = [
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY cd
       LEFT JOIN CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION ft ON cd.CUSTOMER_NUMBER = ft.CUSTOMER_NUMBER
         AND ft.TRANSACTION_DATE >= DATEADD(day, -90, CURRENT_DATE())
-      WHERE cd.IS_CURRENT = TRUE
+      WHERE cd.RECORD_FLAG = 'current'
         AND cd.RECORD_STATUS = 'ACTIVE'
         AND ft.TRANSACTION_ID IS NULL
     `,
@@ -1851,7 +1851,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY cd
         JOIN CORE_DEPOSIT.DIM_ACCOUNT da ON cd.CUSTOMER_NUMBER = da.CUSTOMER_NUMBER
         JOIN CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb ON da.ACCOUNT_NUMBER = fdb.ACCOUNT_NUMBER
-        WHERE cd.IS_CURRENT = TRUE
+        WHERE cd.RECORD_FLAG = 'current'
           AND fdb.BALANCE_DATE = CURRENT_DATE()
         GROUP BY cd.CUSTOMER_NUMBER
       )
@@ -1887,7 +1887,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY cd
         JOIN CORE_DEPOSIT.DIM_ACCOUNT da ON cd.CUSTOMER_NUMBER = da.CUSTOMER_NUMBER
         JOIN CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb ON da.ACCOUNT_NUMBER = fdb.ACCOUNT_NUMBER
-        WHERE cd.IS_CURRENT = TRUE
+        WHERE cd.RECORD_FLAG = 'current'
           AND fdb.BALANCE_DATE = CURRENT_DATE()
         GROUP BY cd.CUSTOMER_NUMBER
         HAVING (SUM(fdb.CURRENT_BALANCE) * 0.05 - SUM(fdb.DAILY_INTEREST_ACCRUAL) * 365) > 0
@@ -1924,7 +1924,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY cd
         JOIN CORE_DEPOSIT.DIM_ACCOUNT da ON cd.CUSTOMER_NUMBER = da.CUSTOMER_NUMBER
         JOIN CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb ON da.ACCOUNT_NUMBER = fdb.ACCOUNT_NUMBER
-        WHERE cd.IS_CURRENT = TRUE
+        WHERE cd.RECORD_FLAG = 'current'
           AND fdb.BALANCE_DATE = CURRENT_DATE()
         GROUP BY cd.CUSTOMER_NUMBER
         HAVING (SUM(fdb.CURRENT_BALANCE) * 0.05 - SUM(fdb.DAILY_INTEREST_ACCRUAL) * 365) < 0
@@ -2018,7 +2018,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         ROUND((COUNT(DISTINCT CASE WHEN DIGITAL_USER = TRUE THEN CUSTOMER_NUMBER END) /
                 NULLIF(COUNT(DISTINCT CUSTOMER_NUMBER), 0)) * 100, 2) as digital_adoption_pct
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
-      WHERE IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'
+      WHERE RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
@@ -2079,7 +2079,7 @@ export const customerGoldMetrics: GoldMetric[] = [
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE PRODUCT_TYPE = 'CREDIT_CARD'
         AND ACCOUNT_STATUS = 'ACTIVE'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
     granularity: "Daily",
@@ -2108,7 +2108,7 @@ export const customerGoldMetrics: GoldMetric[] = [
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE PRODUCT_TYPE IN ('AUTO_LOAN', 'PERSONAL_LOAN', 'MORTGAGE', 'HOME_EQUITY')
         AND ACCOUNT_STATUS = 'ACTIVE'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
     granularity: "Daily",
@@ -2137,7 +2137,7 @@ export const customerGoldMetrics: GoldMetric[] = [
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE PRODUCT_TYPE IN ('MUTUAL_FUND', 'BROKERAGE', 'RETIREMENT')
         AND ACCOUNT_STATUS = 'ACTIVE'
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
     granularity: "Daily",
@@ -2169,7 +2169,7 @@ export const customerGoldMetrics: GoldMetric[] = [
           COUNT(DISTINCT PRODUCT_TYPE) as product_count
         FROM CORE_DEPOSIT.DIM_ACCOUNT
         WHERE ACCOUNT_STATUS = 'ACTIVE'
-          AND IS_CURRENT = TRUE
+          AND RECORD_FLAG = 'current'
         GROUP BY CUSTOMER_NUMBER
       )
     `,
@@ -2234,7 +2234,7 @@ export const customerGoldMetrics: GoldMetric[] = [
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY cd
       LEFT JOIN CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION ft ON cd.CUSTOMER_NUMBER = ft.CUSTOMER_NUMBER
         AND ft.TRANSACTION_DATE >= DATEADD(day, -30, CURRENT_DATE())
-      WHERE cd.IS_CURRENT = TRUE
+      WHERE cd.RECORD_FLAG = 'current'
         AND cd.RECORD_STATUS = 'ACTIVE'
       GROUP BY cd.CUSTOMER_NUMBER
       HAVING COUNT(DISTINCT ft.TRANSACTION_ID) <= 2
@@ -2265,7 +2265,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         ROUND((COUNT(CASE WHEN PRODUCT_ADOPTION_DATE >= DATEADD(day, -90, CURRENT_DATE()) THEN 1 END) /
                 NULLIF(COUNT(DISTINCT CUSTOMER_NUMBER), 0)) * 100, 2) as adoption_rate_pct
       FROM CORE_DEPOSIT.DIM_ACCOUNT
-      WHERE IS_CURRENT = TRUE AND ACCOUNT_STATUS = 'ACTIVE'
+      WHERE RECORD_FLAG = 'current' AND ACCOUNT_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_DEPOSIT.DIM_ACCOUNT"],
     granularity: "Quarterly",
@@ -2297,7 +2297,7 @@ export const customerGoldMetrics: GoldMetric[] = [
           CUSTOMER_NUMBER,
           COUNT(DISTINCT PRODUCT_TYPE) as product_count
         FROM CORE_DEPOSIT.DIM_ACCOUNT
-        WHERE ACCOUNT_STATUS = 'ACTIVE' AND IS_CURRENT = TRUE
+        WHERE ACCOUNT_STATUS = 'ACTIVE' AND RECORD_FLAG = 'current'
         GROUP BY CUSTOMER_NUMBER
       )
     `,
@@ -2414,7 +2414,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as compliance_flag_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_IDENTIFER
       WHERE COMPLIANCE_FLAG = TRUE
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_IDENTIFER"],
     granularity: "Daily",
@@ -2442,7 +2442,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         ROUND((COUNT(CASE WHEN AML_CERTIFIED = TRUE THEN 1 END) /
                 NULLIF(COUNT(DISTINCT CUSTOMER_NUMBER), 0)) * 100, 2) as aml_compliance_pct
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_IDENTIFER
-      WHERE IS_CURRENT = TRUE
+      WHERE RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_IDENTIFER"],
     granularity: "Daily",
@@ -2474,7 +2474,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as married_customers
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
       WHERE MARITAL_STATUS = 'MARRIED'
-        AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'
+        AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
@@ -2502,7 +2502,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as customers_with_dependents
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
       WHERE NUMBER_OF_DEPENDENTS > 0
-        AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'
+        AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
@@ -2530,7 +2530,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as college_educated
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
       WHERE EDUCATION_LEVEL IN ('COLLEGE', 'GRADUATE')
-        AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'
+        AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
@@ -2558,7 +2558,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as homeowner_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
       WHERE HOME_OWNERSHIP = 'OWN'
-        AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'
+        AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
@@ -2586,7 +2586,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as business_owner_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
       WHERE BUSINESS_OWNER = TRUE
-        AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'
+        AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
@@ -2618,7 +2618,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as new_30day
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
       WHERE CUSTOMER_ACQUISITION_DATE >= DATEADD(day, -30, CURRENT_DATE())
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
@@ -2646,7 +2646,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as mature_customers
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
       WHERE DATEDIFF(year, CUSTOMER_ACQUISITION_DATE, CURRENT_DATE()) >= 5
-        AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'
+        AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
@@ -2702,7 +2702,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as winback_targets
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
       WHERE RECORD_STATUS = 'INACTIVE'
-        AND IS_CURRENT = FALSE
+        AND RECORD_FLAG = 'history'
         AND RECORD_END_DATE >= DATEADD(month, -6, CURRENT_DATE())
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
@@ -2819,7 +2819,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT CUSTOMER_NUMBER) as sms_optin_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_PREFERENCES
       WHERE SMS_MARKETING_OPT_IN = TRUE
-        AND IS_CURRENT = TRUE
+        AND RECORD_FLAG = 'current'
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_PREFERENCES"],
     granularity: "Daily",
@@ -2842,7 +2842,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Customers assigned a dedicated relationship manager",
     category: "Engagement",
     type: "Operational",
-    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as rm_assigned FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE RELATIONSHIP_MANAGER_ID IS NOT NULL AND IS_CURRENT = TRUE`,
+    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as rm_assigned FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE RELATIONSHIP_MANAGER_ID IS NOT NULL AND RECORD_FLAG = 'current'`,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
     aggregationMethod: "COUNT",
@@ -2914,7 +2914,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Average credit score of customer base",
     category: "Risk",
     type: "Operational",
-    sqlDefinition: `SELECT ROUND(AVG(CREDIT_SCORE), 0) as avg_credit_score FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'`,
+    sqlDefinition: `SELECT ROUND(AVG(CREDIT_SCORE), 0) as avg_credit_score FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'`,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
     aggregationMethod: "AVG",
@@ -2932,7 +2932,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Customers aged 35-55 (prime earning years)",
     category: "Segmentation",
     type: "Operational",
-    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as prime_age FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE AGE BETWEEN 35 AND 55 AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'`,
+    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as prime_age FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE AGE BETWEEN 35 AND 55 AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'`,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
     aggregationMethod: "COUNT",
@@ -2950,7 +2950,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Customers with retired employment status",
     category: "Segmentation",
     type: "Operational",
-    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as retired FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE EMPLOYMENT_STATUS = 'RETIRED' AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'`,
+    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as retired FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE EMPLOYMENT_STATUS = 'RETIRED' AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'`,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
     aggregationMethod: "COUNT",
@@ -2968,7 +2968,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Customers employed by federal/state government",
     category: "Segmentation",
     type: "Operational",
-    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as govt_employees FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE EMPLOYER_SECTOR = 'GOVERNMENT' AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'`,
+    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as govt_employees FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE EMPLOYER_SECTOR = 'GOVERNMENT' AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'`,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
     aggregationMethod: "COUNT",
@@ -2986,7 +2986,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Customers working in healthcare professions",
     category: "Segmentation",
     type: "Operational",
-    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as healthcare_prof FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE PROFESSION = 'HEALTHCARE' AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'`,
+    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as healthcare_prof FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE PROFESSION = 'HEALTHCARE' AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'`,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
     aggregationMethod: "COUNT",
@@ -3004,7 +3004,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Self-employed and solo practitioners",
     category: "Segmentation",
     type: "Operational",
-    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as self_employed FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE EMPLOYMENT_TYPE = 'SELF_EMPLOYED' AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'`,
+    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as self_employed FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE EMPLOYMENT_TYPE = 'SELF_EMPLOYED' AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'`,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
     aggregationMethod: "COUNT",
@@ -3022,7 +3022,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Customers working in real estate",
     category: "Segmentation",
     type: "Operational",
-    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as realestate_prof FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE PROFESSION = 'REAL_ESTATE' AND IS_CURRENT = TRUE AND RECORD_STATUS = 'ACTIVE'`,
+    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as realestate_prof FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE PROFESSION = 'REAL_ESTATE' AND RECORD_FLAG = 'current' AND RECORD_STATUS = 'ACTIVE'`,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
     aggregationMethod: "COUNT",
@@ -3040,7 +3040,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Customers in legal profession",
     category: "Segmentation",
     type: "Operational",
-    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as lawyers FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE PROFESSION = 'LEGAL' AND IS_CURRENT = TRUE`,
+    sqlDefinition: `SELECT COUNT(DISTINCT CUSTOMER_NUMBER) as lawyers FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY WHERE PROFESSION = 'LEGAL' AND RECORD_FLAG = 'current'`,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
     granularity: "Daily",
     aggregationMethod: "COUNT",
@@ -3115,7 +3115,7 @@ export const customerGoldMetrics: GoldMetric[] = [
       SELECT COUNT(DISTINCT dcd.CUSTOMER_NUMBER) as crosssell_eligible_count
       FROM CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY dcd
       WHERE dcd.RECORD_STATUS = 'ACTIVE'
-        AND dcd.IS_CURRENT = TRUE
+        AND dcd.RECORD_FLAG = 'current'
         AND dcd.PRODUCT_COUNT < 5
         AND dcd.RELATIONSHIP_MONTHS > 12
         AND dcd.CUSTOMER_NUMBER NOT IN (
@@ -3214,7 +3214,7 @@ export const customerGoldMetrics: GoldMetric[] = [
         AND fdat.TRANSACTION_DATE >= DATEADD(month, -12, CURRENT_DATE())
         AND fdat.TRANSACTION_STATUS = 'COMPLETED'
       WHERE dcd.RECORD_STATUS = 'ACTIVE'
-        AND dcd.IS_CURRENT = TRUE
+        AND dcd.RECORD_FLAG = 'current'
       GROUP BY DATEPART(month, CURRENT_DATE())
     `,
     sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION"],

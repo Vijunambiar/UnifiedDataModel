@@ -40,16 +40,16 @@ export const depositsGoldMetrics: GoldMetric[] = [
     sqlDefinition: `
       WITH daily_accounts AS (
         SELECT
-          PRCS_DTE as report_date,
+          BUSINESS_DATE as report_date,
           COUNT(DISTINCT ACCOUNT_NUMBER) as total_accounts,
           COUNT(DISTINCT CASE WHEN ACCOUNT_TYPE = 'SAVINGS' THEN ACCOUNT_NUMBER END) as savings_count,
           COUNT(DISTINCT CASE WHEN ACCOUNT_TYPE = 'CHECKING' THEN ACCOUNT_NUMBER END) as checking_count,
           COUNT(DISTINCT CASE WHEN ACCOUNT_TYPE = 'CD' THEN ACCOUNT_NUMBER END) as cd_count,
           COUNT(DISTINCT CASE WHEN ACCOUNT_TYPE = 'MONEY_MARKET' THEN ACCOUNT_NUMBER END) as mm_count
         FROM CORE_DEPOSIT.DIM_ACCOUNT
-        WHERE IS_ACTIVE = TRUE
-          AND PRCS_DTE >= DATEADD(month, -13, CURRENT_DATE())
-        GROUP BY PRCS_DTE
+        WHERE ACCOUNT_STATUS = 'ACTIVE'
+          AND BUSINESS_DATE >= DATEADD(month, -13, CURRENT_DATE())
+        GROUP BY BUSINESS_DATE
       ),
       trend_analysis AS (
         SELECT
@@ -114,8 +114,8 @@ export const depositsGoldMetrics: GoldMetric[] = [
           ACCOUNT_TYPE,
           COUNT(DISTINCT ACCOUNT_NUMBER) as account_count
         FROM CORE_DEPOSIT.DIM_ACCOUNT
-        WHERE IS_ACTIVE = TRUE
-          AND PRCS_DTE = CURRENT_DATE()
+        WHERE ACCOUNT_STATUS = 'ACTIVE'
+          AND BUSINESS_DATE = CURRENT_DATE()
         GROUP BY ACCOUNT_TYPE
       ),
       prev_month_counts AS (
@@ -123,8 +123,8 @@ export const depositsGoldMetrics: GoldMetric[] = [
           ACCOUNT_TYPE,
           COUNT(DISTINCT ACCOUNT_NUMBER) as prev_month_count
         FROM CORE_DEPOSIT.DIM_ACCOUNT
-        WHERE IS_ACTIVE = TRUE
-          AND PRCS_DTE = DATEADD(month, -1, CURRENT_DATE())
+        WHERE ACCOUNT_STATUS = 'ACTIVE'
+          AND BUSINESS_DATE = DATEADD(month, -1, CURRENT_DATE())
         GROUP BY ACCOUNT_TYPE
       ),
       total_accounts AS (
@@ -170,9 +170,9 @@ export const depositsGoldMetrics: GoldMetric[] = [
     sqlDefinition: `
       SELECT COUNT(DISTINCT ACCOUNT_NUMBER) as savings_accounts
       FROM CORE_DEPOSIT.DIM_ACCOUNT
-      WHERE IS_ACTIVE = TRUE
+      WHERE ACCOUNT_STATUS = 'ACTIVE'
         AND ACCOUNT_TYPE = 'SAVINGS'
-        AND PRCS_DTE = CURRENT_DATE()
+        AND BUSINESS_DATE = CURRENT_DATE()
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
     granularity: "Daily",
@@ -199,9 +199,9 @@ export const depositsGoldMetrics: GoldMetric[] = [
     sqlDefinition: `
       SELECT COUNT(DISTINCT ACCOUNT_NUMBER) as mm_accounts
       FROM CORE_DEPOSIT.DIM_ACCOUNT
-      WHERE IS_ACTIVE = TRUE
+      WHERE ACCOUNT_STATUS = 'ACTIVE'
         AND ACCOUNT_TYPE = 'MONEY_MARKET'
-        AND PRCS_DTE = CURRENT_DATE()
+        AND BUSINESS_DATE = CURRENT_DATE()
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
     granularity: "Daily",
@@ -228,9 +228,9 @@ export const depositsGoldMetrics: GoldMetric[] = [
     sqlDefinition: `
       SELECT COUNT(DISTINCT ACCOUNT_NUMBER) as cd_accounts
       FROM CORE_DEPOSIT.DIM_ACCOUNT
-      WHERE IS_ACTIVE = TRUE
+      WHERE ACCOUNT_STATUS = 'ACTIVE'
         AND ACCOUNT_TYPE = 'CD'
-        AND PRCS_DTE = CURRENT_DATE()
+        AND BUSINESS_DATE = CURRENT_DATE()
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
     granularity: "Daily",
@@ -545,7 +545,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE MONTH(ACCOUNT_OPEN_DATE) = MONTH(CURRENT_DATE())
         AND YEAR(ACCOUNT_OPEN_DATE) = YEAR(CURRENT_DATE())
-        AND IS_ACTIVE = TRUE
+        AND ACCOUNT_STATUS = 'ACTIVE'
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
     granularity: "Monthly",
@@ -611,7 +611,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT ACCOUNT_NUMBER) as ytd_new_accounts
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE ACCOUNT_OPEN_DATE >= DATE_TRUNC('year', CURRENT_DATE())
-        AND IS_ACTIVE = TRUE
+        AND ACCOUNT_STATUS = 'ACTIVE'
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
     granularity: "Annual",
@@ -789,8 +789,8 @@ export const depositsGoldMetrics: GoldMetric[] = [
       SELECT 
         ROUND(AVG(ANNUAL_INTEREST_RATE), 3) as avg_apy
       FROM CORE_DEPOSIT.DIM_ACCOUNT
-      WHERE IS_ACTIVE = TRUE
-        AND PRCS_DTE = CURRENT_DATE()
+      WHERE ACCOUNT_STATUS = 'ACTIVE'
+        AND BUSINESS_DATE = CURRENT_DATE()
         AND ANNUAL_INTEREST_RATE > 0
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
@@ -1039,8 +1039,8 @@ export const depositsGoldMetrics: GoldMetric[] = [
           COUNT(DISTINCT ACCOUNT_NUMBER) as type_count,
           SUM(COUNT(DISTINCT ACCOUNT_NUMBER)) OVER () as total_count
         FROM CORE_DEPOSIT.DIM_ACCOUNT
-        WHERE IS_ACTIVE = TRUE
-          AND PRCS_DTE = CURRENT_DATE()
+        WHERE ACCOUNT_STATUS = 'ACTIVE'
+          AND BUSINESS_DATE = CURRENT_DATE()
         GROUP BY ACCOUNT_TYPE
       )
       SELECT 
@@ -1295,8 +1295,8 @@ export const depositsGoldMetrics: GoldMetric[] = [
         ROUND((COUNT(CASE WHEN ACCOUNT_NUMBER IS NOT NULL AND CUSTOMER_NUMBER IS NOT NULL AND ACCOUNT_TYPE IS NOT NULL THEN 1 END) /
                NULLIF(COUNT(DISTINCT ACCOUNT_NUMBER), 0)) * 100, 2) as completeness_pct
       FROM CORE_DEPOSIT.DIM_ACCOUNT
-      WHERE IS_ACTIVE = TRUE
-        AND PRCS_DTE = CURRENT_DATE()
+      WHERE ACCOUNT_STATUS = 'ACTIVE'
+        AND BUSINESS_DATE = CURRENT_DATE()
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
     granularity: "Daily",
@@ -1764,8 +1764,8 @@ export const depositsGoldMetrics: GoldMetric[] = [
         ROUND(AVG(ANNUAL_INTEREST_RATE), 3) as our_avg_rate,
         ROUND(AVG(ANNUAL_INTEREST_RATE) - 0.025, 3) as competitive_gap
       FROM CORE_DEPOSIT.DIM_ACCOUNT
-      WHERE IS_ACTIVE = TRUE
-        AND PRCS_DTE = CURRENT_DATE()
+      WHERE ACCOUNT_STATUS = 'ACTIVE'
+        AND BUSINESS_DATE = CURRENT_DATE()
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
     granularity: "Daily",
@@ -1819,8 +1819,8 @@ export const depositsGoldMetrics: GoldMetric[] = [
       SELECT
         ROUND(((0.050 - AVG(ANNUAL_INTEREST_RATE)) / 0.050) * 100, 2) as competitiveness_index
       FROM CORE_DEPOSIT.DIM_ACCOUNT
-      WHERE IS_ACTIVE = TRUE
-        AND PRCS_DTE = CURRENT_DATE()
+      WHERE ACCOUNT_STATUS = 'ACTIVE'
+        AND BUSINESS_DATE = CURRENT_DATE()
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
     granularity: "Daily",
@@ -2011,7 +2011,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
       LEFT JOIN CORE_DEPOSIT.FCT_CHARGES_FEES fc ON da.ACCOUNT_NUMBER = fc.ACCOUNT_NUMBER
         AND MONTH(fc.FEE_DATE) = MONTH(CURRENT_DATE())
         AND YEAR(fc.FEE_DATE) = YEAR(CURRENT_DATE())
-      WHERE da.IS_ACTIVE = TRUE
+      WHERE da.ACCOUNT_STATUS = 'ACTIVE'
       GROUP BY da.ACCOUNT_TYPE
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
@@ -2064,7 +2064,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
           (CAST(COUNT(CASE WHEN WITHDRAWAL_COUNT = 0 THEN 1 END) AS FLOAT) / COUNT(*) * 0.3)
         ) * 100, 2) as stickiness_score
       FROM CORE_DEPOSIT.DIM_ACCOUNT
-      WHERE IS_ACTIVE = TRUE
+      WHERE ACCOUNT_STATUS = 'ACTIVE'
         AND ACCOUNT_STATUS = 'OPEN'
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
@@ -2090,7 +2090,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
         ROUND(SUM(CURRENT_BALANCE * DATEDIFF(day, CURRENT_DATE(), MATURITY_DATE)) / NULLIF(SUM(CURRENT_BALANCE), 0), 1) as balance_weighted_maturity_days
       FROM CORE_DEPOSIT.DIM_ACCOUNT
       WHERE ACCOUNT_TYPE IN ('CD', 'MONEY_MARKET', 'TIME_DEPOSIT')
-        AND IS_ACTIVE = TRUE
+        AND ACCOUNT_STATUS = 'ACTIVE'
         AND MATURITY_DATE > CURRENT_DATE()
     `,
     sourceTable: "CORE_DEPOSIT.DIM_ACCOUNT",
@@ -2184,7 +2184,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
         FROM CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb
         JOIN CORE_DEPOSIT.DIM_ACCOUNT da ON fdb.ACCOUNT_NUMBER = da.ACCOUNT_NUMBER
         WHERE fdb.BALANCE_DATE = CURRENT_DATE()
-          AND da.IS_ACTIVE = TRUE
+          AND da.ACCOUNT_STATUS = 'ACTIVE'
       )
       SELECT
         ROUND(PERCENTILE_CONT(0.10) WITHIN GROUP (ORDER BY CURRENT_BALANCE), 2) as p10_balance,
@@ -2302,7 +2302,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
           END as maturity_bucket
         FROM CORE_DEPOSIT.DIM_ACCOUNT da
         JOIN CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb ON da.ACCOUNT_NUMBER = fdb.ACCOUNT_NUMBER
-        WHERE da.IS_ACTIVE = TRUE
+        WHERE da.ACCOUNT_STATUS = 'ACTIVE'
           AND fdb.BALANCE_DATE = CURRENT_DATE()
           AND da.ACCOUNT_TYPE IN ('CD', 'TIME_DEPOSIT', 'MONEY_MARKET')
       )
@@ -2418,7 +2418,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
         FROM CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb
         JOIN CORE_DEPOSIT.DIM_ACCOUNT da ON fdb.ACCOUNT_NUMBER = da.ACCOUNT_NUMBER
         WHERE fdb.BALANCE_DATE = CURRENT_DATE()
-          AND da.IS_ACTIVE = TRUE
+          AND da.ACCOUNT_STATUS = 'ACTIVE'
         GROUP BY fdb.CUSTOMER_NUMBER
       ),
       ranked_customers AS (
@@ -2681,7 +2681,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
           ROUND(AVG(APY_RATE), 4) as our_rate,
           CURRENT_DATE() as rate_date
         FROM CORE_DEPOSIT.DIM_ACCOUNT
-        WHERE IS_ACTIVE = TRUE
+        WHERE ACCOUNT_STATUS = 'ACTIVE'
         GROUP BY ACCOUNT_TYPE
       ),
       rate_history AS (
@@ -2832,7 +2832,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
           CASE WHEN EMAIL IS NOT NULL THEN 1 ELSE 0 END as has_email,
           CASE WHEN PHONE IS NOT NULL THEN 1 ELSE 0 END as has_phone,
           CASE WHEN ADDRESS IS NOT NULL THEN 1 ELSE 0 END as has_address,
-          CASE WHEN PRCS_DTE = OPEN_DATE THEN 1 ELSE 0 END as had_activity_on_open
+          CASE WHEN BUSINESS_DATE = OPEN_DATE THEN 1 ELSE 0 END as had_activity_on_open
         FROM CORE_DEPOSIT.DIM_ACCOUNT
         WHERE OPEN_DATE >= DATEADD(day, -30, CURRENT_DATE())
       ),
@@ -2878,7 +2878,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
           COUNT(DISTINCT ACCOUNT_TYPE) as product_count,
           STRING_AGG(DISTINCT ACCOUNT_TYPE, ', ') as product_list
         FROM CORE_DEPOSIT.DIM_ACCOUNT
-        WHERE IS_ACTIVE = TRUE
+        WHERE ACCOUNT_STATUS = 'ACTIVE'
         GROUP BY CUSTOMER_ID
       ),
       product_distribution AS (
