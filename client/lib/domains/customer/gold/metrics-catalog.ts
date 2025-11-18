@@ -1002,6 +1002,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Total number of new customers acquired year-to-date",
     category: "Growth",
     type: "Strategic",
+    grain: "Overall",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT CUSTOMER_NUMBER) as ytd_new_customers
@@ -1030,6 +1031,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Average number of days from customer creation to first transaction",
     category: "Engagement",
     type: "Tactical",
+    grain: "Overall",
     sqlDefinition: `
       SELECT
         ROUND(AVG(DATEDIFF(day, cd.CUSTOMER_ACQUISITION_DATE, ft.FIRST_TRANSACTION_DATE)), 0) as avg_days_to_first_transaction
@@ -1059,6 +1061,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Estimated monthly customer acquisition cost based on new accounts",
     category: "Growth",
     type: "Strategic",
+    grain: "Monthly",
     sqlDefinition: `
       SELECT
         DATE_TRUNC('month', CUSTOMER_ACQUISITION_DATE) as month,
