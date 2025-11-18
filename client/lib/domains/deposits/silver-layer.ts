@@ -1108,10 +1108,118 @@ export const depositTransactionDetailSilver: SilverTableDefinition = {
   ],
 };
 
+// Additional Deposits Silver Tables
+export const depositAccountSilver: SilverTableDefinition = {
+  name: "CORE_DEPOSIT.DIM_ACCOUNT",
+  schema: "CORE_DEPOSIT",
+  description: "Deposit account dimension with SCD Type 2",
+  businessKey: "account_number",
+  surrogatePrimaryKey: "account_sk",
+  sourceTables: ["bronze.deposit_account_master"],
+  scdType: "Type 2",
+  grain: "One row per account",
+  columns: [
+    { name: "account_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+    { name: "account_number", dataType: "VARCHAR", nullable: false, businessMeaning: "Account number", sourceMapping: { bronzeTable: "bronze.deposit_account_master", bronzeColumn: "ACCOUNT_NUMBER" } },
+  ],
+};
+
+export const depositAccountPackageSilver: SilverTableDefinition = {
+  name: "CORE_DEPOSIT.DIM_ACCOUNT_PACKAGE",
+  schema: "CORE_DEPOSIT",
+  description: "Account package and tier information",
+  businessKey: "account_number",
+  surrogatePrimaryKey: "account_package_sk",
+  sourceTables: ["bronze.account_package"],
+  scdType: "Type 2",
+  grain: "One row per account package",
+  columns: [
+    { name: "account_package_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+    { name: "account_number", dataType: "VARCHAR", nullable: false, businessMeaning: "Account number", sourceMapping: { bronzeTable: "bronze.account_package", bronzeColumn: "ACCOUNT_NUMBER" } },
+  ],
+};
+
+export const depositDebitCardSilver: SilverTableDefinition = {
+  name: "CORE_DEPOSIT.DIM_DEBIT_CARD",
+  schema: "CORE_DEPOSIT",
+  description: "Debit card information",
+  businessKey: "debit_card_number",
+  surrogatePrimaryKey: "debit_card_sk",
+  sourceTables: ["bronze.debit_card"],
+  scdType: "Type 2",
+  grain: "One row per debit card",
+  columns: [
+    { name: "debit_card_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+  ],
+};
+
+export const depositCertificateTransactionSilver: SilverTableDefinition = {
+  name: "CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION",
+  schema: "CORE_DEPOSIT",
+  description: "Certificate transaction fact",
+  businessKey: "transaction_id",
+  surrogatePrimaryKey: "deposit_certificate_transaction_sk",
+  sourceTables: ["bronze.certificate_transaction"],
+  scdType: "Type 1",
+  grain: "One row per transaction",
+  columns: [
+    { name: "deposit_certificate_transaction_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+  ],
+};
+
+export const depositHoldTransactionSilver: SilverTableDefinition = {
+  name: "CORE_DEPOSIT.FCT_DEPOSIT_HOLD_TRANSACTION",
+  schema: "CORE_DEPOSIT",
+  description: "Hold transaction fact",
+  businessKey: "transaction_id",
+  surrogatePrimaryKey: "deposit_hold_transaction_sk",
+  sourceTables: ["bronze.hold_transaction"],
+  scdType: "Type 1",
+  grain: "One row per hold transaction",
+  columns: [
+    { name: "deposit_hold_transaction_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+  ],
+};
+
+export const depositMaintenanceTransactionSilver: SilverTableDefinition = {
+  name: "CORE_DEPOSIT.FCT_DEPOSIT_MAINTENANCE_TRANSACTION",
+  schema: "CORE_DEPOSIT",
+  description: "Maintenance transaction fact",
+  businessKey: "transaction_id",
+  surrogatePrimaryKey: "deposit_maintenance_transaction_sk",
+  sourceTables: ["bronze.maintenance_log_transaction"],
+  scdType: "Type 1",
+  grain: "One row per maintenance transaction",
+  columns: [
+    { name: "deposit_maintenance_transaction_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+  ],
+};
+
+export const depositStopTransactionSilver: SilverTableDefinition = {
+  name: "CORE_DEPOSIT.FCT_DEPOSIT_STOP_TRANSACTION",
+  schema: "CORE_DEPOSIT",
+  description: "Stop payment transaction fact",
+  businessKey: "transaction_id",
+  surrogatePrimaryKey: "deposit_stop_transaction_sk",
+  sourceTables: ["bronze.stop_transaction"],
+  scdType: "Type 1",
+  grain: "One row per stop payment",
+  columns: [
+    { name: "deposit_stop_transaction_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+  ],
+};
+
 export const depositsSilverTables = [
   depositAccountMasterSilver,
   depositAccountDailyBalancesSilver,
   depositTransactionDetailSilver,
+  depositAccountSilver,
+  depositAccountPackageSilver,
+  depositDebitCardSilver,
+  depositCertificateTransactionSilver,
+  depositHoldTransactionSilver,
+  depositMaintenanceTransactionSilver,
+  depositStopTransactionSilver,
 ];
 
 export const depositsSilverLayerComplete = {
