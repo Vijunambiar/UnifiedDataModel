@@ -1315,10 +1315,106 @@ export const customerContactHistorySilver: SilverTableDefinition = {
   ],
 };
 
+// Additional Silver Tables
+export const customerDemographySilver: SilverTableDefinition = {
+  name: "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+  schema: "CORE_CUSTOMERS",
+  description: "Customer demographic attributes with SCD Type 2",
+  businessKey: "customer_number",
+  surrogatePrimaryKey: "customer_demography_sk",
+  sourceTables: ["bronze.customer_master"],
+  scdType: "Type 2",
+  grain: "One row per customer per effective date",
+  partitionBy: ["effective_start_date"],
+  clusterBy: ["customer_number", "is_current"],
+  columns: [
+    { name: "customer_demography_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A", transformation: "Auto-generated" } },
+    { name: "customer_number", dataType: "VARCHAR", nullable: false, businessMeaning: "Customer identifier", sourceMapping: { bronzeTable: "bronze.customer_master", bronzeColumn: "CUSTOMER_NUMBER", transformation: "1:1 mapping" } },
+    { name: "ethnic_code", dataType: "VARCHAR", nullable: true, businessMeaning: "Ethnicity code", sourceMapping: { bronzeTable: "bronze.customer_master", bronzeColumn: "ETHNIC_CODE" } },
+    { name: "gender", dataType: "VARCHAR", nullable: true, businessMeaning: "Gender", sourceMapping: { bronzeTable: "bronze.customer_master", bronzeColumn: "GENDER" } },
+    { name: "marital_status_code", dataType: "VARCHAR", nullable: true, businessMeaning: "Marital status", sourceMapping: { bronzeTable: "bronze.customer_master", bronzeColumn: "MARITAL_STATUS_CODE" } },
+    { name: "education_code", dataType: "VARCHAR", nullable: true, businessMeaning: "Education level", sourceMapping: { bronzeTable: "bronze.customer_master", bronzeColumn: "EDUCATION_CODE" } },
+    { name: "income_code", dataType: "VARCHAR", nullable: true, businessMeaning: "Income range", sourceMapping: { bronzeTable: "bronze.customer_master", bronzeColumn: "INCOME_CODE" } },
+  ],
+};
+
+export const customerIdentifierSilver: SilverTableDefinition = {
+  name: "CORE_CUSTOMERS.DIM_CUSTOMER_IDENTIFER",
+  schema: "CORE_CUSTOMERS",
+  description: "Customer government identifiers with encryption",
+  businessKey: "customer_number",
+  surrogatePrimaryKey: "customer_identifer_sk",
+  sourceTables: ["bronze.customer_identifiers"],
+  scdType: "Type 2",
+  grain: "One row per customer identifier",
+  columns: [
+    { name: "customer_identifer_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+    { name: "customer_number", dataType: "VARCHAR", nullable: false, businessMeaning: "Customer identifier", sourceMapping: { bronzeTable: "bronze.customer_identifiers", bronzeColumn: "CUSTOMER_NUMBER" } },
+    { name: "tax_identification_number", dataType: "VARCHAR", nullable: true, businessMeaning: "Encrypted Tax ID", sourceMapping: { bronzeTable: "bronze.customer_identifiers", bronzeColumn: "TAX_ID" }, piiClassification: "HIGH", encryptionMethod: "AES_256" },
+    { name: "driving_license_number", dataType: "VARCHAR", nullable: true, businessMeaning: "Encrypted DL", sourceMapping: { bronzeTable: "bronze.customer_identifiers", bronzeColumn: "DRIVING_LICENSE" }, piiClassification: "HIGH", encryptionMethod: "AES_256" },
+  ],
+};
+
+export const customerNameSilver: SilverTableDefinition = {
+  name: "CORE_CUSTOMERS.DIM_CUSTOMER_NAME",
+  schema: "CORE_CUSTOMERS",
+  description: "Customer name components",
+  businessKey: "customer_number",
+  surrogatePrimaryKey: "customer_sk",
+  sourceTables: ["bronze.customer_names_addresses"],
+  scdType: "Type 2",
+  grain: "One row per customer",
+  columns: [
+    { name: "customer_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+    { name: "customer_number", dataType: "VARCHAR", nullable: false, businessMeaning: "Customer identifier", sourceMapping: { bronzeTable: "bronze.customer_names_addresses", bronzeColumn: "CUSTOMER_NUMBER" } },
+    { name: "first_name", dataType: "VARCHAR", nullable: true, businessMeaning: "First name", sourceMapping: { bronzeTable: "bronze.customer_names_addresses", bronzeColumn: "FIRST_NAME" }, piiClassification: "HIGH" },
+    { name: "last_name", dataType: "VARCHAR", nullable: true, businessMeaning: "Last name", sourceMapping: { bronzeTable: "bronze.customer_names_addresses", bronzeColumn: "LAST_NAME" }, piiClassification: "HIGH" },
+  ],
+};
+
+export const customerAddressSilver: SilverTableDefinition = {
+  name: "CORE_CUSTOMERS.DIM_CUSTOMER_ADDRESS",
+  schema: "CORE_CUSTOMERS",
+  description: "Customer address with USPS standardization",
+  businessKey: "customer_number",
+  surrogatePrimaryKey: "customer_address_sk",
+  sourceTables: ["bronze.customer_names_addresses"],
+  scdType: "Type 2",
+  grain: "One row per customer address",
+  columns: [
+    { name: "customer_address_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+    { name: "customer_number", dataType: "VARCHAR", nullable: false, businessMeaning: "Customer identifier", sourceMapping: { bronzeTable: "bronze.customer_names_addresses", bronzeColumn: "CUSTOMER_NUMBER" } },
+    { name: "address_line_1", dataType: "VARCHAR", nullable: true, businessMeaning: "Address line 1", sourceMapping: { bronzeTable: "bronze.customer_names_addresses", bronzeColumn: "ADDRESS_LINE_1" }, piiClassification: "MEDIUM" },
+    { name: "city", dataType: "VARCHAR", nullable: true, businessMeaning: "City", sourceMapping: { bronzeTable: "bronze.customer_names_addresses", bronzeColumn: "CITY" } },
+    { name: "state", dataType: "VARCHAR", nullable: true, businessMeaning: "State", sourceMapping: { bronzeTable: "bronze.customer_names_addresses", bronzeColumn: "STATE" } },
+  ],
+};
+
+export const customerContactSilver: SilverTableDefinition = {
+  name: "CORE_CUSTOMERS.DIM_CUSTOMER_CONTACT",
+  schema: "CORE_CUSTOMERS",
+  description: "Customer phone contact information",
+  businessKey: "customer_number",
+  surrogatePrimaryKey: "customer_contact_sk",
+  sourceTables: ["bronze.customer_names_addresses"],
+  scdType: "Type 2",
+  grain: "One row per customer",
+  columns: [
+    { name: "customer_contact_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+    { name: "customer_number", dataType: "VARCHAR", nullable: false, businessMeaning: "Customer identifier", sourceMapping: { bronzeTable: "bronze.customer_names_addresses", bronzeColumn: "CUSTOMER_NUMBER" } },
+    { name: "primary_phone_number", dataType: "VARCHAR", nullable: true, businessMeaning: "Primary phone", sourceMapping: { bronzeTable: "bronze.customer_names_addresses", bronzeColumn: "PRIMARY_PHONE_NUMBER" }, piiClassification: "HIGH" },
+  ],
+};
+
 export const customerSilverTables = [
   customerMasterSilver,
   customerRelationshipSilver,
   customerContactHistorySilver,
+  customerDemographySilver,
+  customerIdentifierSilver,
+  customerNameSilver,
+  customerAddressSilver,
+  customerContactSilver,
 ];
 
 export const customerSilverLayerComplete = {
