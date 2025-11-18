@@ -1873,7 +1873,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROF-002",
     name: "Profitable Customer Count",
-    grain: "Overall",
+    grain: "Daily",
     description: "Number of customers with positive profitability",
     category: "Value",
     type: "Operational",
@@ -1911,7 +1911,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROF-003",
     name: "Unprofitable Customer Count",
-    grain: "Overall",
+    grain: "Daily",
     description: "Number of customers with negative profitability",
     category: "Risk",
     type: "Operational",
@@ -1953,7 +1953,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CHAN-001",
     name: "Mobile App Users",
-    grain: "Channel",
+    grain: "Channel, Monthly",
     description: "Number of customers with active mobile app usage",
     category: "Engagement",
     type: "Operational",
@@ -1983,7 +1983,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CHAN-002",
     name: "Online Banking Users",
-    grain: "Channel",
+    grain: "Channel, Monthly",
     description: "Number of customers with active online banking usage",
     category: "Engagement",
     type: "Operational",
@@ -2013,7 +2013,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CHAN-003",
     name: "Digital Adoption Rate",
-    grain: "Channel",
+    grain: "Channel, Daily",
     description: "Percentage of customers using digital channels",
     category: "Engagement",
     type: "Strategic",
@@ -2042,7 +2042,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CHAN-004",
     name: "Branch Visit Frequency",
-    grain: "Channel",
+    grain: "Channel, Monthly",
     description: "Average number of branch visits per customer per month",
     category: "Engagement",
     type: "Operational",
@@ -2075,7 +2075,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROD-001",
     name: "Credit Card Holder Count",
-    grain: "Product",
+    grain: "Product, Daily",
     description: "Number of active credit card customers",
     category: "Volume",
     type: "Operational",
@@ -2105,7 +2105,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROD-002",
     name: "Loan Holder Count",
-    grain: "Product",
+    grain: "Product, Daily",
     description: "Number of active loan customers",
     category: "Volume",
     type: "Operational",
@@ -2135,7 +2135,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROD-003",
     name: "Investment Product Holders",
-    grain: "Product",
+    grain: "Product, Daily",
     description: "Number of customers with investment products",
     category: "Volume",
     type: "Operational",
@@ -2165,7 +2165,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PROD-004",
     name: "Average Products Per Customer",
-    grain: "Customer",
+    grain: "Customer, Daily",
     description: "Average number of distinct product types per customer",
     category: "Engagement",
     type: "Operational",
