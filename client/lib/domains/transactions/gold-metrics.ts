@@ -1048,8 +1048,8 @@ export const transactionsGoldMetrics: GoldMetric[] = [
           COUNT(CASE WHEN STOP_RESULT = 'PREVENTED' THEN 1 END) as prevented_count,
           COUNT(CASE WHEN STOP_RESULT IN ('PREVENTED', 'PAID') THEN 1 END) as total_resolved
         FROM CORE_DEPOSIT.FCT_DEPOSIT_STOP_TRANSACTION
-        WHERE MONTH(TRANSACTION_DATE) = MONTH(CURRENT_DATE())
-          AND YEAR(TRANSACTION_DATE) = YEAR(CURRENT_DATE())
+        WHERE MONTH(STOP_ENTERED_DATE) = MONTH(CURRENT_DATE())
+          AND YEAR(STOP_ENTERED_DATE) = YEAR(CURRENT_DATE())
       )
       SELECT
         ROUND((prevented_count / NULLIF(total_resolved, 0)) * 100, 2) as success_rate_pct
