@@ -1270,11 +1270,11 @@ export default function PlatformBlueprintDomainOverview() {
           <Card className="border-slate-200 shadow-sm">
             <CardHeader>
               <CardTitle>
-                Silver Transformation Code (Production Ready)
+                Silver Transformation Code
               </CardTitle>
               <CardDescription>
                 {silverTransformationCatalog?.models?.length ?
-                  `dbt Models: ${silverTransformationCatalog.models.map((m: any) => m.modelName).join(", ")} - ${silverTransformationCatalog.models[0]?.materializationType === 'incremental' ? 'Incremental with SCD Type 2' : 'Full Refresh'}`
+                  `${silverTransformationCatalog.models[0]?.materializationType === 'incremental' ? 'Incremental with SCD Type 2' : 'Full Refresh'}`
                   : 'SCD Type 2 implementation with deduplication and business logic'}
               </CardDescription>
             </CardHeader>
