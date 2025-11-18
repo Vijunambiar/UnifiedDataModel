@@ -1237,16 +1237,16 @@ export default function PlatformBlueprintDomainOverview() {
                     <p className="text-slate-600">1:1 mapping from source column</p>
                   </div>
                   <div>
-                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300 mb-1">Derived</Badge>
-                    <p className="text-slate-600">Calculated/transformed fields</p>
+                    <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-300 mb-1">SCD2</Badge>
+                    <p className="text-slate-600">SCD Type 2 tracking columns</p>
                   </div>
                   <div>
                     <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-300 mb-1">System</Badge>
-                    <p className="text-slate-600">Auto-generated (surrogate keys, timestamps) - <strong>Source Table shows N/A</strong></p>
+                    <p className="text-slate-600">Auto-generated (surrogate keys, timestamps)</p>
                   </div>
                   <div>
-                    <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-300 mb-1">SCD2</Badge>
-                    <p className="text-slate-600">SCD Type 2 tracking columns</p>
+                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300 mb-1">Derived</Badge>
+                    <p className="text-slate-600">Calculated/transformed fields (listed last)</p>
                   </div>
                 </div>
               </div>
@@ -1268,13 +1268,25 @@ export default function PlatformBlueprintDomainOverview() {
                     </TableHeader>
                     <TableBody>
                       {(domain.sttmMapping || [])
+                        .sort((a: any, b: any) => {
+                          // Sort order: Direct, SCD2, System, then Derived/Compliance/Fraud last
+                          const order: Record<string, number> = {
+                            'Direct': 1,
+                            'SCD2': 2,
+                            'System': 3,
+                            'Derived': 4,
+                            'Compliance': 5,
+                            'Fraud': 6
+                          };
+                          return (order[a.mappingType] || 4) - (order[b.mappingType] || 4);
+                        })
                         .map((mapping: any, idx: number) => (
                           <TableRow key={`mapping-${idx}`}>
                             <TableCell className="font-mono text-xs">
                               {mapping.sourceSystem}
                             </TableCell>
                             <TableCell className="font-mono text-xs">
-                              {mapping.sourceTable}
+                              {mapping.sourceTable === 'N/A' ? 'Derived' : mapping.sourceTable}
                             </TableCell>
                             <TableCell className="font-mono text-xs">
                               {mapping.sourceColumn}
@@ -2047,7 +2059,7 @@ export default function PlatformBlueprintDomainOverview() {
                     </p>
                     <ul className="text-xs text-blue-700 space-y-2">
                       <li>✓ Business metrics</li>
-                      <li>��� KPI definitions</li>
+                      <li>✓ KPI definitions</li>
                       <li>✓ Metric catalog</li>
                       <li>✓ BI ready</li>
                     </ul>
