@@ -117,7 +117,7 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
       })
       .join(",\n");
 
-    const schemaName = getSchemaFromTableName(table.name);
+    const schemaName = getSchemaFromTableName(table);
     const tableNameOnly = getTableNameWithoutSchema(table.name);
 
     let ddl = `CREATE TABLE ${schemaName}.${tableNameOnly} (\n${columns}\n)`;
@@ -183,7 +183,7 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
                   </TableCell>
                   <TableCell className="font-medium">{table.name}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {getSchemaFromTableName(table.name)}
+                    {getSchemaFromTableName(table)}
                   </TableCell>
                   <TableCell className="text-right">
                     <Badge variant="secondary">{getTableColumns(table).length}</Badge>
