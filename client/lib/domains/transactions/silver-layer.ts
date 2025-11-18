@@ -1163,6 +1163,11 @@ export const transactionsSilverTables = [
   achTransactionSilver,
   wireTransferSilver,
   transactionDailyAggSilver,
+  depositAccountTransactionSilver,
+  depositCertificateTransactionSilver,
+  depositHoldTransactionSilver,
+  depositMaintenanceTransactionSilver,
+  depositStopTransactionSilver,
 ];
 
 export const transactionsSilverLayerComplete = {
