@@ -83,11 +83,20 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
     return [];
   };
 
-  const getSchemaFromTableName = (tableName: string): string => {
-    if (tableName.includes(".")) {
-      return tableName.split(".")[0];
+  const getSchemaFromTableName = (table: TableDefinition): string => {
+    // First check if table object has a schema property
+    if (table.schema) {
+      return table.schema;
     }
-    return "analytics";
+    // Then try to parse from table name
+    if (table.name.includes(".")) {
+      return table.name.split(".")[0];
+    }
+    // Default to FIS_RAW for bronze layer, otherwise use the layer-specific default
+    if (layerName.toLowerCase().includes("bronze")) {
+      return "FIS_RAW";
+    }
+    return "CORE";
   };
 
   const getTableNameWithoutSchema = (tableName: string): string => {
