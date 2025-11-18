@@ -1,6 +1,6 @@
 // Transactions Domain - Source to Target Mapping (STTM)
-// Schema: CORE_TRANSACTIONS
-// Contains mappings for 5 deposit-related transaction fact tables moved from Deposits domain
+// Schema: CORE_DEPOSIT
+// Contains mappings for 5 deposit-related transaction fact tables
 
 export interface ColumnMapping {
   sourceSystem: string;
