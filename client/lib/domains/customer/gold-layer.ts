@@ -449,7 +449,8 @@ export const aggCustomer360View: GoldTable = {
 // Re-export dimensions and facts for compatibility with metadata
 export const customerGoldDimensions: GoldTable[] = [];
 
-export const customerGoldFacts: GoldTable[] = [];
+// Note: For UI purposes, aggregates are exported as "facts" since they're fact-like tables
+export const customerGoldFacts: GoldTable[] = [aggCustomer360View];
 
 export const customerGoldLayerComplete = {
   aggregates: [aggCustomer360View],
