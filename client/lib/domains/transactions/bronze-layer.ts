@@ -1,5 +1,5 @@
-// Transactions Domain - FIS-ADS Bronze Layer
-// Real FIS-ADS payment and transaction tables
+// Transactions Domain - FIS Bronze Layer (FIS_RAW schema)
+// Direct 1:1 mapping from FIS source system tables
 
 export interface BronzeTableDefinition {
   name: string;
@@ -25,432 +25,367 @@ export interface BronzeTableDefinition {
 }
 
 // ============================================================================
-// MONEY TRANSACTIONS - FROM DP_OZO_MNY_TXN_ARD (used in mapping doc)
-// Covers deposit transaction detail including certificates, checks, transfers
+// TB_DP_DZ0_TXN_DIM_RAW - Transaction Dimension
 // ============================================================================
 
-export const moneyTransactionBronze: BronzeTableDefinition = {
-  name: "bronze.money_transaction",
-  schema: "bronze",
+export const transactionDimensionBronze: BronzeTableDefinition = {
+  name: "TB_DP_DZ0_TXN_DIM_RAW",
+  schema: "FIS_RAW",
   source: {
-    fisTable: "DP_OZO_MNY_TXN_ARD",
-    fisSchema: "FIS_CORE",
+    fisTable: "TB_DP_DZ0_TXN_DIM",
+    fisSchema: "FIS_RAW",
     refreshFrequency: "Real-time",
   },
-  description: "Money/deposit transactions - all transaction types on deposit accounts",
-  businessKey: "TRN_TRANS_TME_SEQ",
+  description: "Transaction dimension with transaction details and classifications",
+  businessKey: "TXN_ID",
   columns: [
     {
-      name: "TRANSACTION_ID",
-      fisColumnName: "TRN_TRANS_TME_SEQ",
-      dataType: "VARCHAR(30)",
+      name: "DW_TXN_ID",
+      fisColumnName: "DW_TXN_ID",
+      dataType: "NUMBER(11,0)",
       nullable: false,
-      businessMeaning: "Unique transaction sequence ID",
+      businessMeaning: "Transaction ID",
     },
     {
-      name: "ACCOUNT_NUMBER",
-      fisColumnName: "TRN_ACCT_NBR",
-      dataType: "VARCHAR(20)",
+      name: "TXN_ID",
+      fisColumnName: "TXN_ID",
+      dataType: "NUMBER(15,0)",
+      nullable: false,
+      businessMeaning: "Transaction ID",
+    },
+    {
+      name: "ACCT_NBR",
+      fisColumnName: "ACCT_NBR",
+      dataType: "VARCHAR(32)",
       nullable: false,
       businessMeaning: "Account number",
     },
     {
-      name: "TIME_DEPOSIT_ID",
-      fisColumnName: "TRN_TD_ID",
-      dataType: "VARCHAR(20)",
-      nullable: true,
-      businessMeaning: "Time deposit ID if applicable",
-    },
-    {
-      name: "TRANSACTION_DATE",
-      fisColumnName: "TRN_TRANS_DTE",
-      dataType: "DATE",
+      name: "TXN_CDE",
+      fisColumnName: "TXN_CDE",
+      dataType: "VARCHAR(7)",
       nullable: false,
-      businessMeaning: "Transaction date",
+      businessMeaning: "Transaction code",
     },
     {
-      name: "PROCESS_DATE",
-      fisColumnName: "PRCS_DTE",
-      dataType: "DATE",
-      nullable: false,
-      businessMeaning: "FIS processing date",
-    },
-    {
-      name: "TRANSACTION_CODE",
-      fisColumnName: "TRN_TRANS_CDE",
-      dataType: "VARCHAR(10)",
-      nullable: false,
-      businessMeaning: "Transaction type code",
-    },
-    {
-      name: "TRANSACTION_AMOUNT",
-      fisColumnName: "TRN_TRANS_AMT",
-      dataType: "DECIMAL(15,2)",
-      nullable: false,
-      businessMeaning: "Transaction amount",
-    },
-    {
-      name: "TRANSACTION_TYPE",
-      fisColumnName: "TRN_TRANS_TYP",
-      dataType: "VARCHAR(5)",
-      nullable: false,
-      businessMeaning: "Debit or Credit indicator",
-    },
-    {
-      name: "TRANSACTION_DESCRIPTION",
-      fisColumnName: "TRN_TRANS_DESC",
-      dataType: "VARCHAR(200)",
+      name: "TXN_DESC",
+      fisColumnName: "TXN_DESC",
+      dataType: "VARCHAR(70)",
       nullable: true,
       businessMeaning: "Transaction description",
     },
     {
-      name: "TRANSACTION_CONTROL_NUMBER",
-      fisColumnName: "TRN_TRANS_CNTL",
-      dataType: "VARCHAR(50)",
-      nullable: true,
-      businessMeaning: "Transaction control number for tracking",
-    },
-    {
-      name: "TRANSACTION_STATUS",
-      fisColumnName: "TRN_STAT_CDE",
-      dataType: "VARCHAR(20)",
+      name: "TXN_EFF_DTE",
+      fisColumnName: "TXN_EFF_DTE",
+      dataType: "TIMESTAMP_NTZ(9)",
       nullable: false,
-      businessMeaning: "POSTED, PENDING, REVERSED, FAILED",
+      businessMeaning: "Transaction effective date",
     },
     {
-      name: "FTM_GROUP_ID",
-      fisColumnName: "TR_FTM_GROUP_ID",
-      dataType: "VARCHAR(50)",
-      nullable: true,
-      businessMeaning: "FTM group ID for batch processing",
-    },
-    {
-      name: "REFRESH_TIME",
-      fisColumnName: "REFRESH_TIME",
-      dataType: "TIMESTAMP_NTZ",
+      name: "PRCS_DTE",
+      fisColumnName: "PRCS_DTE",
+      dataType: "TIMESTAMP_NTZ(9)",
       nullable: false,
-      businessMeaning: "FIS refresh timestamp",
+      businessMeaning: "FIS processing date",
     },
   ],
-  recordEstimate: "500M+ transactions/month",
+  recordEstimate: "500M records",
   scd2: false,
-  partitionBy: ["TRANSACTION_DATE"],
-  clusterBy: ["ACCOUNT_NUMBER", "TRANSACTION_CODE"],
+  partitionBy: ["PRCS_DTE"],
+  clusterBy: ["ACCT_NBR", "PRCS_DTE"],
 };
 
 // ============================================================================
-// MAINTENANCE LOG TRANSACTIONS - FROM TB_DP_OZU_MAINT_ARD
-// Covers holds, stops, and account maintenance
+// TB_DP_DZ9_FIN_TXN_FACT_RAW - Financial Transaction Fact
 // ============================================================================
 
-export const maintenanceLogBronze: BronzeTableDefinition = {
-  name: "bronze.maintenance_log_transaction",
-  schema: "bronze",
+export const financialTransactionFactBronze: BronzeTableDefinition = {
+  name: "TB_DP_DZ9_FIN_TXN_FACT_RAW",
+  schema: "FIS_RAW",
   source: {
-    fisTable: "TB_DP_OZU_MAINT_ARD",
-    fisSchema: "FIS_CORE",
+    fisTable: "TB_DP_DZ9_FIN_TXN_FACT",
+    fisSchema: "FIS_RAW",
     refreshFrequency: "Real-time",
   },
-  description: "Account maintenance transactions - holds, stop payments, suspensions",
-  businessKey: "LG_TRANS_TME_SEQ",
+  description: "Financial transaction fact table",
+  businessKey: "DW_TXN_ID",
   columns: [
     {
-      name: "TRANSACTION_ID",
-      fisColumnName: "LG_TRANS_TME_SEQ",
-      dataType: "VARCHAR(30)",
+      name: "DW_PROD_SERV_ID",
+      fisColumnName: "DW_PROD_SERV_ID",
+      dataType: "NUMBER(11,0)",
       nullable: false,
-      businessMeaning: "Maintenance transaction sequence ID",
+      businessMeaning: "Product service ID",
     },
     {
-      name: "ACCOUNT_NUMBER",
-      fisColumnName: "LG_ACCT_NBR",
-      dataType: "VARCHAR(20)",
+      name: "DW_TXN_ID",
+      fisColumnName: "DW_TXN_ID",
+      dataType: "NUMBER(11,0)",
+      nullable: false,
+      businessMeaning: "Transaction ID",
+    },
+    {
+      name: "TXN_AMT",
+      fisColumnName: "TXN_AMT",
+      dataType: "NUMBER(18,2)",
+      nullable: false,
+      businessMeaning: "Transaction amount",
+    },
+    {
+      name: "PRCS_DTE",
+      fisColumnName: "PRCS_DTE",
+      dataType: "TIMESTAMP_NTZ(9)",
+      nullable: false,
+      businessMeaning: "FIS processing date",
+    },
+  ],
+  recordEstimate: "750M records",
+  scd2: false,
+  partitionBy: ["PRCS_DTE"],
+  clusterBy: ["DW_PROD_SERV_ID", "PRCS_DTE"],
+};
+
+// ============================================================================
+// TB_DP_OZO_MNY_TXN_ARD_RAW - Money Transaction ARD
+// ============================================================================
+
+export const moneyTransactionARDBronze: BronzeTableDefinition = {
+  name: "TB_DP_OZO_MNY_TXN_ARD_RAW",
+  schema: "FIS_RAW",
+  source: {
+    fisTable: "TB_DP_OZO_MNY_TXN_ARD",
+    fisSchema: "FIS_RAW",
+    refreshFrequency: "Real-time",
+  },
+  description: "Money transaction ARD extract",
+  businessKey: "TRN_TRANS_TME_SEQ",
+  columns: [
+    {
+      name: "TRN_ACCT_NBR",
+      fisColumnName: "TRN_ACCT_NBR",
+      dataType: "VARCHAR(255)",
       nullable: false,
       businessMeaning: "Account number",
     },
     {
-      name: "TRANSACTION_CODE",
-      fisColumnName: "LG_TRANS_CDE",
+      name: "TRN_TRANS_CDE",
+      fisColumnName: "TRN_TRANS_CDE",
       dataType: "VARCHAR(10)",
       nullable: false,
-      businessMeaning: "Transaction type code",
+      businessMeaning: "Transaction code",
     },
     {
-      name: "BANK_NUMBER",
-      fisColumnName: "LG_BANK_NBR",
-      dataType: "NUMBER(10)",
+      name: "TRN_TRANS_AMT",
+      fisColumnName: "TRN_TRANS_AMT",
+      dataType: "NUMBER(18,2)",
       nullable: false,
-      businessMeaning: "Bank number",
+      businessMeaning: "Transaction amount",
     },
     {
-      name: "HOLD_ID",
-      fisColumnName: "LG_HOLD_ID",
-      dataType: "VARCHAR(30)",
-      nullable: true,
-      businessMeaning: "Hold ID if hold transaction",
-    },
-    {
-      name: "HOLD_TYPE",
-      fisColumnName: "LG_HOLD_TYP",
-      dataType: "VARCHAR(20)",
-      nullable: true,
-      businessMeaning: "Type of hold (LEGAL, LEVY, NSF, etc)",
-    },
-    {
-      name: "HOLD_AMOUNT",
-      fisColumnName: "LG_AMT",
-      dataType: "DECIMAL(15,2)",
-      nullable: true,
-      businessMeaning: "Hold amount",
-    },
-    {
-      name: "HOLD_DESCRIPTION",
-      fisColumnName: "LG_DESC",
-      dataType: "VARCHAR(200)",
-      nullable: true,
-      businessMeaning: "Hold description",
-    },
-    {
-      name: "HOLD_ENTRY_DATE",
-      fisColumnName: "LG_ENT_DTE",
-      dataType: "DATE",
-      nullable: true,
-      businessMeaning: "Date hold was entered",
-    },
-    {
-      name: "HOLD_EXPIRATION_DATE",
-      fisColumnName: "LG_EXP_DTE",
-      dataType: "DATE",
-      nullable: true,
-      businessMeaning: "Hold expiration date",
-    },
-    {
-      name: "STOP_PAYMENT_ID",
-      fisColumnName: "LG_STOP_ID",
-      dataType: "VARCHAR(30)",
-      nullable: true,
-      businessMeaning: "Stop payment ID if stop transaction",
-    },
-    {
-      name: "STOP_PAYMENT_TYPE",
-      fisColumnName: "LG_STOP_TYP",
-      dataType: "VARCHAR(20)",
-      nullable: true,
-      businessMeaning: "Stop payment type",
-    },
-    {
-      name: "STOP_AMOUNT",
-      fisColumnName: "LG_STOP_AMT",
-      dataType: "DECIMAL(15,2)",
-      nullable: true,
-      businessMeaning: "Stop payment amount",
-    },
-    {
-      name: "KEYWORD_OLD_VALUE",
-      fisColumnName: "LG_OLD_KYWRD",
-      dataType: "VARCHAR(100)",
-      nullable: true,
-      businessMeaning: "Previous value if update",
-    },
-    {
-      name: "KEYWORD_NEW_VALUE",
-      fisColumnName: "LG_NEW_KYWRD",
-      dataType: "VARCHAR(100)",
-      nullable: true,
-      businessMeaning: "New value if update",
-    },
-    {
-      name: "KEYWORD_DESCRIPTION",
-      fisColumnName: "LG_KYWRD_DESC",
-      dataType: "VARCHAR(100)",
-      nullable: true,
-      businessMeaning: "Keyword description",
-    },
-    {
-      name: "TRANSACTION_DATE",
-      fisColumnName: "PRCS_DTE",
-      dataType: "DATE",
+      name: "TRN_TRANS_DTE",
+      fisColumnName: "TRN_TRANS_DTE",
+      dataType: "TIMESTAMP_NTZ(9)",
       nullable: false,
       businessMeaning: "Transaction date",
     },
     {
-      name: "REFRESH_TIME",
-      fisColumnName: "REFRESH_TIME",
-      dataType: "TIMESTAMP_NTZ",
+      name: "PRCS_DTE",
+      fisColumnName: "PRCS_DTE",
+      dataType: "TIMESTAMP_NTZ(9)",
       nullable: false,
-      businessMeaning: "FIS refresh timestamp",
+      businessMeaning: "FIS processing date",
     },
   ],
-  recordEstimate: "50M+ transactions/month",
+  recordEstimate: "800M records",
   scd2: false,
-  partitionBy: ["TRANSACTION_DATE"],
-  clusterBy: ["ACCOUNT_NUMBER", "TRANSACTION_CODE"],
+  partitionBy: ["PRCS_DTE"],
+  clusterBy: ["TRN_ACCT_NBR", "PRCS_DTE"],
 };
 
 // ============================================================================
-// STOP PAYMENT DETAILS - FROM TB_DP_OZQ_STP_ARD
+// TB_DP_OZU_MAINT_ARD_RAW - Maintenance Transaction ARD
 // ============================================================================
 
-export const stopPaymentDetailsBronze: BronzeTableDefinition = {
-  name: "bronze.stop_payment_details",
-  schema: "bronze",
+export const maintenanceTransactionARDBronze: BronzeTableDefinition = {
+  name: "TB_DP_OZU_MAINT_ARD_RAW",
+  schema: "FIS_RAW",
   source: {
-    fisTable: "TB_DP_OZQ_STP_ARD",
-    fisSchema: "FIS_CORE",
+    fisTable: "TB_DP_OZU_MAINT_ARD",
+    fisSchema: "FIS_RAW",
     refreshFrequency: "Real-time",
   },
-  description: "Stop payment detail information",
-  businessKey: "STP_ID",
+  description: "Account maintenance transaction ARD",
+  businessKey: "LG_TRANS_TME_SEQ",
   columns: [
     {
-      name: "STOP_PAYMENT_ID",
-      fisColumnName: "STP_ID",
-      dataType: "VARCHAR(30)",
-      nullable: false,
-      businessMeaning: "Stop payment unique ID",
-    },
-    {
-      name: "ACCOUNT_NUMBER",
-      fisColumnName: "STP_ACCT_NBR",
-      dataType: "VARCHAR(20)",
+      name: "LG_ACCT_NBR",
+      fisColumnName: "LG_ACCT_NBR",
+      dataType: "VARCHAR(255)",
       nullable: false,
       businessMeaning: "Account number",
     },
     {
-      name: "STOP_AMOUNT",
-      fisColumnName: "STP_AMT",
-      dataType: "DECIMAL(15,2)",
+      name: "LG_TRANS_CDE",
+      fisColumnName: "LG_TRANS_CDE",
+      dataType: "VARCHAR(10)",
+      nullable: false,
+      businessMeaning: "Transaction code",
+    },
+    {
+      name: "LG_AMT",
+      fisColumnName: "LG_AMT",
+      dataType: "NUMBER(18,2)",
+      nullable: true,
+      businessMeaning: "Amount",
+    },
+    {
+      name: "LG_HOLD_ID",
+      fisColumnName: "LG_HOLD_ID",
+      dataType: "NUMBER(10,0)",
+      nullable: true,
+      businessMeaning: "Hold ID",
+    },
+    {
+      name: "PRCS_DTE",
+      fisColumnName: "PRCS_DTE",
+      dataType: "TIMESTAMP_NTZ(9)",
+      nullable: false,
+      businessMeaning: "FIS processing date",
+    },
+  ],
+  recordEstimate: "100M records",
+  scd2: false,
+  partitionBy: ["PRCS_DTE"],
+  clusterBy: ["LG_ACCT_NBR", "PRCS_DTE"],
+};
+
+// ============================================================================
+// TB_DP_OZQ_STP_ARD_RAW - Stop Payment ARD
+// ============================================================================
+
+export const stopPaymentARDBronze: BronzeTableDefinition = {
+  name: "TB_DP_OZQ_STP_ARD_RAW",
+  schema: "FIS_RAW",
+  source: {
+    fisTable: "TB_DP_OZQ_STP_ARD",
+    fisSchema: "FIS_RAW",
+    refreshFrequency: "Real-time",
+  },
+  description: "Stop payment details from ARD extract",
+  businessKey: "STP_STOP_ID",
+  columns: [
+    {
+      name: "STP_ACCT_NBR",
+      fisColumnName: "STP_ACCT_NBR",
+      dataType: "VARCHAR(255)",
+      nullable: false,
+      businessMeaning: "Account number",
+    },
+    {
+      name: "STP_STOP_ID",
+      fisColumnName: "STP_STOP_ID",
+      dataType: "NUMBER(10,0)",
+      nullable: false,
+      businessMeaning: "Stop payment ID",
+    },
+    {
+      name: "STP_STOP_AMT",
+      fisColumnName: "STP_STOP_AMT",
+      dataType: "NUMBER(18,2)",
       nullable: false,
       businessMeaning: "Stop payment amount",
     },
     {
-      name: "CHECK_SERIAL_NUMBER",
-      fisColumnName: "STP_SERIAL_NBR",
-      dataType: "VARCHAR(20)",
-      nullable: true,
-      businessMeaning: "Check serial number",
-    },
-    {
-      name: "CHECK_END_SERIAL_NUMBER",
-      fisColumnName: "STP_END_SERIAL_NBR",
-      dataType: "VARCHAR(20)",
-      nullable: true,
-      businessMeaning: "Check range end serial number",
-    },
-    {
-      name: "STOP_ENTERED_DATE",
+      name: "STP_DTE_ENTRD",
       fisColumnName: "STP_DTE_ENTRD",
-      dataType: "DATE",
+      dataType: "TIMESTAMP_NTZ(9)",
       nullable: true,
-      businessMeaning: "Date stop was entered",
+      businessMeaning: "Date entered",
     },
     {
-      name: "STOP_EXPIRATION_DATE",
-      fisColumnName: "STP_DTE_EXP",
-      dataType: "DATE",
-      nullable: true,
-      businessMeaning: "Stop expiration date",
-    },
-    {
-      name: "REFRESH_TIME",
-      fisColumnName: "REFRESH_TIME",
-      dataType: "TIMESTAMP_NTZ",
+      name: "PRCS_DTE",
+      fisColumnName: "PRCS_DTE",
+      dataType: "TIMESTAMP_NTZ(9)",
       nullable: false,
-      businessMeaning: "FIS refresh timestamp",
+      businessMeaning: "FIS processing date",
     },
   ],
-  recordEstimate: "10-20M records",
+  recordEstimate: "30M records",
   scd2: false,
+  partitionBy: ["PRCS_DTE"],
 };
 
 // ============================================================================
-// HOLD TRANSACTION DETAILS - FROM TB_DP_OZV_HLD_ARD
+// TB_DP_OZV_HLD_ARD_RAW - Hold Transaction ARD
 // ============================================================================
 
-export const holdTransactionDetailsBronze: BronzeTableDefinition = {
-  name: "bronze.hold_transaction_details",
-  schema: "bronze",
+export const holdTransactionARDBronze: BronzeTableDefinition = {
+  name: "TB_DP_OZV_HLD_ARD_RAW",
+  schema: "FIS_RAW",
   source: {
     fisTable: "TB_DP_OZV_HLD_ARD",
-    fisSchema: "FIS_CORE",
+    fisSchema: "FIS_RAW",
     refreshFrequency: "Real-time",
   },
-  description: "Account hold transaction details",
-  businessKey: "HD_ID",
+  description: "Account hold transaction details from ARD extract",
+  businessKey: "HD_HOLD_ID",
   columns: [
     {
-      name: "HOLD_ID",
-      fisColumnName: "HD_ID",
-      dataType: "VARCHAR(30)",
-      nullable: false,
-      businessMeaning: "Unique hold ID",
-    },
-    {
-      name: "ACCOUNT_NUMBER",
+      name: "HD_ACCT_NBR",
       fisColumnName: "HD_ACCT_NBR",
-      dataType: "VARCHAR(20)",
+      dataType: "VARCHAR(255)",
       nullable: false,
       businessMeaning: "Account number",
     },
     {
-      name: "HOLD_AMOUNT",
+      name: "HD_HOLD_ID",
+      fisColumnName: "HD_HOLD_ID",
+      dataType: "NUMBER(10,0)",
+      nullable: false,
+      businessMeaning: "Hold ID",
+    },
+    {
+      name: "HD_AMT",
       fisColumnName: "HD_AMT",
-      dataType: "DECIMAL(15,2)",
+      dataType: "NUMBER(18,2)",
       nullable: false,
       businessMeaning: "Hold amount",
     },
     {
-      name: "HOLD_TYPE",
-      fisColumnName: "HD_TYPE",
-      dataType: "VARCHAR(20)",
+      name: "HD_DTE_ENTRD",
+      fisColumnName: "HD_DTE_ENTRD",
+      dataType: "TIMESTAMP_NTZ(9)",
+      nullable: true,
+      businessMeaning: "Date entered",
+    },
+    {
+      name: "PRCS_DTE",
+      fisColumnName: "PRCS_DTE",
+      dataType: "TIMESTAMP_NTZ(9)",
       nullable: false,
-      businessMeaning: "Hold type code",
-    },
-    {
-      name: "HOLD_REASON",
-      fisColumnName: "HD_REASON",
-      dataType: "VARCHAR(100)",
-      nullable: true,
-      businessMeaning: "Reason for hold",
-    },
-    {
-      name: "HOLD_ENTERED_DATE",
-      fisColumnName: "HD_ENT_DTE",
-      dataType: "DATE",
-      nullable: true,
-      businessMeaning: "Date hold was entered",
-    },
-    {
-      name: "HOLD_EXPIRATION_DATE",
-      fisColumnName: "HD_EXP_DTE",
-      dataType: "DATE",
-      nullable: true,
-      businessMeaning: "Hold expiration date",
-    },
-    {
-      name: "REFRESH_TIME",
-      fisColumnName: "REFRESH_TIME",
-      dataType: "TIMESTAMP_NTZ",
-      nullable: false,
-      businessMeaning: "FIS refresh timestamp",
+      businessMeaning: "FIS processing date",
     },
   ],
-  recordEstimate: "20-50M records",
+  recordEstimate: "60M records",
   scd2: false,
+  partitionBy: ["PRCS_DTE"],
 };
 
 export const transactionsBronzeTables = [
-  moneyTransactionBronze,
-  maintenanceLogBronze,
-  stopPaymentDetailsBronze,
-  holdTransactionDetailsBronze,
+  transactionDimensionBronze,
+  financialTransactionFactBronze,
+  moneyTransactionARDBronze,
+  maintenanceTransactionARDBronze,
+  stopPaymentARDBronze,
+  holdTransactionARDBronze,
 ];
 
 export const transactionsBronzeLayerComplete = {
   tables: transactionsBronzeTables,
   totalTables: transactionsBronzeTables.length,
-  totalRows: 10000000 + 5000000 + 1000000 + 2000000,
-  description: 'Transactions domain bronze layer - raw data from FIS-ADS source tables',
+  totalRows: 2240000000,
+  description: 'Transactions domain bronze layer - FIS_RAW schema with native FIS table names',
+  schema: 'FIS_RAW',
 };
 
 export default transactionsBronzeTables;
