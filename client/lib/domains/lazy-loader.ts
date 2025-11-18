@@ -261,9 +261,7 @@ export async function loadDomainGoldTables(domainId: string) {
       import("./transactions/metadata").then(
         (m) => m.transactionsGoldDimensions || [],
       ),
-      import("./transactions/gold-layer").then(
-        (m) => m.transactionsGoldLayerComplete?.tables || [],
-      ),
+      import("./transactions/metadata").then((m) => m.transactionsGoldFacts || []),
     ]).then(([dims, facts]) => [...dims, ...facts]);
   } else {
     promise = Promise.reject(new Error(`Unknown domain: ${domainId}`));
