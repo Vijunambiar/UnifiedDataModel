@@ -657,7 +657,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
         SUM(HOLD_AMOUNT) as total_hold_amount
       FROM CORE_DEPOSIT.FCT_DEPOSIT_HOLD_TRANSACTION
       WHERE HOLD_STATUS = 'ACTIVE'
-        AND TRANSACTION_DATE <= CURRENT_DATE()
+        AND HOLD_START_DATE <= CURRENT_DATE()
     `,
     sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_HOLD_TRANSACTION"],
     granularity: "Daily",
@@ -685,7 +685,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
       SELECT
         COUNT(DISTINCT TRANSACTION_ID) as new_holds_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_HOLD_TRANSACTION
-      WHERE TRANSACTION_DATE = CURRENT_DATE()
+      WHERE HOLD_START_DATE = CURRENT_DATE()
         AND HOLD_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_HOLD_TRANSACTION"],
@@ -769,7 +769,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     grain: "Monthly",
     sqlDefinition: `
       SELECT
-        ROUND(AVG(DATEDIFF(day, TRANSACTION_DATE, HOLD_RELEASE_DATE)), 1) as avg_hold_days
+        ROUND(AVG(DATEDIFF(day, HOLD_START_DATE, HOLD_RELEASE_DATE)), 1) as avg_hold_days
       FROM CORE_DEPOSIT.FCT_DEPOSIT_HOLD_TRANSACTION
       WHERE HOLD_STATUS = 'RELEASED'
         AND HOLD_RELEASE_DATE >= DATEADD(month, -1, CURRENT_DATE())
@@ -804,8 +804,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
       SELECT
         COUNT(DISTINCT TRANSACTION_ID) as maintenance_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_MAINTENANCE_TRANSACTION
-      WHERE TRANSACTION_DATE = CURRENT_DATE()
-        AND MAINTENANCE_STATUS = 'COMPLETED'
+      WHERE CHANGE_DATE = CURRENT_DATE()
     `,
     sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_MAINTENANCE_TRANSACTION"],
     granularity: "Daily",
@@ -835,8 +834,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
         COUNT(*) as type_count,
         ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 2) as pct_of_total
       FROM CORE_DEPOSIT.FCT_DEPOSIT_MAINTENANCE_TRANSACTION
-      WHERE TRANSACTION_DATE = CURRENT_DATE()
-        AND MAINTENANCE_STATUS = 'COMPLETED'
+      WHERE CHANGE_DATE = CURRENT_DATE()
       GROUP BY MAINTENANCE_TYPE
       ORDER BY type_count DESC
     `,
@@ -866,8 +864,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
       SELECT
         COUNT(DISTINCT TRANSACTION_ID) as account_update_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_MAINTENANCE_TRANSACTION
-      WHERE TRANSACTION_DATE = CURRENT_DATE()
-        AND MAINTENANCE_STATUS = 'COMPLETED'
+      WHERE CHANGE_DATE = CURRENT_DATE()
         AND MAINTENANCE_TYPE = 'ACCOUNT_UPDATE'
     `,
     sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_MAINTENANCE_TRANSACTION"],
@@ -896,8 +893,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
       SELECT
         COUNT(DISTINCT TRANSACTION_ID) as address_change_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_MAINTENANCE_TRANSACTION
-      WHERE TRANSACTION_DATE = CURRENT_DATE()
-        AND MAINTENANCE_STATUS = 'COMPLETED'
+      WHERE CHANGE_DATE = CURRENT_DATE()
         AND MAINTENANCE_TYPE = 'ADDRESS_CHANGE'
     `,
     sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_MAINTENANCE_TRANSACTION"],
@@ -928,7 +924,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
           COUNT(CASE WHEN MAINTENANCE_STATUS = 'COMPLETED' THEN 1 END) as completed_count,
           COUNT(*) as total_count
         FROM CORE_DEPOSIT.FCT_DEPOSIT_MAINTENANCE_TRANSACTION
-        WHERE TRANSACTION_DATE = CURRENT_DATE()
+        WHERE CHANGE_DATE = CURRENT_DATE()
       )
       SELECT
         ROUND((completed_count / NULLIF(total_count, 0)) * 100, 2) as completion_rate_pct
@@ -965,7 +961,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
         COUNT(DISTINCT TRANSACTION_ID) as active_stops_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_STOP_TRANSACTION
       WHERE STOP_STATUS = 'ACTIVE'
-        AND TRANSACTION_DATE <= CURRENT_DATE()
+        AND STOP_ENTERED_DATE <= CURRENT_DATE()
     `,
     sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_STOP_TRANSACTION"],
     granularity: "Daily",
@@ -993,7 +989,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
       SELECT
         COUNT(DISTINCT TRANSACTION_ID) as new_stops_count
       FROM CORE_DEPOSIT.FCT_DEPOSIT_STOP_TRANSACTION
-      WHERE TRANSACTION_DATE = CURRENT_DATE()
+      WHERE STOP_ENTERED_DATE = CURRENT_DATE()
         AND STOP_STATUS = 'ACTIVE'
     `,
     sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_STOP_TRANSACTION"],
