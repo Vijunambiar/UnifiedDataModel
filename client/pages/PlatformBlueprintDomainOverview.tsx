@@ -1843,26 +1843,31 @@ export default function PlatformBlueprintDomainOverview() {
                             </div>
                           </div>
 
-                          <button
-                            onClick={() => {
-                              const codeModal = document.getElementById(`code-${model.id}`);
-                              if (codeModal instanceof HTMLElement) {
-                                codeModal.classList.toggle("hidden");
-                              }
-                            }}
-                            className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
-                          >
-                            <Code className="h-3 w-3" />
-                            View Python Code
-                          </button>
+                          {/* Only show Python code for Customer Core comprehensive models */}
+                          {['CUST-CHURN-001', 'CUST-LTV-001', 'CUST-PROP-001'].includes(model.id) && (
+                            <>
+                              <button
+                                onClick={() => {
+                                  const codeModal = document.getElementById(`code-${model.id}`);
+                                  if (codeModal instanceof HTMLElement) {
+                                    codeModal.classList.toggle("hidden");
+                                  }
+                                }}
+                                className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                              >
+                                <Code className="h-3 w-3" />
+                                View Python Code
+                              </button>
 
-                          {/* Code Modal */}
-                          <div
-                            id={`code-${model.id}`}
-                            className="hidden mt-3 p-3 bg-slate-900 rounded text-xs text-slate-200 font-mono overflow-x-auto max-h-48 overflow-y-auto"
-                          >
-                            <pre>{model.pythonCode}</pre>
-                          </div>
+                              {/* Code Modal */}
+                              <div
+                                id={`code-${model.id}`}
+                                className="hidden mt-3 p-3 bg-slate-900 rounded text-xs text-slate-200 font-mono overflow-x-auto max-h-48 overflow-y-auto"
+                              >
+                                <pre>{model.pythonCode}</pre>
+                              </div>
+                            </>
+                          )}
                         </div>
                       ))}
                     </div>
