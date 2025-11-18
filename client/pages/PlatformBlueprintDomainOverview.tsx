@@ -435,19 +435,19 @@ export default function PlatformBlueprintDomainOverview() {
     },
     {
       id: "bronze",
-      label: "Bronze Layer",
+      label: "Bronze Layer-Raw",
       icon: Package,
       description: "Raw data ingestion & source integration",
     },
     {
       id: "silver",
-      label: "Silver Layer",
+      label: "Silver Layer-Cleansed",
       icon: Filter,
       description: "Cleaned data & transformations",
     },
     {
       id: "gold",
-      label: "Gold Layer",
+      label: "Gold Layer-Curated",
       icon: Zap,
       description: "Business metrics & analytics",
     },
