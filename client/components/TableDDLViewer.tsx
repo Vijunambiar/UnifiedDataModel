@@ -155,153 +155,154 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tables.map((table) => [
-              <TableRow
-                key={`${table.name}-main`}
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() =>
-                  setExpandedTable(
-                    expandedTable === table.name ? null : table.name
-                  )
-                }
-              >
-                <TableCell>
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${
-                      expandedTable === table.name ? "rotate-180" : ""
-                    }`}
-                  />
-                </TableCell>
-                <TableCell className="font-medium">{table.name}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {getSchemaFromTableName(table.name)}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Badge variant="secondary">{getTableColumns(table).length}</Badge>
-                </TableCell>
-                <TableCell className="text-right space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedTable(table);
-                      setShowDDL(true);
-                    }}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      copyDDL(table);
-                    }}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>,
+            {tables.map((table) => (
+              <Fragment key={table.name}>
+                <TableRow
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() =>
+                    setExpandedTable(
+                      expandedTable === table.name ? null : table.name
+                    )
+                  }
+                >
+                  <TableCell>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${
+                        expandedTable === table.name ? "rotate-180" : ""
+                      }`}
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium">{table.name}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {getSchemaFromTableName(table.name)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Badge variant="secondary">{getTableColumns(table).length}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedTable(table);
+                        setShowDDL(true);
+                      }}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyDDL(table);
+                      }}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
 
-              ...(expandedTable === table.name ? [
-                <TableRow key={`${table.name}-expanded`}>
-                  <TableCell colSpan={5} className="bg-muted/30 p-0">
-                    <div className="p-4">
-                      {table.description && (
-                        <p className="text-sm text-muted-foreground mb-4">
-                          {table.description}
-                        </p>
-                      )}
+                {expandedTable === table.name && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="bg-muted/30 p-0">
+                      <div className="p-4">
+                        {table.description && (
+                          <p className="text-sm text-muted-foreground mb-4">
+                            {table.description}
+                          </p>
+                        )}
 
-                      {(table.grain ||
-                        (table.primaryKey && table.primaryKey.length > 0)) && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-xs">
-                          {table.grain && (
-                            <div>
-                              <span className="font-semibold">Grain:</span>
-                              <p className="text-muted-foreground">
-                                {table.grain}
-                              </p>
+                        {(table.grain ||
+                          (table.primaryKey && table.primaryKey.length > 0)) && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-xs">
+                            {table.grain && (
+                              <div>
+                                <span className="font-semibold">Grain:</span>
+                                <p className="text-muted-foreground">
+                                  {table.grain}
+                                </p>
+                              </div>
+                            )}
+                            {table.primaryKey && table.primaryKey.length > 0 && (
+                              <div>
+                                <span className="font-semibold">PK:</span>
+                                <p className="text-muted-foreground text-xs">
+                                  {table.primaryKey.join(", ")}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {table.sourceTables && table.sourceTables.length > 0 && (
+                          <div className="mb-4 pb-4 border-b">
+                            <span className="font-semibold text-sm">Source Tables:</span>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {table.sourceTables.map((src) => (
+                                <Badge key={src} variant="outline" className="text-xs">
+                                  {src}
+                                </Badge>
+                              ))}
                             </div>
-                          )}
-                          {table.primaryKey && table.primaryKey.length > 0 && (
-                            <div>
-                              <span className="font-semibold">PK:</span>
-                              <p className="text-muted-foreground text-xs">
-                                {table.primaryKey.join(", ")}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                          </div>
+                        )}
 
-                      {table.sourceTables && table.sourceTables.length > 0 && (
-                        <div className="mb-4 pb-4 border-b">
-                          <span className="font-semibold text-sm">Source Tables:</span>
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {table.sourceTables.map((src) => (
-                              <Badge key={src} variant="outline" className="text-xs">
-                                {src}
-                              </Badge>
+                        <div className="rounded border bg-background p-3">
+                          <h5 className="font-semibold text-sm mb-3">
+                            Columns ({getTableColumns(table).length})
+                          </h5>
+                          <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {getTableColumns(table).map((col) => (
+                              <div
+                                key={col.name}
+                                className="border-b last:border-b-0 pb-2 last:pb-0"
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <p className="font-mono text-sm font-semibold">
+                                      {col.name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground font-mono">
+                                      {col.dataType}
+                                      {col.nullable === false ? " NOT NULL" : ""}
+                                    </p>
+                                  </div>
+                                  {col.businessMeaning && (
+                                    <Badge variant="outline" className="ml-2">
+                                      {col.businessMeaning.substring(0, 30)}
+                                      {col.businessMeaning.length > 30
+                                        ? "..."
+                                        : ""}
+                                    </Badge>
+                                  )}
+                                </div>
+                                {col.businessMeaning && (
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {col.businessMeaning}
+                                  </p>
+                                )}
+                                {(col.sourceTable || col.sourceSchema) && (
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    Source:{" "}
+                                    {col.sourceSchema
+                                      ? `${col.sourceSchema}.`
+                                      : ""}
+                                    {col.sourceTable}
+                                    {col.sourceColumn ? `.${col.sourceColumn}` : ""}
+                                  </p>
+                                )}
+                              </div>
                             ))}
                           </div>
                         </div>
-                      )}
-
-                      <div className="rounded border bg-background p-3">
-                        <h5 className="font-semibold text-sm mb-3">
-                          Columns ({getTableColumns(table).length})
-                        </h5>
-                        <div className="space-y-2 max-h-96 overflow-y-auto">
-                          {getTableColumns(table).map((col) => (
-                            <div
-                              key={col.name}
-                              className="border-b last:border-b-0 pb-2 last:pb-0"
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <p className="font-mono text-sm font-semibold">
-                                    {col.name}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground font-mono">
-                                    {col.dataType}
-                                    {col.nullable === false ? " NOT NULL" : ""}
-                                  </p>
-                                </div>
-                                {col.businessMeaning && (
-                                  <Badge variant="outline" className="ml-2">
-                                    {col.businessMeaning.substring(0, 30)}
-                                    {col.businessMeaning.length > 30
-                                      ? "..."
-                                      : ""}
-                                  </Badge>
-                                )}
-                              </div>
-                              {col.businessMeaning && (
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {col.businessMeaning}
-                                </p>
-                              )}
-                              {(col.sourceTable || col.sourceSchema) && (
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  Source:{" "}
-                                  {col.sourceSchema
-                                    ? `${col.sourceSchema}.`
-                                    : ""}
-                                  {col.sourceTable}
-                                  {col.sourceColumn ? `.${col.sourceColumn}` : ""}
-                                </p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
                       </div>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ] : [])
-            ]).flat()}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </Fragment>
+            ))}
           </TableBody>
         </Table>
       </div>
