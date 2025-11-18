@@ -873,6 +873,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Percentage of customers with complete KYC verification",
     category: "Risk",
     type: "Strategic",
+    grain: "Daily",
     sqlDefinition: `
       SELECT
         ROUND((COUNT(CASE WHEN KYC_VERIFICATION_STATUS = 'VERIFIED' THEN 1 END) /
@@ -901,6 +902,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of customers with pending or failed KYC verification",
     category: "Risk",
     type: "Operational",
+    grain: "Daily",
     sqlDefinition: `
       SELECT
         COUNT(DISTINCT CUSTOMER_NUMBER) as unverified_customers
@@ -929,6 +931,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Count of active accounts with zero or negative balance",
     category: "Risk",
     type: "Operational",
+    grain: "Account, Daily",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT ACCOUNT_NUMBER) as zero_balance_accounts
@@ -962,6 +965,7 @@ export const customerGoldMetrics: GoldMetric[] = [
     description: "Month-over-month customer growth percentage",
     category: "Growth",
     type: "Strategic",
+    grain: "Monthly",
     sqlDefinition: `
       WITH monthly_totals AS (
         SELECT
