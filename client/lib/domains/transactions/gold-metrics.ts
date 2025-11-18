@@ -413,7 +413,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Average transaction amount with percentile distribution, channel breakdown, and MoM trend",
     category: "Value",
     type: "Operational",
-    grain: "Transaction",
+    grain: "Daily, Channel",
     sqlDefinition: `
       WITH current_transactions AS (
         SELECT
@@ -471,7 +471,7 @@ export const transactionsGoldMetrics: GoldMetric[] = [
     description: "Median monetary amount per transaction",
     category: "Value",
     type: "Operational",
-    grain: "Transaction",
+    grain: "Daily",
     sqlDefinition: `
       SELECT 
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY TRANSACTION_AMOUNT) as median_transaction_amount
