@@ -1,0 +1,41 @@
+{
+  "completion_status": "In Progress",
+  "updated_metrics_count": "~70 (Customer 50+ + Deposits 10+)",
+  "remaining_metrics_count": "~200 (Deposits ~110 + Transactions ~112)",
+  "agent_analysis_available": true,
+  "instructions": "Apply Agent-recommended grain values from the structured arrays below. Each metricId shows current and recommended grain. Use find-and-replace operations in the source files.",
+  
+  "deposits_remaining_critical_updates": [
+    { "pattern": "Overall → Daily", "condition": "WHERE ... = CURRENT_DATE() or BALANCE_DATE = CURRENT_DATE()", "count": "~20 metrics"},
+    { "pattern": "Account → Account, Daily", "condition": "GROUP BY ACCOUNT_NUMBER + date filter", "count": "~15 metrics"},
+    { "pattern": "Product → Product, Daily", "condition": "GROUP BY ACCOUNT_TYPE + BALANCE_DATE = CURRENT_DATE()", "count": "~12 metrics"},
+    { "pattern": "Missing grain → Add appropriate value", "condition": "Based on SQL analysis", "count": "~50 metrics"}
+  ],
+  
+  "transactions_critical_updates": [
+    { "pattern": "Transaction → Daily or Daily, Channel", "condition": "Replace invalid grain value", "count": "~25 metrics"},
+    { "pattern": "Missing grain → Daily or Daily, Channel", "condition": "WHERE TRANSACTION_DATE = CURRENT_DATE()", "count": "~60 metrics"},
+    { "pattern": "Overall → Daily, Channel", "condition": "GROUP BY CHANNEL or TRANSACTION_CHANNEL", "count": "~20 metrics"}
+  ],
+  
+  "next_steps": [
+    "1. Use the detailed Agent mapping (provided in prior response) to systematically update each metric",
+    "2. For Deposits: Apply updates to DEP-GRO-003 through DEP-AGG-006, then DEP-NEW-001 through DEP-NEW-008",
+    "3. For Transactions: Apply updates to all TXN-* metrics starting from TXN-VOL through TXN-AGG-006",
+    "4. Use MultiEdit operations in batches of 10-15 metrics per operation",
+    "5. Run syntax validation after each batch of 50 metrics",
+    "6. Create a verification report comparing old vs new grain values"
+  ],
+  
+  "agent_provided_complete_mappings": {
+    "deposits_all_120_metrics": "Provided in Agent response - includes metricId, current, recommended, and reason for each metric",
+    "transactions_all_112_metrics": "Provided in Agent response - includes metricId, current, recommended, and reason for each metric"
+  },
+  
+  "quality_assurance": {
+    "syntax_validation": "Check for TypeScript syntax errors after updates",
+    "grain_value_validation": "Ensure only valid grains used: Customer, Account, Product, Channel, Daily, Monthly, Overall",
+    "consistency_check": "Verify grain matches SQL logic in sqlDefinition",
+    "sample_verification": "Spot-check 20-30 metrics across each domain to ensure accuracy"
+  }
+}
