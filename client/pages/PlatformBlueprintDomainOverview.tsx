@@ -921,8 +921,8 @@ export default function PlatformBlueprintDomainOverview() {
                 Production Ingestion Jobs - Complete Specifications
               </CardTitle>
               <CardDescription>
-                Enterprise-grade ingestion pipelines with transformations, data
-                quality, and error handling
+                Ingestion pipelines with transformations, data quality and error
+                handling
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
