@@ -1148,8 +1148,8 @@ export const wireTransferSilver: SilverTableDefinition = {
 // ============================================================================
 
 export const depositAccountTransactionSilver: SilverTableDefinition = {
-  name: "CORE_TRANSACTIONS.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
-  schema: "CORE_TRANSACTIONS",
+  name: "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+  schema: "CORE_DEPOSIT",
   description: "Deposit account transaction fact table",
   businessKey: "transaction_id",
   surrogatePrimaryKey: "deposit_account_transaction_sk",
@@ -1167,8 +1167,8 @@ export const depositAccountTransactionSilver: SilverTableDefinition = {
 };
 
 export const depositCertificateTransactionSilver: SilverTableDefinition = {
-  name: "CORE_TRANSACTIONS.FCT_DEPOSIT_CERTIFICATE_TRANSACTION",
-  schema: "CORE_TRANSACTIONS",
+  name: "CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION",
+  schema: "CORE_DEPOSIT",
   description: "Certificate of deposit (CD) transaction fact table",
   businessKey: "transaction_id",
   surrogatePrimaryKey: "deposit_certificate_transaction_sk",
@@ -1183,8 +1183,8 @@ export const depositCertificateTransactionSilver: SilverTableDefinition = {
 };
 
 export const depositHoldTransactionSilver: SilverTableDefinition = {
-  name: "CORE_TRANSACTIONS.FCT_DEPOSIT_HOLD_TRANSACTION",
-  schema: "CORE_TRANSACTIONS",
+  name: "CORE_DEPOSIT.FCT_DEPOSIT_HOLD_TRANSACTION",
+  schema: "CORE_DEPOSIT",
   description: "Hold transactions on deposit accounts",
   businessKey: "transaction_id",
   surrogatePrimaryKey: "deposit_hold_transaction_sk",
@@ -1199,8 +1199,8 @@ export const depositHoldTransactionSilver: SilverTableDefinition = {
 };
 
 export const depositMaintenanceTransactionSilver: SilverTableDefinition = {
-  name: "CORE_TRANSACTIONS.FCT_DEPOSIT_MAINTENANCE_TRANSACTION",
-  schema: "CORE_TRANSACTIONS",
+  name: "CORE_DEPOSIT.FCT_DEPOSIT_MAINTENANCE_TRANSACTION",
+  schema: "CORE_DEPOSIT",
   description: "Maintenance transaction history for deposit accounts",
   businessKey: "transaction_id",
   surrogatePrimaryKey: "deposit_maintenance_transaction_sk",
@@ -1215,8 +1215,8 @@ export const depositMaintenanceTransactionSilver: SilverTableDefinition = {
 };
 
 export const depositStopTransactionSilver: SilverTableDefinition = {
-  name: "CORE_TRANSACTIONS.FCT_DEPOSIT_STOP_TRANSACTION",
-  schema: "CORE_TRANSACTIONS",
+  name: "CORE_DEPOSIT.FCT_DEPOSIT_STOP_TRANSACTION",
+  schema: "CORE_DEPOSIT",
   description: "Stop payment transactions on deposit accounts",
   businessKey: "transaction_id",
   surrogatePrimaryKey: "deposit_stop_transaction_sk",
@@ -1230,18 +1230,8 @@ export const depositStopTransactionSilver: SilverTableDefinition = {
   ],
 };
 
-// Rename existing table
-const transactionDailyAggSilver = {
-  ...transactionDailyAggregatesSilver,
-  name: "CORE_TRANSACTIONS.FCT_TRANSACTION_DAILY_AGGREGATION",
-  schema: "CORE_TRANSACTIONS",
-};
-
+// Transactions domain only includes the 5 deposit-related transaction tables
 export const transactionsSilverTables = [
-  transactionDetailSilver,
-  achTransactionSilver,
-  wireTransferSilver,
-  transactionDailyAggSilver,
   depositAccountTransactionSilver,
   depositCertificateTransactionSilver,
   depositHoldTransactionSilver,
