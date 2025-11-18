@@ -1360,14 +1360,9 @@ export const depositStopTransactionSilver: SilverTableDefinition = {
 export const depositsSilverTables = [
   depositAccountMasterSilver,
   depositAccountDailyBalancesSilver,
-  depositTransactionDetailSilver,
   depositAccountSilver,
   depositAccountPackageSilver,
   depositDebitCardSilver,
-  depositCertificateTransactionSilver,
-  depositHoldTransactionSilver,
-  depositMaintenanceTransactionSilver,
-  depositStopTransactionSilver,
 ];
 
 export const depositsSilverLayerComplete = {
