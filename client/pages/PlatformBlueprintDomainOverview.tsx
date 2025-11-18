@@ -2278,38 +2278,71 @@ export default function PlatformBlueprintDomainOverview() {
                 {/* Data Quality Gates */}
                 <div className="border-t border-slate-200 pt-6">
                   <h4 className="font-semibold mb-4 text-slate-900">
-                    Data Quality Gates
+                    Data Quality Framework (OB_OPS Schema)
                   </h4>
+                  <div className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <p className="text-xs text-slate-700">
+                      <span className="font-semibold">Framework:</span> Automated DQ stored procedure (DATA_QUALITY_CHECKS) with configurable check types across all layers
+                    </p>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                       <p className="font-semibold text-orange-900 mb-2 text-sm">
-                        Bronze Gate
+                        Bronze Layer Checks
                       </p>
                       <ul className="text-xs text-orange-800 space-y-1">
-                        <li>✓ Record count validation</li>
-                        <li>✓ Load success check</li>
-                        <li>✓ Source data completeness</li>
+                        <li>✓ NOT_NULL - Mandatory field validation</li>
+                        <li>✓ FILE_VS_TABLE_REC_COUNT - Source reconciliation</li>
+                        <li>✓ TIMELINESS - Data freshness monitoring</li>
+                        <li>✓ IS_NUMERIC - Data type validation</li>
+                        <li>✓ LENGTH_RANGE - String length checks</li>
                       </ul>
                     </div>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <p className="font-semibold text-blue-900 mb-2 text-sm">
-                        Silver Gate
+                        Silver Layer Checks
                       </p>
                       <ul className="text-xs text-blue-800 space-y-1">
-                        <li>✓ Deduplication validation</li>
-                        <li>✓ Business rule compliance</li>
-                        <li>✓ Reference integrity</li>
+                        <li>✓ UNIQUE - Primary key uniqueness</li>
+                        <li>✓ ROW_DUPLICATE - Duplicate detection</li>
+                        <li>✓ REFERENCE_MATCH - Foreign key integrity</li>
+                        <li>✓ VALID_RANGE - Business rule validation</li>
+                        <li>✓ IN_LIST - Valid value checks</li>
+                        <li>✓ LIKE - Pattern matching validation</li>
+                        <li>✓ DATA_TYPE - Cross-layer type consistency</li>
                       </ul>
                     </div>
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                       <p className="font-semibold text-green-900 mb-2 text-sm">
-                        Gold Gate
+                        Gold Layer Checks
                       </p>
                       <ul className="text-xs text-green-800 space-y-1">
-                        <li>✓ Aggregation accuracy</li>
-                        <li>✓ Metric formula validation</li>
-                        <li>✓ Reconciliation checks</li>
+                        <li>✓ GREATER_THAN/LESS_THAN - Metric thresholds</li>
+                        <li>✓ Aggregation reconciliation</li>
+                        <li>✓ Formula validation (calculated metrics)</li>
+                        <li>✓ Grain integrity checks</li>
+                        <li>✓ Historical consistency validation</li>
                       </ul>
+                    </div>
+                  </div>
+                  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <div className="p-3 bg-white border border-slate-200 rounded">
+                      <p className="font-semibold text-slate-700 mb-1">Configuration Tables</p>
+                      <p className="text-slate-600">• DATA_QUALITY_CONFIG</p>
+                      <p className="text-slate-600">• DATA_QUALITY_PROCESS_LOG</p>
+                      <p className="text-slate-600">• DATA_QUALITY_RESULTS</p>
+                    </div>
+                    <div className="p-3 bg-white border border-slate-200 rounded">
+                      <p className="font-semibold text-slate-700 mb-1">Execution</p>
+                      <p className="text-slate-600">• Stored Procedure: DATA_QUALITY_CHECKS(TABLE_ID)</p>
+                      <p className="text-slate-600">• Incremental processing with BUSINESS_START_TS/END_TS</p>
+                      <p className="text-slate-600">• Priority-based check ordering</p>
+                    </div>
+                    <div className="p-3 bg-white border border-slate-200 rounded">
+                      <p className="font-semibold text-slate-700 mb-1">Error Handling</p>
+                      <p className="text-slate-600">• ERROR_FLAG and ERROR_MESSAGE on source tables</p>
+                      <p className="text-slate-600">• Failed record tracking and reporting</p>
+                      <p className="text-slate-600">• Blocking vs. warning thresholds</p>
                     </div>
                   </div>
                 </div>
