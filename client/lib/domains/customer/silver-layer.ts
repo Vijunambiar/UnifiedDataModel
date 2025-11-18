@@ -74,8 +74,8 @@ export interface SilverTableDefinition {
 // ============================================================================
 
 export const customerMasterSilver: SilverTableDefinition = {
-  name: "silver.customer_master_golden",
-  schema: "silver",
+  name: "CORE_CUSTOMERS.DIM_CUSTOMER_ATTRIBUTE",
+  schema: "CORE_CUSTOMERS",
   description: "Golden customer record with deduplication, standardization, and SCD Type 2 history",
   businessKey: "customer_id",
   surrogatePrimaryKey: "customer_sk",
@@ -1006,8 +1006,8 @@ export const customerMasterSilver: SilverTableDefinition = {
 // ============================================================================
 
 export const customerRelationshipSilver: SilverTableDefinition = {
-  name: "silver.customer_relationships",
-  schema: "silver",
+  name: "CORE_CUSTOMERS.BRG_CUST_TO_ACCT_RELATIONSHIP",
+  schema: "CORE_CUSTOMERS",
   description: "Customer-to-Customer and Customer-to-Account relationships with SCD Type 2",
   businessKey: "customer_id",
   surrogatePrimaryKey: "relationship_sk",
@@ -1183,9 +1183,9 @@ export const customerRelationshipSilver: SilverTableDefinition = {
 // ============================================================================
 
 export const customerContactHistorySilver: SilverTableDefinition = {
-  name: "silver.customer_contact_history",
-  schema: "silver",
-  description: "Longitudinal history of all customer contact information changes",
+  name: "CORE_CUSTOMERS.DIM_CUSTOMER_EMAIL",
+  schema: "CORE_CUSTOMERS",
+  description: "Customer email addresses with validation and SCD Type 2",
   businessKey: "customer_id",
   surrogatePrimaryKey: "contact_history_sk",
   sourceTables: [

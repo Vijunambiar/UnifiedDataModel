@@ -63,8 +63,8 @@ export interface SilverTableDefinition {
 // ============================================================================
 
 export const depositAccountMasterSilver: SilverTableDefinition = {
-  name: "silver.deposit_account_master_golden",
-  schema: "silver",
+  name: "CORE_DEPOSIT.DIM_DEPOSIT",
+  schema: "CORE_DEPOSIT",
   description: "Golden deposit account record with SCD Type 2 history",
   businessKey: "account_id",
   surrogatePrimaryKey: "account_sk",
@@ -630,8 +630,8 @@ export const depositAccountMasterSilver: SilverTableDefinition = {
 // ============================================================================
 
 export const depositAccountDailyBalancesSilver: SilverTableDefinition = {
-  name: "silver.deposit_account_daily_balances",
-  schema: "silver",
+  name: "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE",
+  schema: "CORE_DEPOSIT",
   description: "Daily balance snapshots for all deposit accounts with transaction summaries",
   businessKey: "account_id",
   surrogatePrimaryKey: "balance_snapshot_sk",
@@ -895,8 +895,8 @@ export const depositAccountDailyBalancesSilver: SilverTableDefinition = {
 // ============================================================================
 
 export const depositTransactionDetailSilver: SilverTableDefinition = {
-  name: "silver.deposit_transaction_detail",
-  schema: "silver",
+  name: "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+  schema: "CORE_DEPOSIT",
   description: "Standardized deposit transaction detail with validation and categorization",
   businessKey: "transaction_id",
   surrogatePrimaryKey: "transaction_sk",

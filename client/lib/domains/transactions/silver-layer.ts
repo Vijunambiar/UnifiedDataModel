@@ -64,8 +64,8 @@ export interface SilverTableDefinition {
 // ============================================================================
 
 export const transactionDetailSilver: SilverTableDefinition = {
-  name: "silver.transaction_detail_enriched",
-  schema: "silver",
+  name: "CORE_TRANSACTIONS.FCT_TRANSACTION_DETAIL",
+  schema: "CORE_TRANSACTIONS",
   description: "Complete transaction detail with enrichment, categorization, and compliance data",
   businessKey: "transaction_id",
   surrogatePrimaryKey: "transaction_sk",
