@@ -23,7 +23,7 @@ export interface ColumnMapping {
 
 // ============================================================================
 // 1. FCT_DEPOSIT_ACCOUNT_TRANSACTION
-// Source: FIS-ADS DP_OZO_MNY_TXN_ARD_RAW → CORE_TRANSACTIONS.FCT_DEPOSIT_ACCOUNT_TRANSACTION
+// Source: FIS-ADS DP_OZO_MNY_TXN_ARD_RAW → CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION
 // ============================================================================
 export const depositAccountTransactionMappings: ColumnMapping[] = [
   {
@@ -138,7 +138,7 @@ export const depositAccountTransactionMappings: ColumnMapping[] = [
 
 // ============================================================================
 // 2. FCT_DEPOSIT_CERTIFICATE_TRANSACTION
-// Source: FIS-ADS TB_DP_OZP_TD_ARD_RAW → CORE_TRANSACTIONS.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
+// Source: FIS-ADS TB_DP_OZP_TD_ARD_RAW → CORE_DEPOSIT.FCT_DEPOSIT_CERTIFICATE_TRANSACTION
 // ============================================================================
 export const depositCertificateTransactionMappings: ColumnMapping[] = [
   {
@@ -217,7 +217,7 @@ export const depositCertificateTransactionMappings: ColumnMapping[] = [
 
 // ============================================================================
 // 3. FCT_DEPOSIT_HOLD_TRANSACTION
-// Source: FIS-ADS TB_DP_OZV_HLD_ARD → CORE_TRANSACTIONS.FCT_DEPOSIT_HOLD_TRANSACTION
+// Source: FIS-ADS TB_DP_OZV_HLD_ARD → CORE_DEPOSIT.FCT_DEPOSIT_HOLD_TRANSACTION
 // ============================================================================
 export const depositHoldTransactionMappings: ColumnMapping[] = [
   {
@@ -296,7 +296,7 @@ export const depositHoldTransactionMappings: ColumnMapping[] = [
 
 // ============================================================================
 // 4. FCT_DEPOSIT_MAINTENANCE_TRANSACTION
-// Source: FIS-ADS TB_DP_OZU_MAINT_ARD → CORE_TRANSACTIONS.FCT_DEPOSIT_MAINTENANCE_TRANSACTION
+// Source: FIS-ADS TB_DP_OZU_MAINT_ARD → CORE_DEPOSIT.FCT_DEPOSIT_MAINTENANCE_TRANSACTION
 // ============================================================================
 export const depositMaintenanceTransactionMappings: ColumnMapping[] = [
   {
@@ -393,7 +393,7 @@ export const depositMaintenanceTransactionMappings: ColumnMapping[] = [
 
 // ============================================================================
 // 5. FCT_DEPOSIT_STOP_TRANSACTION
-// Source: FIS-ADS TB_DP_OZQ_STP_ARD → CORE_TRANSACTIONS.FCT_DEPOSIT_STOP_TRANSACTION
+// Source: FIS-ADS TB_DP_OZQ_STP_ARD → CORE_DEPOSIT.FCT_DEPOSIT_STOP_TRANSACTION
 // ============================================================================
 export const depositStopTransactionMappings: ColumnMapping[] = [
   {
@@ -540,35 +540,35 @@ export const transactionsTableCoverage = [
   {
     sourceTable: "DP_OZO_MNY_TXN_ARD_RAW",
     silverTable: "FCT_DEPOSIT_ACCOUNT_TRANSACTION",
-    schema: "CORE_TRANSACTIONS",
+    schema: "CORE_DEPOSIT",
     mappedColumns: depositAccountTransactionMappings.length,
     coverage: "Core columns mapped",
   },
   {
     sourceTable: "TB_DP_OZP_TD_ARD_RAW",
     silverTable: "FCT_DEPOSIT_CERTIFICATE_TRANSACTION",
-    schema: "CORE_TRANSACTIONS",
+    schema: "CORE_DEPOSIT",
     mappedColumns: depositCertificateTransactionMappings.length,
     coverage: "Core columns mapped",
   },
   {
     sourceTable: "TB_DP_OZV_HLD_ARD",
     silverTable: "FCT_DEPOSIT_HOLD_TRANSACTION",
-    schema: "CORE_TRANSACTIONS",
+    schema: "CORE_DEPOSIT",
     mappedColumns: depositHoldTransactionMappings.length,
     coverage: "Core columns mapped",
   },
   {
     sourceTable: "TB_DP_OZU_MAINT_ARD",
     silverTable: "FCT_DEPOSIT_MAINTENANCE_TRANSACTION",
-    schema: "CORE_TRANSACTIONS",
+    schema: "CORE_DEPOSIT",
     mappedColumns: depositMaintenanceTransactionMappings.length,
     coverage: "Core columns mapped",
   },
   {
     sourceTable: "TB_DP_OZQ_STP_ARD",
     silverTable: "FCT_DEPOSIT_STOP_TRANSACTION",
-    schema: "CORE_TRANSACTIONS",
+    schema: "CORE_DEPOSIT",
     mappedColumns: depositStopTransactionMappings.length,
     coverage: "Core columns mapped",
   },
