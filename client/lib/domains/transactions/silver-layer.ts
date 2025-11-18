@@ -1114,10 +1114,47 @@ export const transactionCounterpartySummarySilver: SilverTableDefinition = {
   ],
 };
 
+// Rename to match DDL
+export const achTransactionSilver: SilverTableDefinition = {
+  name: "CORE_TRANSACTIONS.FCT_ACH_TRANSACTION",
+  schema: "CORE_TRANSACTIONS",
+  description: "ACH transaction detail",
+  businessKey: "transaction_id",
+  surrogatePrimaryKey: "ach_transaction_sk",
+  sourceTables: ["bronze.ach_transaction"],
+  scdType: "Type 1",
+  grain: "One row per ACH transaction",
+  columns: [
+    { name: "ach_transaction_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+  ],
+};
+
+export const wireTransferSilver: SilverTableDefinition = {
+  name: "CORE_TRANSACTIONS.FCT_WIRE_TRANSFER",
+  schema: "CORE_TRANSACTIONS",
+  description: "Wire transfer detail",
+  businessKey: "transaction_id",
+  surrogatePrimaryKey: "wire_transfer_sk",
+  sourceTables: ["bronze.wire_transfer_transaction"],
+  scdType: "Type 1",
+  grain: "One row per wire transfer",
+  columns: [
+    { name: "wire_transfer_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+  ],
+};
+
+// Rename existing table
+const transactionDailyAggSilver = {
+  ...transactionDailyAggregatesSilver,
+  name: "CORE_TRANSACTIONS.FCT_TRANSACTION_DAILY_AGGREGATION",
+  schema: "CORE_TRANSACTIONS",
+};
+
 export const transactionsSilverTables = [
   transactionDetailSilver,
-  transactionDailyAggregatesSilver,
-  transactionCounterpartySummarySilver,
+  achTransactionSilver,
+  wireTransferSilver,
+  transactionDailyAggSilver,
 ];
 
 export const transactionsSilverLayerComplete = {
