@@ -1015,64 +1015,9 @@ export default function PlatformBlueprintDomainOverview() {
                                   <strong>Frequency:</strong>{" "}
                                   {job.schedule.frequency}
                                 </div>
-                                {job.schedule.time && (
-                                  <div>
-                                    <strong>Time:</strong> {job.schedule.time}
-                                  </div>
-                                )}
-                                <div>
-                                  <strong>Timezone:</strong>{" "}
-                                  {job.schedule.timezone}
-                                </div>
-                                <div>
-                                  <strong>Load Strategy:</strong>{" "}
-                                  <Badge variant="outline" className="text-xs">
-                                    {job.loadStrategy}
-                                  </Badge>
-                                </div>
-                                <div>
-                                  <strong>Extraction:</strong>{" "}
-                                  <Badge variant="outline" className="text-xs">
-                                    {job.extractionMethod}
-                                  </Badge>
-                                </div>
-                                {job.schedule.dependencies.length > 0 && (
-                                  <div>
-                                    <strong>Dependencies:</strong>{" "}
-                                    {job.schedule.dependencies.join(", ")}
-                                  </div>
-                                )}
                               </div>
                             </div>
 
-                            <div className="space-y-2">
-                              <h5 className="font-semibold text-sm flex items-center gap-2">
-                                <AlertCircle className="h-4 w-4 text-red-600" />
-                                Error Handling
-                              </h5>
-                              <div className="bg-red-50 p-3 rounded text-xs space-y-1">
-                                <div>
-                                  <strong>On Failure:</strong>{" "}
-                                  {job.errorHandling.onFailure}
-                                </div>
-                                <div>
-                                  <strong>Max Retries:</strong>{" "}
-                                  {job.errorHandling.maxRetries}
-                                </div>
-                                <div>
-                                  <strong>Error Table:</strong>{" "}
-                                  <code className="bg-white px-1 rounded">
-                                    {job.errorHandling.errorTable}
-                                  </code>
-                                </div>
-                                <div>
-                                  <strong>Alerts:</strong>{" "}
-                                  {job.errorHandling.alertRecipients
-                                    .slice(0, 2)
-                                    .join(", ")}
-                                </div>
-                              </div>
-                            </div>
                           </div>
 
                           {/* Transformations */}
