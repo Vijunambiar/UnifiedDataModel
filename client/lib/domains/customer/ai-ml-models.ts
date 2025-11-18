@@ -795,7 +795,7 @@ class CLTVCalculator:
                 })
 
             final_cltv = max(0, total_cltv)
-            logger.info(f"CLTV calculation completed for customer {customer_id}: ${final_cltv:,.2f}")
+            logger.info("CLTV calculation completed for customer " + str(customer_id))
 
             return {
                 'customer_id': customer_id,
@@ -820,9 +820,9 @@ class CLTVCalculator:
 # result = calculator.calculate_cltv(customer_data, accounts_df, transactions_df)
 # cltv_value = result.get('cltv')
 # annual_contribution = result.get('annual_value')
-# print(f"Customer CLTV: ${cltv_value:,.2f}")
-# print(f"Annual Profit: ${annual_contribution:,.2f}")
-# print(f"Confidence: {result.get('confidence')}")`,
+# print("Customer CLTV: $" + "{:,.2f}".format(cltv_value))
+# print("Annual Profit: $" + "{:,.2f}".format(annual_contribution))
+# print("Confidence: " + str(result.get('confidence')))`,
 };
 
 // ============================================================================
