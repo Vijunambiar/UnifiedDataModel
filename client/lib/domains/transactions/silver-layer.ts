@@ -18,14 +18,6 @@
  * - Settlement status tracking
  */
 
-import {
-  depositAccountTransactionSilver,
-  depositCertificateTransactionSilver,
-  depositHoldTransactionSilver,
-  depositMaintenanceTransactionSilver,
-  depositStopTransactionSilver,
-} from "./silver-layer-deposit-txns";
-
 export interface SilverColumnDefinition {
   name: string;
   dataType: string;
