@@ -446,14 +446,20 @@ export const aggCustomer360View: GoldTable = {
 // EXPORT
 // ============================================================================
 
+// Re-export dimensions and facts for compatibility with metadata
+export const customerGoldDimensions: GoldTable[] = [];
+
+export const customerGoldFacts: GoldTable[] = [];
+
 export const customerGoldLayerComplete = {
   aggregates: [aggCustomer360View],
-  dimensions: [],
-  facts: [],
+  dimensions: customerGoldDimensions,
+  facts: customerGoldFacts,
+  tables: [aggCustomer360View],
   totalTables: 1,
   totalAggregates: 1,
-  totalDimensions: 0,
-  totalFacts: 0,
+  totalDimensions: customerGoldDimensions.length,
+  totalFacts: customerGoldFacts.length,
   description: "Customer domain gold layer - Cross-domain 360° customer view with comprehensive metrics",
 };
 
