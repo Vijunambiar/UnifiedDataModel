@@ -889,20 +889,6 @@ export default function PlatformBlueprintDomainOverview() {
                   <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                   <span>Raw data loaded as-is from FIS source systems</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span>Change Data Capture (CDC) for real-time tables</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span>Daily batch loads for historical data</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span>
-                    Audit columns: CDC_TIMESTAMP, CDC_OPERATION, IS_ACTIVE
-                  </span>
-                </li>
               </ul>
             </CardContent>
           </Card>
