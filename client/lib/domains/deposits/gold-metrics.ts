@@ -254,7 +254,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Total deposit balance with DoD/MoM/YoY growth, product breakdown, and 30-day moving average",
     category: "Balance",
     type: "Strategic",
-    grain: "Overall",
+    grain: "Daily",
     sqlDefinition: `
       WITH daily_balances AS (
         SELECT
@@ -328,7 +328,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Average balance with percentile distribution (P25, P50, P75, P90) and MoM trend",
     category: "Balance",
     type: "Operational",
-    grain: "Account",
+    grain: "Account, Daily",
     sqlDefinition: `
       WITH current_balances AS (
         SELECT
@@ -385,7 +385,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Median balance per deposit account",
     category: "Balance",
     type: "Operational",
-    grain: "Account",
+    grain: "Account, Daily",
     sqlDefinition: `
       SELECT 
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CURRENT_BALANCE) as median_balance
@@ -415,7 +415,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Total balance in all savings accounts",
     category: "Balance",
     type: "Strategic",
-    grain: "Product",
+    grain: "Product, Daily",
     sqlDefinition: `
       SELECT 
         SUM(fdb.CURRENT_BALANCE) as savings_total_balance
@@ -446,7 +446,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Total balance in all money market accounts",
     category: "Balance",
     type: "Strategic",
-    grain: "Product",
+    grain: "Product, Daily",
     sqlDefinition: `
       SELECT 
         SUM(fdb.CURRENT_BALANCE) as mm_total_balance
@@ -477,7 +477,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Total balance in all certificate of deposit accounts",
     category: "Balance",
     type: "Strategic",
-    grain: "Product",
+    grain: "Product, Daily",
     sqlDefinition: `
       SELECT 
         SUM(fdb.CURRENT_BALANCE) as cd_total_balance
@@ -508,7 +508,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "90th percentile account balance",
     category: "Balance",
     type: "Operational",
-    grain: "Account",
+    grain: "Account, Daily",
     sqlDefinition: `
       SELECT 
         PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY CURRENT_BALANCE) as p90_balance
@@ -538,7 +538,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Number of new accounts opened in current month",
     category: "Growth",
     type: "Strategic",
-    grain: "Account",
+    grain: "Account, Monthly",
     sqlDefinition: `
       SELECT 
         COUNT(DISTINCT ACCOUNT_NUMBER) as new_accounts
