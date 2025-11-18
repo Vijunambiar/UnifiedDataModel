@@ -1518,16 +1518,11 @@ export const customerTransactionAggrTable: GoldTableSpec = {
 // GOLD TABLE CATALOG
 // ============================================================================
 export const transactionsGoldTableCatalog = {
-  facts: [
-    fctTransactionDetailTable,
-    fctTransactionDailySummaryTable,
-    fctTransactionByMerchantTable,
-    fctTransactionFraudDetectionTable,
-  ],
-  dimensions: [dimMerchantTable, dimChannelTable, dimTransactionTypeTable],
-  aggregates: [customerTransactionAggrTable],
-  totalTables: 8,
-  description: "Complete Gold Layer DDL specifications for Transactions domain with detailed column metadata and analytics tables",
+  facts: [], // All fact tables moved to Silver layer
+  dimensions: [dimMerchantTable, dimChannelTable, dimTransactionTypeTable], // Reference dimensions only
+  aggregates: [customerTransactionAggrTable], // Shared cross-domain aggregate
+  totalTables: 4,
+  description: "Gold Layer DDL specifications for Transactions domain - Aggregates and reference dimensions (detailed facts in Silver)",
 };
 
 export default transactionsGoldTableCatalog;

@@ -1285,18 +1285,13 @@ export const customerDepositAggrTable: GoldTableSpec = {
 // GOLD TABLE CATALOG
 // ============================================================================
 export const depositsGoldTableCatalog = {
-  facts: [
-    fctDepositDailyBalanceTable,
-    fctDepositAccountTransactionTable,
-    fctDepositHoldTransactionTable,
-    fctDepositMaintenanceTransactionTable,
-    fctDepositCertificateTransactionTable,
-    fctDepositStopTransactionTable,
+  facts: [], // All fact tables moved to Silver layer
+  dimensions: [], // All dimension tables moved to Silver layer
+  aggregates: [
+    customerDepositAggrTable, // Shared cross-domain aggregate
   ],
-  dimensions: [dimDepositTable, dimAccountTable],
-  aggregates: [customerDepositAggrTable],
-  totalTables: 9,
-  description: "Complete Gold Layer DDL specifications for Deposits domain with detailed column metadata",
+  totalTables: 1,
+  description: "Gold Layer DDL specifications for Deposits domain - Aggregate tables only (facts and dimensions in Silver)",
 };
 
 export default depositsGoldTableCatalog;
