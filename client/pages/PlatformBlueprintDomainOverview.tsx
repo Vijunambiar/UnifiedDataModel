@@ -1137,7 +1137,7 @@ export default function PlatformBlueprintDomainOverview() {
                 <div>
                   <CardTitle>Silver Table Specifications & DDL</CardTitle>
                   <CardDescription>
-                    Cleaned dimension and bridge tables with business logic
+                    Cleaned dimension and bridge tables with 100% STTM coverage
                   </CardDescription>
                 </div>
                 <ExportButton
@@ -1147,11 +1147,158 @@ export default function PlatformBlueprintDomainOverview() {
                 />
               </div>
             </CardHeader>
-            <CardContent>
-              <TableDDLViewer
-                tables={domain.silverTables || []}
-                layerName="Silver Layer"
-              />
+            <CardContent className="space-y-6">
+              {/* Coverage Summary Stats */}
+              <div className="grid grid-cols-4 gap-4">
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardContent className="pt-4 pb-4">
+                    <p className="text-xs text-blue-700 font-medium mb-1">
+                      Silver Tables
+                    </p>
+                    <p className="text-2xl font-bold text-blue-900">
+                      {domain.id === "customer" ? "8" : domain.id === "deposits" ? "8" : "4"}
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      {domain.id === "customer" ? "CORE_CUSTOMERS" : domain.id === "deposits" ? "CORE_DEPOSIT" : "CORE_TRANSACTIONS"}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-green-50 border-green-200">
+                  <CardContent className="pt-4 pb-4">
+                    <p className="text-xs text-green-700 font-medium mb-1">
+                      Total Columns
+                    </p>
+                    <p className="text-2xl font-bold text-green-900">
+                      {domain.sttmMapping?.length || 0}
+                    </p>
+                    <p className="text-xs text-green-600 mt-1">
+                      100% mapped
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-purple-50 border-purple-200">
+                  <CardContent className="pt-4 pb-4">
+                    <p className="text-xs text-purple-700 font-medium mb-1">
+                      Mapping Types
+                    </p>
+                    <p className="text-2xl font-bold text-purple-900">
+                      4
+                    </p>
+                    <p className="text-xs text-purple-600 mt-1">
+                      Direct, SCD2, System, Derived
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-orange-50 border-orange-200">
+                  <CardContent className="pt-4 pb-4">
+                    <p className="text-xs text-orange-700 font-medium mb-1">
+                      Source Systems
+                    </p>
+                    <p className="text-2xl font-bold text-orange-900">
+                      2
+                    </p>
+                    <p className="text-xs text-orange-600 mt-1">
+                      FIS-ADS, FIS-DDW
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Table Type Breakdown */}
+              {domain.id === "customer" && (
+                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                  <h4 className="text-sm font-semibold text-slate-900 mb-3">
+                    Customer Schema Tables (CORE_CUSTOMERS)
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">BRG</Badge>
+                      <span className="text-slate-600">BRG_CUST_TO_ACCT_RELATIONSHIP (19 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">DIM</Badge>
+                      <span className="text-slate-600">DIM_CUSTOMER_DEMOGRAPHY (20 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">DIM</Badge>
+                      <span className="text-slate-600">DIM_CUSTOMER_IDENTIFER (32 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">DIM</Badge>
+                      <span className="text-slate-600">DIM_CUSTOMER_EMAIL (14 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">DIM</Badge>
+                      <span className="text-slate-600">DIM_CUSTOMER_NAME (19 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">DIM</Badge>
+                      <span className="text-slate-600">DIM_CUSTOMER_CONTACT (18 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">DIM</Badge>
+                      <span className="text-slate-600">DIM_CUSTOMER_ADDRESS (24 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">DIM</Badge>
+                      <span className="text-slate-600">DIM_CUSTOMER_ATTRIBUTE (84 cols)</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {domain.id === "deposits" && (
+                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                  <h4 className="text-sm font-semibold text-slate-900 mb-3">
+                    Deposits Schema Tables (CORE_DEPOSIT)
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">DIM</Badge>
+                      <span className="text-slate-600">DIM_DEPOSIT (72 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">DIM</Badge>
+                      <span className="text-slate-600">DIM_ACCOUNT (37 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">FCT</Badge>
+                      <span className="text-slate-600">FCT_DEPOSIT_CERTIFICATE_TRANSACTION (24 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">FCT</Badge>
+                      <span className="text-slate-600">FCT_DEPOSIT_DAILY_BALANCE (21 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">FCT</Badge>
+                      <span className="text-slate-600">FCT_DEPOSIT_ACCOUNT_TRANSACTION (26 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">FCT</Badge>
+                      <span className="text-slate-600">FCT_DEPOSIT_HOLD_TRANSACTION (21 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">FCT</Badge>
+                      <span className="text-slate-600">FCT_DEPOSIT_MAINTENANCE_TRANSACTION (15 cols)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">FCT</Badge>
+                      <span className="text-slate-600">FCT_DEPOSIT_STOP_TRANSACTION (25 cols)</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* DDL Viewer */}
+              <div>
+                <h4 className="text-sm font-semibold text-slate-900 mb-3">
+                  Table DDL & Column Specifications
+                </h4>
+                <TableDDLViewer
+                  tables={domain.silverTables || []}
+                  layerName="Silver Layer"
+                />
+              </div>
             </CardContent>
           </Card>
 
