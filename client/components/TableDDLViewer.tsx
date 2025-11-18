@@ -249,8 +249,8 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
                           <div className="mb-4 pb-4 border-b">
                             <span className="font-semibold text-sm">Source Tables:</span>
                             <div className="flex flex-wrap gap-2 mt-2">
-                              {table.sourceTables.map((src) => (
-                                <Badge key={src} variant="outline" className="text-xs">
+                              {table.sourceTables.map((src, idx) => (
+                                <Badge key={`${src}-${idx}`} variant="outline" className="text-xs">
                                   {src}
                                 </Badge>
                               ))}
@@ -263,9 +263,9 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
                             Columns ({getTableColumns(table).length})
                           </h5>
                           <div className="space-y-2 max-h-96 overflow-y-auto">
-                            {getTableColumns(table).map((col) => (
+                            {getTableColumns(table).map((col, idx) => (
                               <div
-                                key={col.name}
+                                key={`${table.name}-${col.name}-${idx}`}
                                 className="border-b last:border-b-0 pb-2 last:pb-0"
                               >
                                 <div className="flex items-start justify-between">
@@ -345,8 +345,8 @@ export function TableDDLViewer({ tables, layerName }: TableDDLViewerProps) {
               <div className="space-y-3">
                 <h4 className="font-semibold text-sm">Column Details</h4>
                 <div className="max-h-48 overflow-y-auto space-y-2">
-                  {getTableColumns(selectedTable).map((col) => (
-                    <div key={col.name} className="border-l-2 border-blue-500 pl-3 py-1">
+                  {getTableColumns(selectedTable).map((col, idx) => (
+                    <div key={`${selectedTable.name}-col-${col.name}-${idx}`} className="border-l-2 border-blue-500 pl-3 py-1">
                       <p className="font-mono text-sm font-semibold">{col.name}</p>
                       <p className="text-xs text-muted-foreground">
                         {col.dataType}
