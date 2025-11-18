@@ -1226,63 +1226,92 @@ export default function PlatformBlueprintDomainOverview() {
                 </Card>
               </div>
 
+              {/* Mapping Type Legend */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm font-semibold text-blue-900 mb-2">
+                  💡 Mapping Types Explained
+                </p>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 mb-1">Direct</Badge>
+                    <p className="text-slate-600">1:1 mapping from source column</p>
+                  </div>
+                  <div>
+                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300 mb-1">Derived</Badge>
+                    <p className="text-slate-600">Calculated/transformed fields</p>
+                  </div>
+                  <div>
+                    <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-300 mb-1">System</Badge>
+                    <p className="text-slate-600">Auto-generated (surrogate keys, timestamps) - <strong>Source Table shows N/A</strong></p>
+                  </div>
+                  <div>
+                    <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-300 mb-1">SCD2</Badge>
+                    <p className="text-slate-600">SCD Type 2 tracking columns</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Mapping Table */}
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Source System</TableHead>
-                      <TableHead>Source Table</TableHead>
-                      <TableHead>Source Column</TableHead>
-                      <TableHead>Silver Table</TableHead>
-                      <TableHead>Silver Column</TableHead>
-                      <TableHead>Mapping Type</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(domain.sttmMapping || [])
-                      .slice(0, 20)
-                      .map((mapping: any, idx: number) => (
-                        <TableRow key={`mapping-${idx}`}>
-                          <TableCell className="font-mono text-xs">
-                            {mapping.sourceSystem}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
-                            {mapping.sourceTable}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
-                            {mapping.sourceColumn}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
-                            {mapping.targetTable || mapping.silverTable}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
-                            {mapping.targetColumn || mapping.silverColumn}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={
-                                mapping.mappingType === "Direct" ? "bg-green-50 text-green-700 border-green-300" :
-                                mapping.mappingType === "Derived" ? "bg-purple-50 text-purple-700 border-purple-300" :
-                                mapping.mappingType === "System" ? "bg-gray-50 text-gray-700 border-gray-300" :
-                                mapping.mappingType === "SCD2" ? "bg-orange-50 text-orange-700 border-orange-300" :
-                                mapping.mappingType === "Compliance" ? "bg-red-50 text-red-700 border-red-300" :
-                                mapping.mappingType === "Fraud" ? "bg-red-50 text-red-700 border-red-300" :
-                                "bg-blue-50 text-blue-700 border-blue-300"
-                              }
-                            >
-                              {mapping.mappingType || "Direct"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
+              <div className="border rounded-lg">
+                <div className="max-h-[600px] overflow-auto">
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-white z-10">
+                      <TableRow>
+                        <TableHead className="bg-slate-50">Source System</TableHead>
+                        <TableHead className="bg-slate-50">Source Table</TableHead>
+                        <TableHead className="bg-slate-50">Source Column</TableHead>
+                        <TableHead className="bg-slate-50">Silver Table</TableHead>
+                        <TableHead className="bg-slate-50">Silver Column</TableHead>
+                        <TableHead className="bg-slate-50">Mapping Type</TableHead>
+                        <TableHead className="bg-slate-50">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(domain.sttmMapping || [])
+                        .map((mapping: any, idx: number) => (
+                          <TableRow key={`mapping-${idx}`}>
+                            <TableCell className="font-mono text-xs">
+                              {mapping.sourceSystem}
+                            </TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {mapping.sourceTable}
+                            </TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {mapping.sourceColumn}
+                            </TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {mapping.targetTable || mapping.silverTable}
+                            </TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {mapping.targetColumn || mapping.silverColumn}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant="outline"
+                                className={
+                                  mapping.mappingType === "Direct" ? "bg-green-50 text-green-700 border-green-300" :
+                                  mapping.mappingType === "Derived" ? "bg-purple-50 text-purple-700 border-purple-300" :
+                                  mapping.mappingType === "System" ? "bg-gray-50 text-gray-700 border-gray-300" :
+                                  mapping.mappingType === "SCD2" ? "bg-orange-50 text-orange-700 border-orange-300" :
+                                  mapping.mappingType === "Compliance" ? "bg-red-50 text-red-700 border-red-300" :
+                                  mapping.mappingType === "Fraud" ? "bg-red-50 text-red-700 border-red-300" :
+                                  "bg-blue-50 text-blue-700 border-blue-300"
+                                }
+                              >
+                                {mapping.mappingType || "Direct"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="bg-slate-50 border-t px-4 py-2 text-xs text-slate-600">
+                  Showing all {domain.sttmMapping?.length || 0} mappings • Scroll to view all records
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -2018,7 +2047,7 @@ export default function PlatformBlueprintDomainOverview() {
                     </p>
                     <ul className="text-xs text-blue-700 space-y-2">
                       <li>✓ Business metrics</li>
-                      <li>✓ KPI definitions</li>
+                      <li>��� KPI definitions</li>
                       <li>✓ Metric catalog</li>
                       <li>✓ BI ready</li>
                     </ul>
