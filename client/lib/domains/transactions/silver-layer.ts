@@ -1143,6 +1143,93 @@ export const wireTransferSilver: SilverTableDefinition = {
   ],
 };
 
+// ============================================================================
+// DEPOSIT-RELATED TRANSACTION TABLES (moved from Deposits domain)
+// ============================================================================
+
+export const depositAccountTransactionSilver: SilverTableDefinition = {
+  name: "CORE_TRANSACTIONS.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+  schema: "CORE_TRANSACTIONS",
+  description: "Deposit account transaction fact table",
+  businessKey: "transaction_id",
+  surrogatePrimaryKey: "deposit_account_transaction_sk",
+  sourceTables: ["bronze.money_transaction"],
+  scdType: "Type 1",
+  grain: "One row per account and transaction ID",
+  columns: [
+    { name: "deposit_account_transaction_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key uniquely identifying each deposit account transaction", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+    { name: "account_number_fk", dataType: "NUMBER(38,0)", nullable: true, businessMeaning: "Foreign key linking to DIM_ACCOUNT", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A", transformation: "Lookup" } },
+    { name: "account_number", dataType: "VARCHAR(100)", nullable: true, businessMeaning: "Account number", sourceMapping: { bronzeTable: "bronze.money_transaction", bronzeColumn: "ACCOUNT_NUMBER" } },
+    { name: "transaction_id", dataType: "VARCHAR(100)", nullable: true, businessMeaning: "Transaction identifier", sourceMapping: { bronzeTable: "bronze.money_transaction", bronzeColumn: "TRANSACTION_ID" } },
+    { name: "transaction_date", dataType: "DATE", nullable: true, businessMeaning: "Transaction date", sourceMapping: { bronzeTable: "bronze.money_transaction", bronzeColumn: "TRANSACTION_DATE" } },
+    { name: "transaction_amount", dataType: "NUMBER(18,6)", nullable: true, businessMeaning: "Transaction amount", sourceMapping: { bronzeTable: "bronze.money_transaction", bronzeColumn: "TRANSACTION_AMOUNT" } },
+  ],
+};
+
+export const depositCertificateTransactionSilver: SilverTableDefinition = {
+  name: "CORE_TRANSACTIONS.FCT_DEPOSIT_CERTIFICATE_TRANSACTION",
+  schema: "CORE_TRANSACTIONS",
+  description: "Certificate of deposit (CD) transaction fact table",
+  businessKey: "transaction_id",
+  surrogatePrimaryKey: "deposit_certificate_transaction_sk",
+  sourceTables: ["bronze.certificate_transaction"],
+  scdType: "Type 1",
+  grain: "One row per account and transaction ID",
+  columns: [
+    { name: "deposit_certificate_transaction_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+    { name: "account_number", dataType: "VARCHAR(100)", nullable: true, businessMeaning: "Account number", sourceMapping: { bronzeTable: "bronze.certificate_transaction", bronzeColumn: "ACCOUNT_NUMBER" } },
+    { name: "transaction_id", dataType: "VARCHAR(100)", nullable: true, businessMeaning: "Transaction identifier", sourceMapping: { bronzeTable: "bronze.certificate_transaction", bronzeColumn: "TRANSACTION_ID" } },
+  ],
+};
+
+export const depositHoldTransactionSilver: SilverTableDefinition = {
+  name: "CORE_TRANSACTIONS.FCT_DEPOSIT_HOLD_TRANSACTION",
+  schema: "CORE_TRANSACTIONS",
+  description: "Hold transactions on deposit accounts",
+  businessKey: "transaction_id",
+  surrogatePrimaryKey: "deposit_hold_transaction_sk",
+  sourceTables: ["bronze.hold_transaction"],
+  scdType: "Type 1",
+  grain: "One row per account and transaction ID",
+  columns: [
+    { name: "deposit_hold_transaction_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+    { name: "account_number", dataType: "VARCHAR(100)", nullable: true, businessMeaning: "Account number", sourceMapping: { bronzeTable: "bronze.hold_transaction", bronzeColumn: "ACCOUNT_NUMBER" } },
+    { name: "transaction_id", dataType: "VARCHAR(100)", nullable: true, businessMeaning: "Transaction identifier", sourceMapping: { bronzeTable: "bronze.hold_transaction", bronzeColumn: "TRANSACTION_ID" } },
+  ],
+};
+
+export const depositMaintenanceTransactionSilver: SilverTableDefinition = {
+  name: "CORE_TRANSACTIONS.FCT_DEPOSIT_MAINTENANCE_TRANSACTION",
+  schema: "CORE_TRANSACTIONS",
+  description: "Maintenance transaction history for deposit accounts",
+  businessKey: "transaction_id",
+  surrogatePrimaryKey: "deposit_maintenance_transaction_sk",
+  sourceTables: ["bronze.maintenance_log_transaction"],
+  scdType: "Type 1",
+  grain: "One row per account and transaction ID",
+  columns: [
+    { name: "deposit_maintenance_transaction_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+    { name: "account_number", dataType: "VARCHAR(100)", nullable: true, businessMeaning: "Account number", sourceMapping: { bronzeTable: "bronze.maintenance_log_transaction", bronzeColumn: "ACCOUNT_NUMBER" } },
+    { name: "transaction_id", dataType: "VARCHAR(100)", nullable: true, businessMeaning: "Transaction identifier", sourceMapping: { bronzeTable: "bronze.maintenance_log_transaction", bronzeColumn: "TRANSACTION_ID" } },
+  ],
+};
+
+export const depositStopTransactionSilver: SilverTableDefinition = {
+  name: "CORE_TRANSACTIONS.FCT_DEPOSIT_STOP_TRANSACTION",
+  schema: "CORE_TRANSACTIONS",
+  description: "Stop payment transactions on deposit accounts",
+  businessKey: "transaction_id",
+  surrogatePrimaryKey: "deposit_stop_transaction_sk",
+  sourceTables: ["bronze.stop_transaction"],
+  scdType: "Type 1",
+  grain: "One row per account and transaction ID",
+  columns: [
+    { name: "deposit_stop_transaction_sk", dataType: "NUMBER(38,0)", nullable: false, businessMeaning: "Surrogate key", sourceMapping: { bronzeTable: "N/A", bronzeColumn: "N/A" } },
+    { name: "account_number", dataType: "VARCHAR(16777216)", nullable: true, businessMeaning: "Account number", sourceMapping: { bronzeTable: "bronze.stop_transaction", bronzeColumn: "ACCOUNT_NUMBER" } },
+    { name: "transaction_id", dataType: "VARCHAR(100)", nullable: true, businessMeaning: "Transaction identifier", sourceMapping: { bronzeTable: "bronze.stop_transaction", bronzeColumn: "TRANSACTION_ID" } },
+  ],
+};
+
 // Rename existing table
 const transactionDailyAggSilver = {
   ...transactionDailyAggregatesSilver,
