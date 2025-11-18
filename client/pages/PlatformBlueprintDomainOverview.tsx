@@ -824,45 +824,6 @@ export default function PlatformBlueprintDomainOverview() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Glossary */}
-          <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-blue-600" />
-                Domain Glossary
-              </CardTitle>
-              <CardDescription>
-                Business terminology and definitions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {domain.glossary.length > 0 ? (
-                  domain.glossary.map((term) => (
-                    <div
-                      key={term.name}
-                      className="border-l-4 border-blue-500 pl-4 py-2"
-                    >
-                      <p className="font-semibold text-slate-900">
-                        {term.name}
-                      </p>
-                      <p className="text-sm text-slate-600 mt-1">
-                        {term.definition}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1 italic">
-                        {term.businessMeaning}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-slate-500 text-center py-4">
-                    No glossary terms available
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         {/* Bronze Layer Tab */}
@@ -1801,7 +1762,7 @@ export default function PlatformBlueprintDomainOverview() {
             <CardHeader>
               <CardTitle>Data Architecture Stack</CardTitle>
               <CardDescription>
-                Bronze → Silver → Gold layers with quality gates
+                Bronze ��� Silver → Gold layers with quality gates
               </CardDescription>
             </CardHeader>
             <CardContent>
