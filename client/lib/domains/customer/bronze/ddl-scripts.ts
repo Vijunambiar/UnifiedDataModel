@@ -3,7 +3,7 @@
  * 
  * CREATE TABLE statements for Bronze layer tables
  * Source: FIS raw data landing zone
- * Schema: bronze / SNOWFLAKE_CURATED
+ * Schema: FIS_RAW
  * Refresh: Daily batch loads from FIS
  */
 
@@ -17,332 +17,409 @@ export interface DDLScript {
 }
 
 // ============================================================================
-// CUSTOMER MASTER BRONZE TABLE
+// TB_CI_DZY_C2_CUST_SCD_DIM_RAW - Customer SCD Dimension
 // ============================================================================
-export const customerMasterBronzeDDL: DDLScript = {
-  tableName: "bronze.customer_master",
-  schema: "bronze",
-  description: "Raw customer master data from FIS TB_CI_OZ6_CUST_ARD",
-  dependencies: ["FIS_RAW.TB_CI_OZ6_CUST_ARD"],
+export const customerSCDBronzeDDL: DDLScript = {
+  tableName: "TB_CI_DZY_C2_CUST_SCD_DIM_RAW",
+  schema: "FIS_RAW",
+  description: "Customer Slowly Changing Dimension from FIS - full customer demographics and attributes",
+  dependencies: [],
   estimatedRows: "5.5M",
   ddlStatement: `
 -- ============================================================================
--- BRONZE LAYER: Customer Master
--- Source: FIS_RAW.TB_CI_OZ6_CUST_ARD
--- Purpose: Raw landing zone for customer demographics and attributes
+-- BRONZE LAYER: Customer SCD Dimension
+-- Source: FIS Core Banking System
+-- Purpose: Raw customer master with SCD Type 2 tracking
 -- Refresh: Daily at 2:00 AM UTC
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS bronze.customer_master (
-  -- Business Keys
-  CUSTOMER_ID VARCHAR(20) NOT NULL COMMENT 'Unique customer identifier from FIS',
-  
-  -- Demographics
-  ETHNIC_CODE VARCHAR(10) COMMENT 'Customer ethnicity code',
-  ETHNIC_DESC VARCHAR(50) COMMENT 'Customer ethnicity description',
-  GENDER_CODE VARCHAR(5) COMMENT 'Gender code (M/F/X)',
-  MARITAL_STATUS_CODE VARCHAR(10) COMMENT 'Marital status code',
-  MARITAL_STATUS_DESC VARCHAR(50) COMMENT 'Marital status description',
-  EDUCATION_CODE VARCHAR(10) COMMENT 'Education level code',
-  EDUCATION_DESC VARCHAR(50) COMMENT 'Education level description',
-  INCOME_CODE VARCHAR(10) COMMENT 'Income range code',
-  INCOME_DESC VARCHAR(50) COMMENT 'Income range description',
-  OCCUPATION_CODE VARCHAR(20) COMMENT 'Occupation classification code',
-  OCCUPATION_DESC VARCHAR(100) COMMENT 'Occupation description',
-  
-  -- Status and Dates
-  CUSTOMER_STATUS VARCHAR(20) NOT NULL COMMENT 'ACTIVE, INACTIVE, DECEASED, CLOSED',
-  CUSTOMER_SINCE_DATE DATE COMMENT 'Date customer relationship established',
-  LAST_CONTACT_DATE DATE COMMENT 'Last meaningful customer interaction',
-  
-  -- Audit Columns (Bronze Layer Standard)
-  _LOAD_ID VARCHAR(50) NOT NULL COMMENT 'Unique identifier for the load batch',
-  _LOAD_TIMESTAMP TIMESTAMP_NTZ NOT NULL DEFAULT CURRENT_TIMESTAMP() COMMENT 'When record was loaded',
-  _SOURCE_SYSTEM VARCHAR(20) NOT NULL DEFAULT 'FIS' COMMENT 'Source system name',
-  _SOURCE_TABLE VARCHAR(100) NOT NULL DEFAULT 'TB_CI_OZ6_CUST_ARD' COMMENT 'Source table name',
-  _SOURCE_FILE VARCHAR(500) COMMENT 'Source file path if applicable',
-  _RECORD_HASH VARCHAR(64) COMMENT 'MD5 hash of source record for change detection',
-  _IS_DELETED BOOLEAN DEFAULT FALSE COMMENT 'Soft delete flag',
-  
-  -- Processing Metadata
-  PRCS_DTE DATE NOT NULL COMMENT 'FIS processing date',
-  EFFECTIVE_START_DATE TIMESTAMP_NTZ NOT NULL DEFAULT CURRENT_TIMESTAMP() COMMENT 'When this version became effective',
-  EFFECTIVE_END_DATE TIMESTAMP_NTZ COMMENT 'When this version was superseded',
-  IS_CURRENT BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Is this the current version?',
-  
-  -- Constraints
-  PRIMARY KEY (CUSTOMER_ID, PRCS_DTE),
-  CONSTRAINT chk_customer_status CHECK (CUSTOMER_STATUS IN ('ACTIVE', 'INACTIVE', 'DECEASED', 'CLOSED'))
+CREATE OR REPLACE TABLE FIS_RAW.TB_CI_DZY_C2_CUST_SCD_DIM_RAW (
+	DW_CUST_ID NUMBER(11,0),
+	BRTH_DTE TIMESTAMP_NTZ(9),
+	CUST_CIS_NBR NUMBER(11,0),
+	CUST_BASE_NBR VARCHAR(3),
+	CUST_OPEN_DTE TIMESTAMP_NTZ(9),
+	FRST_NME VARCHAR(20),
+	LST_NME VARCHAR(30),
+	MID_1_NME VARCHAR(20),
+	MID_2_NME VARCHAR(20),
+	FRST_MID_NME VARCHAR(30),
+	TAX_ID_NBR VARCHAR(9),
+	TAX_ID_CDE VARCHAR(1),
+	GNDR_CDE VARCHAR(1),
+	CUST_SNC_DTE TIMESTAMP_NTZ(9),
+	BUS_SNC_DTE TIMESTAMP_NTZ(9),
+	CUST_EMAIL_ADDR_TXT VARCHAR(64),
+	NME_LNE_TXT VARCHAR(50),
+	PRMY_PH_NBR VARCHAR(11),
+	SCNDY_PH_NBR VARCHAR(11),
+	CUST_BUS_TYP_CDE VARCHAR(3),
+	CUST_BUS_TYP_DESC VARCHAR(20),
+	REC_TYP_CDE VARCHAR(1),
+	CUST_CLOS_DTE TIMESTAMP_NTZ(9),
+	CST_CNTR_NBR NUMBER(7,0),
+	CEN_TRCT_NBR NUMBER(9,0),
+	POS_DW_OU_ID NUMBER(11,0),
+	PRN_DW_OU_ID NUMBER(11,0),
+	BRNCH_NBR NUMBER(7,0),
+	BRNCH_DESC VARCHAR(20),
+	PRN_BNK_NBR VARCHAR(3),
+	YR_AT_CUR_ADDR_CNT NUMBER(5,0),
+	EMPLR_OR_SCHL_NME VARCHAR(40),
+	MRTL_STAT_CDE VARCHAR(1),
+	MRTL_STAT_DESC VARCHAR(20),
+	NET_WRTH_CDE VARCHAR(3),
+	NET_WRTH_DESC VARCHAR(20),
+	OCCPN_CDE VARCHAR(3),
+	OCCPN_DESC VARCHAR(20),
+	OWN_RENT_CDE VARCHAR(1),
+	OWN_RENT_DESC VARCHAR(20),
+	CTZNSHP_CDE VARCHAR(1),
+	ETHNC_CDE VARCHAR(10),
+	ETHNC_CDE_DESC VARCHAR(255),
+	RACE_CDE VARCHAR(10),
+	RACE_DESC VARCHAR(255),
+	PRMY_OFFCR_NBR NUMBER(5,0),
+	PRMY_OFFCR_INITLS_NME VARCHAR(3),
+	PRMY_OFFCR_NME VARCHAR(20),
+	SCNDY_OFFCR_NBR NUMBER(5,0),
+	SCNDY_OFFCR_INITLS_NME VARCHAR(3),
+	SCNDY_OFFCR_NME VARCHAR(20),
+	CLNT_ID NUMBER(11,0),
+	DW_ASP_ID NUMBER(11,0),
+	EFF_DTE TIMESTAMP_NTZ(9),
+	SOR_EXP_DTE TIMESTAMP_NTZ(9),
+	CUR_REC_IND VARCHAR(1),
+	DECD_DTE TIMESTAMP_NTZ(9),
+	CUST_STAT_CDE VARCHAR(2),
+	PRCS_DTE TIMESTAMP_NTZ(9),
+	SCAN_TIME TIMESTAMP_NTZ(9),
+	ERROR_FLAG VARCHAR(16777216),
+	ERROR_MESSAGE VARCHAR(16777216)
 )
-COMMENT = 'Bronze layer: Raw customer master data from FIS - 1:1 mapping with minimal transformation'
-CLUSTER BY (CUSTOMER_ID, PRCS_DTE)
+COMMENT = 'Bronze layer: Customer SCD dimension from FIS - raw unmodified data'
+CLUSTER BY (CUST_CIS_NBR, PRCS_DTE)
 ;
-
--- Indexes for query performance
-CREATE INDEX IF NOT EXISTS idx_bronze_customer_load_id ON bronze.customer_master(_LOAD_ID);
-CREATE INDEX IF NOT EXISTS idx_bronze_customer_status ON bronze.customer_master(CUSTOMER_STATUS) WHERE IS_CURRENT = TRUE;
-CREATE INDEX IF NOT EXISTS idx_bronze_customer_prcs_dte ON bronze.customer_master(PRCS_DTE);
   `
 };
 
 // ============================================================================
-// CUSTOMER IDENTIFIERS BRONZE TABLE
+// TB_CI_DZU_C2_CUST_CNTC_DIM_RAW - Customer Contact Dimension
 // ============================================================================
-export const customerIdentifiersBronzeDDL: DDLScript = {
-  tableName: "bronze.customer_identifiers",
-  schema: "bronze",
-  description: "Raw customer identification documents from FIS TB_CI_OZ4_CUST_ID_ARD",
-  dependencies: ["FIS_RAW.TB_CI_OZ4_CUST_ID_ARD"],
-  estimatedRows: "8M",
-  ddlStatement: `
--- ============================================================================
--- BRONZE LAYER: Customer Identifiers
--- Source: FIS_RAW.TB_CI_OZ4_CUST_ID_ARD
--- Purpose: Government-issued IDs and identification documents
--- Refresh: Daily at 2:00 AM UTC
--- ============================================================================
-
-CREATE TABLE IF NOT EXISTS bronze.customer_identifiers (
-  -- Business Keys
-  CUSTOMER_ID VARCHAR(20) NOT NULL COMMENT 'Reference to customer master',
-  ID_TYPE VARCHAR(20) NOT NULL COMMENT 'Type of identification (SSN, PASSPORT, DRIVERS_LICENSE)',
-  ID_NUMBER VARCHAR(100) NOT NULL COMMENT 'Identification number - UNENCRYPTED in Bronze',
-  
-  -- ID Details
-  ISSUING_COUNTRY VARCHAR(3) COMMENT 'ISO country code of issuing authority',
-  ISSUING_STATE VARCHAR(10) COMMENT 'State/province code if applicable',
-  ISSUE_DATE DATE COMMENT 'Date ID was issued',
-  EXPIRATION_DATE DATE COMMENT 'Date ID expires',
-  
-  -- Verification
-  VERIFICATION_STATUS VARCHAR(20) COMMENT 'VERIFIED, PENDING, EXPIRED, INVALID',
-  VERIFICATION_DATE DATE COMMENT 'Date verification was performed',
-  VERIFIED_BY VARCHAR(50) COMMENT 'User or system that verified',
-  
-  -- Audit Columns
-  _LOAD_ID VARCHAR(50) NOT NULL,
-  _LOAD_TIMESTAMP TIMESTAMP_NTZ NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  _SOURCE_SYSTEM VARCHAR(20) NOT NULL DEFAULT 'FIS',
-  _SOURCE_TABLE VARCHAR(100) NOT NULL DEFAULT 'TB_CI_OZ4_CUST_ID_ARD',
-  _RECORD_HASH VARCHAR(64),
-  _IS_DELETED BOOLEAN DEFAULT FALSE,
-  
-  -- Processing Metadata
-  PRCS_DTE DATE NOT NULL,
-  EFFECTIVE_START_DATE TIMESTAMP_NTZ NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  EFFECTIVE_END_DATE TIMESTAMP_NTZ,
-  IS_CURRENT BOOLEAN NOT NULL DEFAULT TRUE,
-  
-  -- Constraints
-  PRIMARY KEY (CUSTOMER_ID, ID_TYPE, PRCS_DTE),
-  CONSTRAINT chk_id_type CHECK (ID_TYPE IN ('SSN', 'PASSPORT', 'DRIVERS_LICENSE', 'NATIONAL_ID', 'TAXPAYER_ID'))
-)
-COMMENT = 'Bronze layer: Customer identification documents - UNENCRYPTED, encryption applied in Silver layer'
-CLUSTER BY (CUSTOMER_ID, PRCS_DTE)
-;
-
-CREATE INDEX IF NOT EXISTS idx_bronze_custid_load ON bronze.customer_identifiers(_LOAD_ID);
-CREATE INDEX IF NOT EXISTS idx_bronze_custid_verification ON bronze.customer_identifiers(VERIFICATION_STATUS) WHERE IS_CURRENT = TRUE;
-  `
-};
-
-// ============================================================================
-// CUSTOMER NAMES AND ADDRESSES BRONZE TABLE
-// ============================================================================
-export const customerNamesAddressesBronzeDDL: DDLScript = {
-  tableName: "bronze.customer_names_addresses",
-  schema: "bronze",
-  description: "Raw customer names and addresses from FIS TB_CI_OZ5_CUST_NAAD_ARD",
-  dependencies: ["FIS_RAW.TB_CI_OZ5_CUST_NAAD_ARD"],
+export const customerContactBronzeDDL: DDLScript = {
+  tableName: "TB_CI_DZU_C2_CUST_CNTC_DIM_RAW",
+  schema: "FIS_RAW",
+  description: "Customer contact information - addresses, phones, emails",
+  dependencies: [],
   estimatedRows: "12M",
   ddlStatement: `
 -- ============================================================================
--- BRONZE LAYER: Customer Names and Addresses
--- Source: FIS_RAW.TB_CI_OZ5_CUST_NAAD_ARD
--- Purpose: Customer legal names and physical/mailing addresses
+-- BRONZE LAYER: Customer Contact Dimension
+-- Source: FIS Core Banking System
+-- Purpose: Customer addresses and contact information
 -- Refresh: Daily at 2:00 AM UTC
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS bronze.customer_names_addresses (
-  -- Business Keys
-  CUSTOMER_ID VARCHAR(20) NOT NULL COMMENT 'Reference to customer master',
-  NAME_ADDRESS_ID VARCHAR(30) NOT NULL COMMENT 'Unique ID for this name/address record',
-  
-  -- Name Information
-  NAME_TYPE VARCHAR(20) COMMENT 'LEGAL, PREFERRED, DBA, PREVIOUS',
-  FULL_NAME VARCHAR(200) COMMENT 'Complete name - UNENCRYPTED in Bronze',
-  FIRST_NAME VARCHAR(100) COMMENT 'Given name',
-  MIDDLE_NAME VARCHAR(100) COMMENT 'Middle name or initial',
-  LAST_NAME VARCHAR(100) COMMENT 'Surname/family name',
-  SUFFIX VARCHAR(20) COMMENT 'Jr., Sr., III, etc.',
-  
-  -- Address Information
-  ADDRESS_TYPE VARCHAR(20) COMMENT 'PRIMARY, MAILING, WORK, PREVIOUS',
-  ADDRESS_LINE1 VARCHAR(200) COMMENT 'Street address line 1',
-  ADDRESS_LINE2 VARCHAR(200) COMMENT 'Street address line 2',
-  CITY VARCHAR(100) COMMENT 'City name',
-  STATE_PROVINCE VARCHAR(50) COMMENT 'State or province',
-  POSTAL_CODE VARCHAR(20) COMMENT 'ZIP or postal code',
-  COUNTRY_CODE VARCHAR(3) COMMENT 'ISO country code',
-  
-  -- Contact Information
-  PRIMARY_PHONE VARCHAR(50) COMMENT 'Primary phone number',
-  SECONDARY_PHONE VARCHAR(50) COMMENT 'Secondary phone number',
-  EMAIL_ADDRESS VARCHAR(200) COMMENT 'Email address',
-  
-  -- Validation Flags
-  ADDRESS_VALIDATED BOOLEAN COMMENT 'Has address been USPS validated?',
-  EMAIL_VERIFIED BOOLEAN COMMENT 'Has email been verified?',
-  PHONE_VERIFIED BOOLEAN COMMENT 'Has phone been verified?',
-  
-  -- Audit Columns
-  _LOAD_ID VARCHAR(50) NOT NULL,
-  _LOAD_TIMESTAMP TIMESTAMP_NTZ NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  _SOURCE_SYSTEM VARCHAR(20) NOT NULL DEFAULT 'FIS',
-  _SOURCE_TABLE VARCHAR(100) NOT NULL DEFAULT 'TB_CI_OZ5_CUST_NAAD_ARD',
-  _RECORD_HASH VARCHAR(64),
-  _IS_DELETED BOOLEAN DEFAULT FALSE,
-  
-  -- Processing Metadata
-  PRCS_DTE DATE NOT NULL,
-  EFFECTIVE_START_DATE TIMESTAMP_NTZ NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  EFFECTIVE_END_DATE TIMESTAMP_NTZ,
-  IS_CURRENT BOOLEAN NOT NULL DEFAULT TRUE,
-  
-  -- Constraints
-  PRIMARY KEY (NAME_ADDRESS_ID, PRCS_DTE)
+CREATE OR REPLACE TABLE FIS_RAW.TB_CI_DZU_C2_CUST_CNTC_DIM_RAW (
+	DW_CUST_CNTC_ID NUMBER(11,0),
+	CUST_CIS_NBR NUMBER(11,0),
+	CUST_BASE_NBR VARCHAR(3),
+	ADDR_TYP_CDE VARCHAR(1),
+	ADDR_LNE_1_TXT VARCHAR(50),
+	ADDR_LNE_2_TXT VARCHAR(50),
+	ADDR_LNE_3_TXT VARCHAR(50),
+	ADDR_LNE_4_TXT VARCHAR(50),
+	ADDR_LNE_5_TXT VARCHAR(50),
+	ADDR_LNE_6_TXT VARCHAR(50),
+	CTY_NME VARCHAR(40),
+	ZIP_4_CDE VARCHAR(4),
+	ZIP_5_CDE VARCHAR(5),
+	ST_CDE VARCHAR(2),
+	LST_CHNG_DTE TIMESTAMP_NTZ(9),
+	CLNT_ID NUMBER(11,0),
+	PRCS_DTE TIMESTAMP_NTZ(9),
+	DW_ASP_ID NUMBER(11,0),
+	DW_ULT_CUST_ID NUMBER(11,0),
+	NME_LNE_TYP_CDE VARCHAR(10),
+	PH_1_FULL_NBR VARCHAR(40),
+	PH_1_RLT_RESN_CDE VARCHAR(10),
+	PH_2_FULL_NBR VARCHAR(40),
+	PH_2_RLT_RESN_CDE VARCHAR(10),
+	PH_3_FULL_NBR VARCHAR(40),
+	PH_3_RLT_RESN_CDE VARCHAR(10),
+	FAX_PH_NBR VARCHAR(40),
+	CTRY_CDE VARCHAR(5),
+	CTRY_NME VARCHAR(255),
+	PRMY_CUST_ADDR_LST_CHG_DTE TIMESTAMP_NTZ(9),
+	CUST_PSTL_EFF_DTE TIMESTAMP_NTZ(9),
+	SCAN_TIME TIMESTAMP_NTZ(9),
+	ERROR_FLAG VARCHAR(16777216),
+	ERROR_MESSAGE VARCHAR(16777216)
 )
-COMMENT = 'Bronze layer: Customer names and addresses - UNENCRYPTED, standardization and encryption in Silver layer'
-CLUSTER BY (CUSTOMER_ID, PRCS_DTE)
+COMMENT = 'Bronze layer: Customer contact information from FIS'
+CLUSTER BY (CUST_CIS_NBR, PRCS_DTE)
 ;
-
-CREATE INDEX IF NOT EXISTS idx_bronze_naad_customer ON bronze.customer_names_addresses(CUSTOMER_ID) WHERE IS_CURRENT = TRUE;
-CREATE INDEX IF NOT EXISTS idx_bronze_naad_type ON bronze.customer_names_addresses(NAME_TYPE, ADDRESS_TYPE);
   `
 };
 
 // ============================================================================
-// CUSTOMER EMAIL BRONZE TABLE
+// TB_CI_DZL_CUST_DOC_ID_DIM_RAW - Customer Document ID Dimension
 // ============================================================================
-export const customerEmailBronzeDDL: DDLScript = {
-  tableName: "bronze.customer_email",
-  schema: "bronze",
-  description: "Raw customer email addresses from FIS TB_CI_OZ3_EMAIL_ARD",
-  dependencies: ["FIS_RAW.TB_CI_OZ3_EMAIL_ARD"],
+export const customerDocumentIDBronzeDDL: DDLScript = {
+  tableName: "TB_CI_DZL_CUST_DOC_ID_DIM_RAW",
+  schema: "FIS_RAW",
+  description: "Customer identification documents - passports, licenses, IDs",
+  dependencies: [],
+  estimatedRows: "8M",
+  ddlStatement: `
+-- ============================================================================
+-- BRONZE LAYER: Customer Document ID Dimension
+-- Source: FIS Core Banking System
+-- Purpose: Customer identification documents
+-- Refresh: Daily at 2:00 AM UTC
+-- ============================================================================
+
+CREATE OR REPLACE TABLE FIS_RAW.TB_CI_DZL_CUST_DOC_ID_DIM_RAW (
+	DW_CUST_DOC_ID_ID NUMBER(11,0),
+	DW_ULT_CUST_ID NUMBER(11,0),
+	CUST_CIS_NBR NUMBER(11,0),
+	CUST_BASE_NBR VARCHAR(3),
+	DATA_PRSNT_IND VARCHAR(1),
+	ID_TYP_NME VARCHAR(30),
+	ID_NBR VARCHAR(32),
+	ISS_ENT_NME VARCHAR(70),
+	ISS_LOCTN_NME VARCHAR(70),
+	DOC_ISS_DTE TIMESTAMP_NTZ(9),
+	DOC_EXP_DTE TIMESTAMP_NTZ(9),
+	LST_MAINT_DTE TIMESTAMP_NTZ(9),
+	LST_MAINT_USR_ID VARCHAR(32),
+	DW_ASP_ID NUMBER(11,0),
+	CLNT_ID NUMBER(11,0),
+	PRCS_DTE TIMESTAMP_NTZ(9),
+	DOC_SEQ_NBR NUMBER(4,0),
+	SCAN_TIME TIMESTAMP_NTZ(9),
+	ERROR_FLAG VARCHAR(16777216),
+	ERROR_MESSAGE VARCHAR(16777216)
+)
+COMMENT = 'Bronze layer: Customer document IDs from FIS'
+CLUSTER BY (CUST_CIS_NBR, PRCS_DTE)
+;
+  `
+};
+
+// ============================================================================
+// TB_CI_OZ3_EMAIL_ARD_RAW - Customer Email ARD
+// ============================================================================
+export const customerEmailARDBronzeDDL: DDLScript = {
+  tableName: "TB_CI_OZ3_EMAIL_ARD_RAW",
+  schema: "FIS_RAW",
+  description: "Customer email addresses from FIS ARD extract",
+  dependencies: [],
   estimatedRows: "6M",
   ddlStatement: `
 -- ============================================================================
--- BRONZE LAYER: Customer Email
--- Source: FIS_RAW.TB_CI_OZ3_EMAIL_ARD
--- Purpose: Customer email addresses and preferences
+-- BRONZE LAYER: Customer Email ARD
+-- Source: FIS Core Banking System
+-- Purpose: Customer email contact information
 -- Refresh: Daily at 2:00 AM UTC
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS bronze.customer_email (
-  -- Business Keys
-  CUSTOMER_ID VARCHAR(20) NOT NULL,
-  EMAIL_ID VARCHAR(30) NOT NULL,
-  
-  -- Email Details
-  EMAIL_ADDRESS VARCHAR(200) NOT NULL COMMENT 'Email address - UNENCRYPTED in Bronze',
-  EMAIL_TYPE VARCHAR(20) COMMENT 'PRIMARY, SECONDARY, WORK, ALERTS',
-  EMAIL_STATUS VARCHAR(20) COMMENT 'ACTIVE, BOUNCED, UNSUBSCRIBED, INVALID',
-  
-  -- Verification
-  IS_VERIFIED BOOLEAN DEFAULT FALSE,
-  VERIFICATION_DATE TIMESTAMP_NTZ COMMENT 'When email was verified',
-  LAST_BOUNCE_DATE TIMESTAMP_NTZ COMMENT 'Most recent bounce',
-  BOUNCE_COUNT INTEGER DEFAULT 0,
-  
-  -- Preferences
-  OPT_IN_MARKETING BOOLEAN DEFAULT FALSE,
-  OPT_IN_STATEMENTS BOOLEAN DEFAULT FALSE,
-  OPT_IN_ALERTS BOOLEAN DEFAULT TRUE,
-  
-  -- Audit Columns
-  _LOAD_ID VARCHAR(50) NOT NULL,
-  _LOAD_TIMESTAMP TIMESTAMP_NTZ NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  _SOURCE_SYSTEM VARCHAR(20) NOT NULL DEFAULT 'FIS',
-  _SOURCE_TABLE VARCHAR(100) NOT NULL DEFAULT 'TB_CI_OZ3_EMAIL_ARD',
-  _RECORD_HASH VARCHAR(64),
-  _IS_DELETED BOOLEAN DEFAULT FALSE,
-  
-  -- Processing Metadata
-  PRCS_DTE DATE NOT NULL,
-  EFFECTIVE_START_DATE TIMESTAMP_NTZ NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  EFFECTIVE_END_DATE TIMESTAMP_NTZ,
-  IS_CURRENT BOOLEAN NOT NULL DEFAULT TRUE,
-  
-  PRIMARY KEY (EMAIL_ID, PRCS_DTE)
+CREATE OR REPLACE TABLE FIS_RAW.TB_CI_OZ3_EMAIL_ARD_RAW (
+	CID_EMLREL_HOLD_CO_NBR NUMBER(3,0),
+	CID_EMLREL_BANK_NBR NUMBER(3,0),
+	CID_EMLREL_CUST_NMB VARCHAR(255),
+	CID_EMLREL_POC_RLT_ID NUMBER(11,0),
+	CID_EMLREL_POC_TYP_CDE VARCHAR(10),
+	CID_EMLREL_POC_RSN_CDE VARCHAR(10),
+	CID_EMLREL_POC_RLT_EFF_DTE TIMESTAMP_NTZ(9),
+	CID_EMLREL_POC_RLT_EXP_DTE TIMESTAMP_NTZ(9),
+	CID_EMLREL_POC_ID NUMBER(11,0),
+	CID_EMLREL_ADDR_TXT VARCHAR(255),
+	PRCS_YR_MTH_NBR VARCHAR(6),
+	PRCS_DTE TIMESTAMP_NTZ(9),
+	SCAN_TIME TIMESTAMP_NTZ(9),
+	ERROR_FLAG VARCHAR(16777216),
+	ERROR_MESSAGE VARCHAR(16777216)
 )
-COMMENT = 'Bronze layer: Customer email addresses and preferences'
-CLUSTER BY (CUSTOMER_ID, PRCS_DTE)
+COMMENT = 'Bronze layer: Customer email from FIS ARD'
+CLUSTER BY (CID_EMLREL_CUST_NMB, PRCS_DTE)
 ;
-
-CREATE INDEX IF NOT EXISTS idx_bronze_email_customer ON bronze.customer_email(CUSTOMER_ID) WHERE IS_CURRENT = TRUE;
   `
 };
 
 // ============================================================================
-// CUSTOMER TO ACCOUNT RELATIONSHIP BRONZE TABLE
+// TB_CI_OZ6_CUST_ARD_RAW - Customer ARD
 // ============================================================================
-export const customerAccountRelationshipBronzeDDL: DDLScript = {
-  tableName: "bronze.customer_account_relationship",
-  schema: "bronze",
-  description: "Raw customer-to-account relationships from FIS TB_CI_OZW_CUST_ACCT_RLT_ARD",
-  dependencies: ["FIS_RAW.TB_CI_OZW_CUST_ACCT_RLT_ARD"],
-  estimatedRows: "20M",
+export const customerARDBronzeDDL: DDLScript = {
+  tableName: "TB_CI_OZ6_CUST_ARD_RAW",
+  schema: "FIS_RAW",
+  description: "Customer ARD extract with comprehensive customer data",
+  dependencies: [],
+  estimatedRows: "5.5M",
   ddlStatement: `
 -- ============================================================================
--- BRONZE LAYER: Customer to Account Relationship
--- Source: FIS_RAW.TB_CI_OZW_CUST_ACCT_RLT_ARD
--- Purpose: Bridge table linking customers to their accounts
+-- BRONZE LAYER: Customer ARD
+-- Source: FIS Core Banking System
+-- Purpose: Comprehensive customer master from ARD extract
 -- Refresh: Daily at 2:00 AM UTC
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS bronze.customer_account_relationship (
-  -- Business Keys
-  CUSTOMER_ID VARCHAR(20) NOT NULL,
-  ACCOUNT_NUMBER VARCHAR(20) NOT NULL,
-  RELATIONSHIP_ID VARCHAR(30) NOT NULL,
-  
-  -- Relationship Details
-  RELATIONSHIP_TYPE VARCHAR(30) NOT NULL COMMENT 'PRIMARY_OWNER, JOINT_OWNER, AUTHORIZED_SIGNER, BENEFICIARY',
-  RELATIONSHIP_START_DATE DATE NOT NULL,
-  RELATIONSHIP_END_DATE DATE,
-  RELATIONSHIP_STATUS VARCHAR(20) COMMENT 'ACTIVE, TERMINATED, SUSPENDED',
-  
-  -- Authority Levels
-  TRANSACTION_AUTHORITY BOOLEAN DEFAULT FALSE,
-  INQUIRY_AUTHORITY BOOLEAN DEFAULT TRUE,
-  SIGNATORY_AUTHORITY BOOLEAN DEFAULT FALSE,
-  
-  -- Ownership Percentage (for joint accounts)
-  OWNERSHIP_PERCENTAGE DECIMAL(5,2) COMMENT 'Percentage ownership (0-100)',
-  
-  -- Audit Columns
-  _LOAD_ID VARCHAR(50) NOT NULL,
-  _LOAD_TIMESTAMP TIMESTAMP_NTZ NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  _SOURCE_SYSTEM VARCHAR(20) NOT NULL DEFAULT 'FIS',
-  _SOURCE_TABLE VARCHAR(100) NOT NULL DEFAULT 'TB_CI_OZW_CUST_ACCT_RLT_ARD',
-  _RECORD_HASH VARCHAR(64),
-  _IS_DELETED BOOLEAN DEFAULT FALSE,
-  
-  -- Processing Metadata
-  PRCS_DTE DATE NOT NULL,
-  EFFECTIVE_START_DATE TIMESTAMP_NTZ NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  EFFECTIVE_END_DATE TIMESTAMP_NTZ,
-  IS_CURRENT BOOLEAN NOT NULL DEFAULT TRUE,
-  
-  PRIMARY KEY (RELATIONSHIP_ID, PRCS_DTE),
-  CONSTRAINT chk_relationship_type CHECK (RELATIONSHIP_TYPE IN ('PRIMARY_OWNER', 'JOINT_OWNER', 'AUTHORIZED_SIGNER', 'BENEFICIARY', 'CUSTODIAN'))
+CREATE OR REPLACE TABLE FIS_RAW.TB_CI_OZ6_CUST_ARD_RAW (
+	CID_CUST_BANK_NBR VARCHAR(10),
+	CID_CUST_CUST_NBR VARCHAR(255),
+	CID_CUST_PROCESS_TME VARCHAR(10),
+	CID_CUST_TYPE_CDE VARCHAR(1),
+	CID_CUST_STATUS_CDE VARCHAR(1),
+	CID_CUST_TAX_CDE VARCHAR(1),
+	CID_CUST_TAX_ID VARCHAR(10),
+	CID_CUST_BRANCH_NBR NUMBER(7,0),
+	CID_CUST_BRANCH_NAME VARCHAR(255),
+	CID_CUST_COST_CENTER_NBR NUMBER(7,0),
+	CID_CUST_LST_MNT_DTE TIMESTAMP_NTZ(9),
+	CID_CUST_SINCE_DTE TIMESTAMP_NTZ(9),
+	CID_CUST_OPEN_DTE TIMESTAMP_NTZ(9),
+	CID_CUST_CLOSED_DTE TIMESTAMP_NTZ(9),
+	CID_CUST_PRIM_OFF_NBR NUMBER(5,0),
+	CID_CUST_PRIM_OFF_NAME VARCHAR(255),
+	CID_CUST_SEC_OFF_NBR NUMBER(5,0),
+	CID_CUST_SEC_OFF_NAME VARCHAR(255),
+	CID_CUST_ETHNIC_CDE VARCHAR(1),
+	CID_CUST_ETHNIC_DESC VARCHAR(255),
+	CID_CUST_MARITAL_STAT_CDE VARCHAR(1),
+	CID_CUST_MARITAL_STAT_DESC VARCHAR(255),
+	CID_CUST_EDUCATION_CDE VARCHAR(10),
+	CID_CUST_EDUCATION_DESC VARCHAR(255),
+	CID_CUST_INCOME_CDE VARCHAR(10),
+	CID_CUST_INCOME_DESC VARCHAR(255),
+	CID_CUST_OCCUPATION_CDE VARCHAR(10),
+	CID_CUST_OCCUPATION_DESC VARCHAR(255),
+	CID_CUST_BIRTH_DTE TIMESTAMP_NTZ(9),
+	CID_CUST_DEATH_DTE TIMESTAMP_NTZ(9),
+	CID_CUST_BUS_TYP VARCHAR(10),
+	CID_CUST_BUS_TYP_DESC VARCHAR(255),
+	CID_CUST_BUS_SINCE_DTE TIMESTAMP_NTZ(9),
+	CID_CUST_EMPL_SCHOOL VARCHAR(255),
+	CID_CUST_EMPL_DTE TIMESTAMP_NTZ(9),
+	CID_CUST_LANG_PREF_CDE VARCHAR(10),
+	CID_CUST_LANG_PREF_DESC VARCHAR(255),
+	CID_CUST_HOME_EMAIL_ADDR_TXT VARCHAR(255),
+	CID_CUST_WORK_EMAIL_ADDR_TXT VARCHAR(255),
+	CID_CUST_RACE_CDE VARCHAR(10),
+	CID_CUST_RACE_CDE_DESC VARCHAR(255),
+	PRCS_YR_MTH_NBR VARCHAR(6),
+	PRCS_DTE TIMESTAMP_NTZ(9),
+	SCAN_TIME TIMESTAMP_NTZ(9),
+	ERROR_FLAG VARCHAR(16777216),
+	ERROR_MESSAGE VARCHAR(16777216)
 )
-COMMENT = 'Bronze layer: Customer to account relationships'
-CLUSTER BY (CUSTOMER_ID, ACCOUNT_NUMBER, PRCS_DTE)
+COMMENT = 'Bronze layer: Customer ARD from FIS'
+CLUSTER BY (CID_CUST_CUST_NBR, PRCS_DTE)
 ;
+  `
+};
 
-CREATE INDEX IF NOT EXISTS idx_bronze_rel_customer ON bronze.customer_account_relationship(CUSTOMER_ID) WHERE IS_CURRENT = TRUE;
-CREATE INDEX IF NOT EXISTS idx_bronze_rel_account ON bronze.customer_account_relationship(ACCOUNT_NUMBER) WHERE IS_CURRENT = TRUE;
+// ============================================================================
+// TB_CI_OZW_CUST_ACCT_RLT_ARD_RAW - Customer Account Relationship ARD
+// ============================================================================
+export const customerAccountRelationshipARDBronzeDDL: DDLScript = {
+  tableName: "TB_CI_OZW_CUST_ACCT_RLT_ARD_RAW",
+  schema: "FIS_RAW",
+  description: "Customer to Account relationships from FIS ARD",
+  dependencies: [],
+  estimatedRows: "20M",
+  ddlStatement: `
+-- ============================================================================
+-- BRONZE LAYER: Customer Account Relationship ARD
+-- Source: FIS Core Banking System
+-- Purpose: Customer to account relationship bridge
+-- Refresh: Daily at 2:00 AM UTC
+-- ============================================================================
+
+CREATE OR REPLACE TABLE FIS_RAW.TB_CI_OZW_CUST_ACCT_RLT_ARD_RAW (
+	CID_RELA_BANK_NBR VARCHAR(10),
+	CID_RELA_APPL_CDE VARCHAR(10),
+	CID_RELA_APPL_ID VARCHAR(255),
+	CID_RELA_OWN_TYP VARCHAR(10),
+	CID_RELA_EFF_DTE TIMESTAMP_NTZ(9),
+	CID_RELA_R_BANK_NBR VARCHAR(10),
+	CID_RELA_R_APPL_CDE VARCHAR(10),
+	CID_RELA_R_APPL_ID VARCHAR(255),
+	CID_RELA_E1_TO_E2_CDE VARCHAR(10),
+	CID_RELA_E1_TO_E2_DESC VARCHAR(255),
+	CID_RELA_E2_TO_E1_CDE VARCHAR(10),
+	CID_RELA_E2_TO_E1_DESC VARCHAR(255),
+	CID_RELA_RELATION_TYP VARCHAR(10),
+	CID_RELA_EXPIRE_DTE TIMESTAMP_NTZ(9),
+	CID_RELA_HOUSEHOLD_NO VARCHAR(255),
+	PRCS_YR_MTH_NBR VARCHAR(6),
+	PRCS_DTE TIMESTAMP_NTZ(9),
+	SCAN_TIME TIMESTAMP_NTZ(9),
+	ERROR_FLAG VARCHAR(16777216),
+	ERROR_MESSAGE VARCHAR(16777216)
+)
+COMMENT = 'Bronze layer: Customer to account relationships from FIS ARD'
+CLUSTER BY (CID_RELA_R_APPL_ID, CID_RELA_APPL_ID, PRCS_DTE)
+;
+  `
+};
+
+// ============================================================================
+// TB_CUST_D_FACT_RAW - Customer Daily Fact
+// ============================================================================
+export const customerDailyFactBronzeDDL: DDLScript = {
+  tableName: "TB_CUST_D_FACT_RAW",
+  schema: "FIS_RAW",
+  description: "Customer daily fact table",
+  dependencies: [],
+  estimatedRows: "100M",
+  ddlStatement: `
+-- ============================================================================
+-- BRONZE LAYER: Customer Daily Fact
+-- Source: FIS Core Banking System
+-- Purpose: Daily customer fact snapshots
+-- Refresh: Daily at 2:00 AM UTC
+-- ============================================================================
+
+CREATE OR REPLACE TABLE FIS_RAW.TB_CUST_D_FACT_RAW (
+	CUST_CIS_NBR NUMBER(11,0),
+	PRCS_DTE TIMESTAMP_NTZ(9),
+	SCAN_TIME TIMESTAMP_NTZ(9),
+	ERROR_FLAG VARCHAR(16777216),
+	ERROR_MESSAGE VARCHAR(16777216)
+)
+COMMENT = 'Bronze layer: Customer daily fact from FIS'
+CLUSTER BY (CUST_CIS_NBR, PRCS_DTE)
+;
+  `
+};
+
+// ============================================================================
+// TB_CUST_M_FACT_RAW - Customer Monthly Fact
+// ============================================================================
+export const customerMonthlyFactBronzeDDL: DDLScript = {
+  tableName: "TB_CUST_M_FACT_RAW",
+  schema: "FIS_RAW",
+  description: "Customer monthly fact table",
+  dependencies: [],
+  estimatedRows: "20M",
+  ddlStatement: `
+-- ============================================================================
+-- BRONZE LAYER: Customer Monthly Fact
+-- Source: FIS Core Banking System
+-- Purpose: Monthly customer fact aggregations
+-- Refresh: Daily at 2:00 AM UTC
+-- ============================================================================
+
+CREATE OR REPLACE TABLE FIS_RAW.TB_CUST_M_FACT_RAW (
+	CUST_CIS_NBR NUMBER(11,0),
+	PRCS_DTE TIMESTAMP_NTZ(9),
+	SCAN_TIME TIMESTAMP_NTZ(9),
+	ERROR_FLAG VARCHAR(16777216),
+	ERROR_MESSAGE VARCHAR(16777216)
+)
+COMMENT = 'Bronze layer: Customer monthly fact from FIS'
+CLUSTER BY (CUST_CIS_NBR, PRCS_DTE)
+;
   `
 };
 
@@ -352,25 +429,29 @@ CREATE INDEX IF NOT EXISTS idx_bronze_rel_account ON bronze.customer_account_rel
 export const customerBronzeDDLCatalog = {
   domain: "Customer Core",
   layer: "Bronze",
-  schema: "bronze / SNOWFLAKE_CURATED",
-  sourceSystem: "FIS",
+  schema: "FIS_RAW",
+  sourceSystem: "FIS Core Banking",
   scripts: [
-    customerMasterBronzeDDL,
-    customerIdentifiersBronzeDDL,
-    customerNamesAddressesBronzeDDL,
-    customerEmailBronzeDDL,
-    customerAccountRelationshipBronzeDDL
+    customerSCDBronzeDDL,
+    customerContactBronzeDDL,
+    customerDocumentIDBronzeDDL,
+    customerEmailARDBronzeDDL,
+    customerARDBronzeDDL,
+    customerAccountRelationshipARDBronzeDDL,
+    customerDailyFactBronzeDDL,
+    customerMonthlyFactBronzeDDL
   ],
-  totalTables: 5,
-  estimatedTotalRows: "51.5M",
+  totalTables: 8,
+  estimatedTotalRows: "177M",
   refreshSchedule: "Daily at 2:00 AM UTC",
   dataRetention: "Raw data retained for 90 days in Bronze layer",
   notes: [
+    "All tables use FIS native table names from source system",
+    "Schema is FIS_RAW to match landing zone",
     "All PII fields remain UNENCRYPTED in Bronze layer",
     "Encryption applied during Bronze → Silver transformation",
-    "SCD Type 2 tracking enabled via PRCS_DTE and IS_CURRENT flags",
-    "All tables include standard audit columns (_LOAD_ID, _LOAD_TIMESTAMP, etc.)",
-    "Hash-based change detection using _RECORD_HASH column"
+    "ERROR_FLAG and ERROR_MESSAGE columns track data quality issues",
+    "SCAN_TIME tracks when data was extracted from FIS"
   ]
 };
 
