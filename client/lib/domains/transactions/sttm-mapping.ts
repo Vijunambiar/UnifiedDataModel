@@ -574,4 +574,11 @@ export const transactionsTableCoverage = [
   },
 ];
 
+// Export aliases for compatibility with sttm-mapping-complete.ts
+export const moneyTransactionMappings = depositAccountTransactionMappings;
+export const certificateTransactionMappings = depositCertificateTransactionMappings;
+export const holdTransactionMappings = depositHoldTransactionMappings;
+export const maintenanceLogMappings = depositMaintenanceTransactionMappings;
+export const stopPaymentMappings = depositStopTransactionMappings;
+
 export default transactionsSTTMMapping;
