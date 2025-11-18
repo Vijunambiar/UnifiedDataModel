@@ -1,7 +1,7 @@
 /**
  * CUSTOMER DOMAIN - AI/ML MODELS & ADVANCED ANALYTICS
  * 
- * Production-grade AI/ML models with end-to-end implementations
+ * Production-grade AI/ML models with comprehensive end-to-end implementations
  * Built on cleansed, deduplicated Silver layer customer data
  */
 
@@ -14,7 +14,6 @@ export interface AIMLModel {
   inputDatasets: string[];
   outputMetric: string;
   targetVariables: string[];
-  estimatedAccuracy?: string;
   pythonCode: string;
 }
 
@@ -30,7 +29,6 @@ export const customerChurnModel: AIMLModel = {
   inputDatasets: ["silver.customer_master", "silver.customer_account_relationships", "silver.transaction_aggregate", "silver.account_summary", "silver.interaction_history"],
   outputMetric: "Churn Probability (0-1) with Risk Segment & Intervention Strategy",
   targetVariables: ["is_active", "account_status", "days_to_churn"],
-  estimatedAccuracy: "87-92%",
   pythonCode: `import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -374,12 +372,11 @@ export const customerLTVModel: AIMLModel = {
   id: "CUST-LTV-001",
   name: "Customer Lifetime Value (CLTV)",
   category: "Regression",
-  description: "End-to-end CLTV calculation incorporating interest income, fees, costs, retention probability, and cross-product value across all customer accounts",
-  businessUseCase: "Segment customers by lifetime value for VIP programs, service tier assignment, and targeted acquisition/retention spend allocation",
-  inputDatasets: ["silver.customer_master", "silver.account_summary", "silver.transaction_aggregate", "silver.interest_rates"],
-  outputMetric: "Predicted Lifetime Value ($)",
-  targetVariables: ["total_customer_value", "projected_net_income"],
-  estimatedAccuracy: "80-85%",
+  description: "End-to-end CLTV calculation incorporating interest income, fees, costs, retention probability, and cross-product value across all customer accounts with comprehensive banking economics",
+  businessUseCase: "Segment customers by lifetime value for VIP programs, service tier assignment, targeted acquisition/retention spend allocation, and strategic portfolio management",
+  inputDatasets: ["silver.customer_master", "silver.account_summary", "silver.transaction_aggregate", "silver.interest_rates", "silver.customer_products"],
+  outputMetric: "Predicted Lifetime Value ($) with Component Breakdown",
+  targetVariables: ["total_customer_value", "projected_net_income", "annual_profit_contribution"],
   pythonCode: `import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -403,19 +400,40 @@ class AccountType(Enum):
     INVESTMENT = "INV"
 
 class CLTVCalculator:
-    """Production-grade Customer Lifetime Value (CLTV) calculator"""
+    """
+    Production-grade Customer Lifetime Value (CLTV) calculator for retail banking.
+    
+    Incorporates full banking economics:
+    - Net Interest Income (loans + deposits - cost of funds)
+    - Fee Income (monthly fees + transaction fees - waivers)
+    - Credit Loss Provisions (expected credit loss based on PD/LGD)
+    - Operational Costs (account servicing + technology + customer service)
+    - Cross-sell Revenue (propensity-based future product revenue)
+    - Regulatory Capital Charge (Basel III risk-weighted assets)
+    - Churn-adjusted retention probability
+    - Discounted cash flow (NPV) methodology
+    """
 
+    # Cost of Funds by product type
     COF_RATES = {'DDA': 0.015, 'SAV': 0.025, 'MMA': 0.035, 'CD': 0.045}
+    
+    # Expected credit loss rates by loan type (Probability of Default * Loss Given Default)
     CREDIT_LOSS_RATES = {'AUTO': 0.002, 'PERSONAL': 0.025, 'HELOC': 0.015, 'MORTGAGE': 0.001}
+    
+    # Annual operational cost per account
     ANNUAL_ACCOUNT_COST = 60.0
+    
+    # Regulatory capital requirement
     REGULATORY_CAPITAL_RATE = 0.08
 
+    # Cross-sell propensity matrix (product A → product B likelihood)
     CROSS_SELL_PROPENSITY = {
         'DDA': {'SAV': 0.15, 'CD': 0.08, 'CC': 0.25, 'PERSONAL': 0.12},
         'SAV': {'DDA': 0.10, 'CD': 0.20, 'CC': 0.18, 'AUTO': 0.08},
         'CC': {'PERSONAL': 0.25, 'AUTO': 0.15, 'HELOC': 0.10}
     }
 
+    # Net interest margin by product
     PRODUCT_MARGINS = {
         'DDA': 0.018, 'SAV': 0.020, 'MMA': 0.025, 'CD': 0.030,
         'AUTO': 0.035, 'PERSONAL': 0.055, 'HELOC': 0.028,
@@ -423,16 +441,26 @@ class CLTVCalculator:
     }
 
     def __init__(self, years=5, discount_rate=0.10, base_churn_rate=0.12):
+        """
+        Initialize CLTV calculator.
+        
+        Args:
+            years: Forecast horizon (default 5 years)
+            discount_rate: WACC or hurdle rate for NPV calculation (default 10%)
+            base_churn_rate: Baseline annual churn probability (default 12%)
+        """
         if years <= 0 or discount_rate < 0 or not (0 <= base_churn_rate <= 1):
-            raise ValueError("Invalid parameters")
+            raise ValueError("Invalid parameters: years must be > 0, discount_rate >= 0, churn_rate in [0,1]")
+        
         self.years = years
         self.discount_rate = discount_rate
         self.base_churn_rate = base_churn_rate
 
     def validate_customer_data(self, customer_data):
+        """Validate input data quality and completeness"""
         issues = []
         if 'customer_id' not in customer_data:
-            raise ValueError("Missing customer_id")
+            raise ValueError("Missing required field: customer_id")
         if 'accounts' not in customer_data:
             customer_data['accounts'] = pd.DataFrame()
         if 'tenure_months' not in customer_data:
@@ -442,9 +470,18 @@ class CLTVCalculator:
         return {'valid': len(issues) == 0, 'warnings': issues}
 
     def adjust_churn_rate(self, base_churn, tenure_months, credit_score, account_count, recent_activity):
-        """Adjust churn rate based on customer characteristics"""
+        """
+        Adjust churn probability based on customer-specific characteristics.
+        
+        Factors considered:
+        - Tenure: longer tenure = lower churn
+        - Credit quality: higher score = lower churn
+        - Product depth: more accounts = lower churn (relationship stickiness)
+        - Activity: recent engagement = lower churn
+        """
         churn = base_churn
 
+        # Tenure impact (seasoned customers are more loyal)
         if tenure_months > 60:
             churn *= 0.60
         elif tenure_months > 24:
@@ -452,6 +489,7 @@ class CLTVCalculator:
         elif tenure_months > 12:
             churn *= 0.85
 
+        # Credit score impact (higher creditworthiness correlates with loyalty)
         if credit_score >= 750:
             churn *= 0.85
         elif credit_score >= 700:
@@ -459,9 +497,11 @@ class CLTVCalculator:
         elif credit_score < 600:
             churn *= 1.25
 
+        # Account count impact (relationship depth reduces churn)
         account_factor = 1.0 - (min(account_count - 1, 4) * 0.08)
         churn *= max(0.50, account_factor)
 
+        # Activity recency impact (dormant customers are flight risks)
         if recent_activity > 180:
             churn *= 1.30
         elif recent_activity > 90:
@@ -470,13 +510,21 @@ class CLTVCalculator:
         return min(0.50, max(0.02, churn))
 
     def calc_interest_income(self, accounts_df):
-        """Calculate net interest income from deposits and loans"""
+        """
+        Calculate net interest income from both deposits and loans.
+        
+        Components:
+        - Interest income from loan balances * rates
+        - Interest expense from deposit balances * rates
+        - Cost of funds (bank's borrowing cost to fund loans)
+        """
         if accounts_df.empty:
             return {'deposit_interest': 0, 'loan_interest': 0, 'cof_expense': 0, 'net_interest': 0}
 
         deposit_types = ['DDA', 'SAV', 'MMA', 'CD']
         loan_types = ['AUTO', 'PERSONAL', 'HELOC', 'MORTGAGE']
 
+        # Calculate deposit interest expense and cost of funds
         deposit_accounts = accounts_df[accounts_df['type'].isin(deposit_types)]
         deposit_interest = 0
         cof_expense = 0
@@ -486,9 +534,12 @@ class CLTVCalculator:
                 balance = acc.get('balance', 0) or 0
                 rate = acc.get('rate', 0) or 0
                 deposit_interest += balance * rate
+                
+                # Cost of funds (what the bank pays to fund these deposits)
                 cof = self.COF_RATES.get(acc['type'], 0.025) * balance
                 cof_expense += cof
 
+        # Calculate loan interest income
         loan_accounts = accounts_df[accounts_df['type'].isin(loan_types)]
         loan_interest = 0
 
@@ -506,21 +557,32 @@ class CLTVCalculator:
         }
 
     def calc_fees(self, accounts_df, transactions_df=None):
-        """Calculate fee income from monthly fees and transactions"""
+        """
+        Calculate fee income from monthly maintenance fees and transaction fees.
+        
+        Includes:
+        - Monthly account fees (annualized)
+        - Transaction-based fees (ATM, wire, overdraft, etc.)
+        - Fee waivers (relationship-based discounts)
+        """
         if accounts_df.empty:
             return {'monthly_fees': 0, 'transaction_fees': 0, 'waived_fees': 0, 'total_fees': 0}
 
+        # Monthly maintenance fees
         monthly_fees = 0
         for _, acc in accounts_df.iterrows():
             if 'monthly_fee' in acc.index:
                 monthly_fees += (acc['monthly_fee'] or 0) * 12
 
+        # Transaction fees (from actual transactions or estimated from activity)
         transaction_fees = 0
         if transactions_df is not None and not transactions_df.empty:
             transaction_fees = (transactions_df.get('fee', 0) or 0).sum()
         else:
+            # Estimate transaction fees as 15% of monthly fees if data unavailable
             transaction_fees = monthly_fees * 0.15
 
+        # Fee waivers (loyalty/VIP discounts)
         waived_fees = 0
         for _, acc in accounts_df.iterrows():
             if 'waived_fees' in acc.index:
@@ -536,7 +598,13 @@ class CLTVCalculator:
         }
 
     def calc_credit_loss(self, accounts_df):
-        """Calculate credit loss provisions and capital impact"""
+        """
+        Calculate expected credit loss provisions and regulatory capital charge.
+        
+        Uses Basel III framework:
+        - Expected Credit Loss = Outstanding Balance * PD * LGD
+        - Capital Charge = Risk-Weighted Assets * Capital Rate * Cost of Capital
+        """
         if accounts_df.empty:
             return {'credit_loss_provision': 0, 'capital_charge': 0, 'total_credit_cost': 0}
 
@@ -551,13 +619,16 @@ class CLTVCalculator:
                 balance = acc.get('balance', 0) or 0
                 loan_type = acc['type']
 
-                pd = self.CREDIT_LOSS_RATES.get(loan_type, 0.01)
-                lgd = 0.45 if loan_type == 'MORTGAGE' else 0.60
+                # Expected credit loss calculation
+                pd = self.CREDIT_LOSS_RATES.get(loan_type, 0.01)  # Probability of default
+                lgd = 0.45 if loan_type == 'MORTGAGE' else 0.60   # Loss given default
                 credit_loss += balance * pd * lgd
 
+                # Risk-weighted assets calculation (Basel III weights)
                 rw = {'AUTO': 0.25, 'PERSONAL': 0.75, 'HELOC': 0.35, 'MORTGAGE': 0.35}
                 risk_weighted_assets += balance * rw.get(loan_type, 0.50)
 
+        # Capital charge (cost of holding regulatory capital)
         capital_charge = risk_weighted_assets * self.REGULATORY_CAPITAL_RATE * self.discount_rate
 
         return {
@@ -567,16 +638,26 @@ class CLTVCalculator:
         }
 
     def calc_operational_costs(self, accounts_df, customer_segment='Standard'):
-        """Calculate operational costs including processing, service, and technology"""
+        """
+        Calculate operational costs including account servicing, technology, and customer support.
+        
+        Costs vary by customer segment (Premium customers get higher service levels).
+        """
         account_count = len(accounts_df) if not accounts_df.empty else 0
 
+        # Base cost per account (adjusted for segment)
         cost_per_account = self.ANNUAL_ACCOUNT_COST
         segment_multiplier = {'Premium': 0.70, 'Standard': 1.00, 'Value': 1.30}
         cost_per_account *= segment_multiplier.get(customer_segment, 1.00)
 
         account_costs = account_count * cost_per_account
+        
+        # Technology costs (digital platform allocation)
         tech_cost = 150.0 if customer_segment == 'Premium' else 100.0
+        
+        # Customer service costs
         service_cost = account_count * 30.0
+        
         total_operations = account_costs + tech_cost + service_cost
 
         return {
@@ -587,7 +668,11 @@ class CLTVCalculator:
         }
 
     def calc_cross_sell_potential(self, current_products, customer_value, churn_rate):
-        """Estimate cross-sell revenue from account relationships"""
+        """
+        Estimate future cross-sell revenue based on propensity models.
+        
+        Uses product affinity matrix to predict probability of additional product adoption.
+        """
         cross_sell_revenue = 0
 
         for current_product, propensities in self.CROSS_SELL_PROPENSITY.items():
@@ -596,18 +681,27 @@ class CLTVCalculator:
 
             for target_product, propensity in propensities.items():
                 if target_product in current_products:
-                    continue
+                    continue  # Already owns this product
 
+                # Estimate balance for new product
                 estimated_balance = customer_value * 0.20
+                
+                # Expected margin from target product
                 margin = self.PRODUCT_MARGINS.get(target_product, 0.02)
+                
+                # Probability-weighted revenue (adjusted for retention)
                 survival = (1 - churn_rate)
-
+                
                 cross_sell_revenue += estimated_balance * margin * propensity * survival
 
         return {'cross_sell_revenue': max(0, cross_sell_revenue)}
 
     def calc_annual_value(self, customer_data, accounts_df, transactions_df=None):
-        """Calculate total annual profitability for a customer"""
+        """
+        Calculate total annual profitability contribution for a customer.
+        
+        Aggregates all revenue and cost components.
+        """
         interest = self.calc_interest_income(accounts_df)
         fees = self.calc_fees(accounts_df, transactions_df)
         credit_loss = self.calc_credit_loss(accounts_df)
@@ -629,46 +723,69 @@ class CLTVCalculator:
 
     def calculate_cltv(self, customer_data, accounts_df, transactions_df=None):
         """
-        Calculate complete Customer Lifetime Value using discounted cash flow method
-
-        Returns dict with CLTV value and component breakdown
+        Calculate complete Customer Lifetime Value using discounted cash flow (DCF) method.
+        
+        Formula:
+        CLTV = Σ(t=1 to T) [Annual Value(t) * Retention(t) * Growth(t)] / (1 + r)^t
+        
+        Where:
+        - Annual Value = Net profit contribution per year
+        - Retention = Probability customer is still active in year t
+        - Growth = Expected organic revenue growth
+        - r = Discount rate (WACC)
+        
+        Returns:
+            Dictionary with CLTV value and detailed breakdown
         """
         try:
+            # Validate inputs
             validation = self.validate_customer_data(customer_data)
             if not validation['valid']:
-                logger.warning("Validation warnings")
+                logger.warning("Validation warnings detected")
 
+            # Extract customer attributes
             customer_id = customer_data['customer_id']
             tenure_months = customer_data.get('tenure_months', 0)
             credit_score = customer_data.get('credit_score', 650)
             account_count = len(accounts_df) if not accounts_df.empty else 0
             recent_activity_days = customer_data.get('days_since_last_txn', 365)
 
+            # Calculate customer-specific churn rate
             adjusted_churn = self.adjust_churn_rate(
                 self.base_churn_rate, tenure_months, credit_score,
                 account_count, recent_activity_days
             )
 
+            # Calculate current annual profitability
             annual_value = self.calc_annual_value(customer_data, accounts_df, transactions_df)
             current_annual_profit = annual_value['annual_total']
 
+            # Estimate cross-sell potential
             current_products = accounts_df['type'].unique().tolist() if not accounts_df.empty else []
             total_balance = accounts_df['balance'].sum() if not accounts_df.empty else 0
             cross_sell = self.calc_cross_sell_potential(current_products, total_balance, adjusted_churn)
             cross_sell_revenue = cross_sell['cross_sell_revenue']
 
+            # DCF calculation over forecast horizon
             total_cltv = 0
             annual_cash_flows = []
 
             for year in range(1, self.years + 1):
+                # Retention probability (compound survival rate)
                 retention_probability = (1 - adjusted_churn) ** year
+                
+                # Growth factor (organic growth if retained, decay if churning)
                 growth_factor = (1.02 ** year) if retention_probability > 0.5 else 0.95 ** year
+                
+                # Projected annual profit (base + cross-sell, adjusted for growth and retention)
                 projected_annual = (current_annual_profit + cross_sell_revenue) * growth_factor * retention_probability
 
+                # Discount to present value
                 discount_factor = 1 / ((1 + self.discount_rate) ** year)
                 discounted_cf = projected_annual * discount_factor
 
                 total_cltv += discounted_cf
+                
                 annual_cash_flows.append({
                     'year': year,
                     'retention_prob': retention_probability,
@@ -678,7 +795,7 @@ class CLTVCalculator:
                 })
 
             final_cltv = max(0, total_cltv)
-            logger.info("CLTV calculation completed")
+            logger.info(f"CLTV calculation completed for customer {customer_id}: ${final_cltv:,.2f}")
 
             return {
                 'customer_id': customer_id,
@@ -695,7 +812,7 @@ class CLTVCalculator:
             }
 
         except Exception as e:
-            logger.error("CLTV calculation error: " + str(e))
+            logger.error(f"CLTV calculation error for customer {customer_data.get('customer_id', 'UNKNOWN')}: {str(e)}")
             raise
 
 # Example usage:
@@ -703,218 +820,357 @@ class CLTVCalculator:
 # result = calculator.calculate_cltv(customer_data, accounts_df, transactions_df)
 # cltv_value = result.get('cltv')
 # annual_contribution = result.get('annual_value')
-# print("CLTV calculation completed successfully")`,
+# print(f"Customer CLTV: ${cltv_value:,.2f}")
+# print(f"Annual Profit: ${annual_contribution:,.2f}")
+# print(f"Confidence: {result.get('confidence')}")`,
 };
 
 // ============================================================================
-// NEXT BEST OFFER (NBO) MODEL
+// PRODUCT PROPENSITY MODEL
 // ============================================================================
-export const nextBestOfferModel: AIMLModel = {
-  id: "CUST-NBO-001",
-  name: "Next Best Offer Recommendation",
-  category: "Recommendation",
-  description: "AI-driven personalized product recommendation engine using customer profiles, transaction patterns, product affinity, and propensity models",
-  businessUseCase: "Increase cross-sell and upsell conversion through contextual, personalized product recommendations at optimal touchpoints",
-  inputDatasets: ["silver.customer_master", "silver.customer_products", "silver.transaction_detail", "silver.customer_preferences"],
-  outputMetric: "Recommended Product (Ranked by Propensity)",
-  targetVariables: ["product_accepted", "propensity_score"],
-  estimatedAccuracy: "70-75%",
-  pythonCode: `import pandas as pd, numpy as np
-from sklearn.preprocessing import MinMaxScaler
-
-class NBO_Engine:
-    def __init__(self):
-        self.products = {
-            'SAVINGS': {'min_bal': 100, 'rate': 0.04},
-            'CD_12M': {'min_bal': 1000, 'rate': 0.05},
-            'MMA': {'min_bal': 2500, 'rate': 0.045},
-            'REWARDS_CC': {'fee': 95, 'cashback': 0.015},
-            'PERSONAL_LOAN': {'min': 5000, 'max': 50000},
-        }
-    
-    def calc_affinity(self, customer):
-        scores = {}
-        for prod, spec in self.products.items():
-            score = 0
-            if prod in customer['current_products']:
-                score = 0  # Already owns
-            elif customer['income'] > 30000 and prod in ['SAVINGS','CD_12M']:
-                score = 0.8
-            elif customer['txn_freq'] == 'High' and 'CC' in prod:
-                score = 0.75
-            elif customer['age'] > 50 and prod == 'CD_12M':
-                score = 0.85
-            scores[prod] = max(0, min(1, score))
-        return scores
-    
-    def calc_propensity(self, customer, product):
-        prop = 0.5
-        if (datetime.now() - customer['last_contact']).days < 30:
-            prop += 0.15
-        if customer['relationship_officer']:
-            prop += 0.1
-        if customer['recent_inquiry']:
-            prop += 0.15
-        return min(1.0, prop)
-    
-    def recommend(self, customer, top_n=3):
-        affinity = self.calc_affinity(customer)
-        recs = []
-        for prod in affinity:
-            if affinity[prod] == 0:
-                continue
-            prop = self.calc_propensity(customer, prod)
-            score = affinity[prod] * 0.6 + prop * 0.4
-            recs.append({'product': prod, 'score': score})
-        
-        return sorted(recs, key=lambda x: x['score'], reverse=True)[:top_n]`,
-};
-
-// ============================================================================
-// CUSTOMER SEGMENTATION MODEL
-// ============================================================================
-export const customerSegmentationModel: AIMLModel = {
-  id: "CUST-SEG-001",
-  name: "Customer Segmentation Clustering",
-  category: "Clustering",
-  description: "RFM (Recency, Frequency, Monetary) + behavioral clustering to group customers into actionable personas for targeted engagement strategies",
-  businessUseCase: "Create customer personas and segments for differentiated service models, pricing strategies, and marketing campaigns",
-  inputDatasets: ["silver.customer_master", "silver.transaction_aggregate", "silver.account_summary"],
-  outputMetric: "Customer Segment (VIP/Core/Growth/Emerging)",
-  targetVariables: ["segment_id", "segment_characteristics"],
-  estimatedAccuracy: "N/A (Unsupervised)",
-  pythonCode: `import pandas as pd, numpy as np
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-from datetime import datetime, timedelta
-
-class CustomerSegmenter:
-    def __init__(self, n_clusters=4):
-        self.kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-        self.scaler = StandardScaler()
-        self.labels = {0: 'VIP', 1: 'Core', 2: 'Growth', 3: 'Emerging'}
-    
-    def calc_rfm(self, txn_data):
-        today = datetime.now()
-        recency = (today - txn_data['date'].max()).days
-        frequency = len(txn_data[txn_data['date'] >= today - timedelta(365)])
-        monetary = txn_data[txn_data['date'] >= today - timedelta(365)]['amt'].sum()
-        return recency, frequency, monetary
-    
-    def engineer_features(self, customer_data, txn_data):
-        features = []
-        for cid in customer_data['customer_id']:
-            cust = customer_data[customer_data['customer_id'] == cid].iloc[0]
-            txns = txn_data[txn_data['customer_id'] == cid]
-            
-            rec, freq, mon = self.calc_rfm(txns)
-            tenure = (today - cust['since_date']).days / 365
-            
-            features.append({
-                'recency': rec,
-                'frequency': freq,
-                'monetary': mon,
-                'tenure': tenure,
-                'accounts': cust['account_cnt'],
-                'products': len(cust['prod_list'].split(','))
-            })
-        
-        return pd.DataFrame(features)
-    
-    def fit(self, customer_data, txn_data):
-        X = self.engineer_features(customer_data, txn_data)
-        X_scaled = self.scaler.fit_transform(X.fillna(0))
-        self.kmeans.fit(X_scaled)
-        
-        X['segment'] = self.kmeans.labels_
-        X['segment_name'] = X['segment'].map(self.labels)
-        return X`,
-};
-
-// ============================================================================
-// CREDIT RISK SCORING MODEL
-// ============================================================================
-export const creditRiskModel: AIMLModel = {
-  id: "CUST-CREDIT-001",
-  name: "Credit Risk Scoring",
+export const productPropensityModel: AIMLModel = {
+  id: "CUST-PROP-001",
+  name: "Product Adoption Propensity",
   category: "Classification",
-  description: "Comprehensive credit risk assessment incorporating traditional credit bureau data, payment history, loan-to-value ratios, and behavioral indicators",
-  businessUseCase: "Price credit products, determine lending eligibility and limits, manage portfolio risk, and optimize capital allocation",
-  inputDatasets: ["silver.customer_master", "silver.credit_attributes", "silver.loan_portfolio", "silver.payment_behavior"],
-  outputMetric: "Credit Risk Score (300-850)",
-  targetVariables: ["credit_risk_rating", "default_probability"],
-  estimatedAccuracy: "88-92%",
-  pythonCode: `import pandas as pd, numpy as np
+  description: "Comprehensive propensity scoring model predicting likelihood of customer adoption for each product based on demographic profile, financial behavior, current product mix, life stage indicators, and behavioral triggers",
+  businessUseCase: "Prioritize cross-sell and upsell opportunities with personalized product recommendations, optimize marketing campaigns by targeting highest-propensity customers, and increase product penetration rates",
+  inputDatasets: ["silver.customer_master", "silver.customer_products", "silver.transaction_aggregate", "silver.account_summary", "silver.customer_interactions", "silver.life_events"],
+  outputMetric: "Product Propensity Score by Product (0-1) with Ranked Recommendations",
+  targetVariables: ["product_adopted", "propensity_score", "expected_revenue"],
+  pythonCode: `import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import cross_val_score
+import logging
 
-class CreditRiskScorer:
-    def __init__(self):
-        self.score_range = (300, 850)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class ProductPropensityModel:
+    """
+    Production-grade Product Propensity Model for cross-sell and upsell optimization.
     
-    def calc_payment_history(self, payment_data):
-        score = 100
-        score -= min(payment_data['late_30_cnt'], 3) * 7
-        score -= min(payment_data['late_60_cnt'], 2) * 14
-        score -= payment_data['late_90_cnt'] * 21
-        score -= payment_data['chargeoff_cnt'] * 50
-        score -= payment_data['collection_cnt'] * 100
-        
-        if payment_data['months_since_late'] > 24:
-            score += 15
-        return max(0, min(100, score))
+    Predicts customer likelihood to adopt specific banking products using:
+    - Demographic and life stage indicators
+    - Current product holdings and wallet share
+    - Transaction patterns and financial behaviors
+    - Life events and trigger moments
+    - Channel preferences and engagement levels
+    - Lookalike customer segments
     
-    def calc_utilization(self, credit_data):
-        util = credit_data['used'] / max(credit_data['limit'], 1)
-        if util < 0.1:
-            return 100
-        elif util < 0.3:
-            return 90
-        elif util < 0.5:
-            return 70
-        elif util < 0.7:
-            return 50
+    Generates ranked product recommendations with revenue potential and timing.
+    """
+
+    PRODUCT_CATALOG = {
+        'SAVINGS': {'min_balance': 100, 'avg_apy': 0.04, 'avg_revenue': 120},
+        'CD_12M': {'min_balance': 1000, 'avg_apy': 0.05, 'avg_revenue': 450},
+        'MMA': {'min_balance': 2500, 'avg_apy': 0.045, 'avg_revenue': 380},
+        'REWARDS_CC': {'annual_fee': 95, 'avg_cashback': 0.015, 'avg_revenue': 240},
+        'PREMIUM_CC': {'annual_fee': 495, 'avg_cashback': 0.02, 'avg_revenue': 680},
+        'PERSONAL_LOAN': {'min_amount': 5000, 'max_amount': 50000, 'avg_revenue': 890},
+        'AUTO_LOAN': {'min_amount': 10000, 'max_amount': 75000, 'avg_revenue': 1250},
+        'HELOC': {'min_amount': 25000, 'max_amount': 250000, 'avg_revenue': 1850},
+        'MORTGAGE': {'min_amount': 100000, 'max_amount': 750000, 'avg_revenue': 2400},
+        'INVESTMENT_ACCT': {'min_balance': 5000, 'avg_fee_rate': 0.012, 'avg_revenue': 520}
+    }
+
+    # Product affinity rules (products that frequently co-occur)
+    AFFINITY_MATRIX = {
+        'DDA': {'SAVINGS': 0.45, 'REWARDS_CC': 0.38, 'PERSONAL_LOAN': 0.22, 'AUTO_LOAN': 0.18},
+        'SAVINGS': {'CD_12M': 0.42, 'MMA': 0.35, 'INVESTMENT_ACCT': 0.28, 'REWARDS_CC': 0.25},
+        'REWARDS_CC': {'PREMIUM_CC': 0.15, 'PERSONAL_LOAN': 0.32, 'AUTO_LOAN': 0.25},
+        'CD_12M': {'MMA': 0.38, 'INVESTMENT_ACCT': 0.40},
+        'PERSONAL_LOAN': {'AUTO_LOAN': 0.20, 'HELOC': 0.12},
+        'AUTO_LOAN': {'PERSONAL_LOAN': 0.18, 'INSURANCE': 0.35}
+    }
+
+    # Life stage → product mapping
+    LIFE_STAGE_PRODUCTS = {
+        'Young Professional': ['SAVINGS', 'REWARDS_CC', 'PERSONAL_LOAN', 'AUTO_LOAN'],
+        'Growing Family': ['MMA', 'AUTO_LOAN', 'MORTGAGE', 'CD_12M'],
+        'Established': ['INVESTMENT_ACCT', 'HELOC', 'PREMIUM_CC', 'MMA'],
+        'Pre-Retirement': ['CD_12M', 'MMA', 'INVESTMENT_ACCT'],
+        'Retired': ['CD_12M', 'MMA', 'SAVINGS']
+    }
+
+    def __init__(self, cv_folds=5):
+        """Initialize propensity model with separate classifiers per product"""
+        self.cv_folds = cv_folds
+        self.models = {}  # One model per product
+        self.scalers = {}
+        self.feature_names = None
+
+    def determine_life_stage(self, customer):
+        """Infer customer life stage from age, income, and life events"""
+        age = customer.get('age', 0)
+        income = customer.get('annual_income', 0)
+        has_mortgage = customer.get('has_mortgage', False)
+        has_children = customer.get('has_dependents', False)
+
+        if age < 30:
+            return 'Young Professional'
+        elif age < 45 and has_children:
+            return 'Growing Family'
+        elif age < 55 and income > 100000:
+            return 'Established'
+        elif age < 65:
+            return 'Pre-Retirement'
         else:
-            return 30
-    
-    def calc_account_age(self, credit_data):
-        oldest = credit_data['oldest_months']
-        avg = credit_data['avg_months']
-        score = 0
-        if oldest > 240:
-            score += 40
-        elif oldest > 120:
-            score += 35
-        score += 30 if avg > 120 else 15
-        return min(100, score)
-    
-    def calc_inquiries(self, credit_data):
-        score = 100 - (credit_data['inquiries_12m'] * 3)
-        if credit_data['inquiries_30d'] > 2:
-            score -= 10
-        return max(30, min(100, score))
-    
-    def score(self, customer):
-        pay_score = self.calc_payment_history(customer['payment'])
-        util_score = self.calc_utilization(customer['credit'])
-        age_score = self.calc_account_age(customer['credit'])
-        inq_score = self.calc_inquiries(customer['inquiries'])
+            return 'Retired'
+
+    def engineer_features(self, customer_data, transaction_data=None, interaction_data=None):
+        """
+        Comprehensive feature engineering for propensity modeling.
         
-        composite = (pay_score * 0.35 + util_score * 0.30 + 
-                     age_score * 0.15 + inq_score * 0.20)
+        Feature categories:
+        1. Demographics (age, income, employment, marital status)
+        2. Current products (wallet share, product depth, tenure)
+        3. Financial behavior (balances, transaction patterns, spending)
+        4. Engagement (channel usage, service interactions, digital adoption)
+        5. Life events (recent changes triggering product needs)
+        6. Risk indicators (credit score, payment history)
+        """
+        df = customer_data.copy()
+        today = datetime.now()
+
+        # ===== DEMOGRAPHIC FEATURES =====
+        df['age'] = df.get('age', 45)
+        df['annual_income'] = df.get('annual_income', 60000)
+        df['employment_status'] = df.get('employment_status', 'Employed')
+        df['is_employed'] = (df['employment_status'] == 'Employed').astype(int)
+        df['marital_status'] = df.get('marital_status', 'Single')
+        df['is_married'] = (df['marital_status'] == 'Married').astype(int)
+        df['has_dependents'] = df.get('dependents', 0) > 0
+        df['homeowner'] = df.get('homeowner', False).astype(int)
+
+        # ===== LIFE STAGE =====
+        df['life_stage'] = df.apply(lambda x: self.determine_life_stage(x), axis=1)
         
-        credit_score = int(300 + (composite / 100) * 550)
+        # Encode life stage
+        life_stage_map = {
+            'Young Professional': 0, 'Growing Family': 1, 'Established': 2,
+            'Pre-Retirement': 3, 'Retired': 4
+        }
+        df['life_stage_encoded'] = df['life_stage'].map(life_stage_map).fillna(1)
+
+        # ===== CURRENT PRODUCT HOLDINGS =====
+        df['product_count'] = df.get('product_count', 1)
+        df['has_dda'] = df.get('has_dda', False).astype(int)
+        df['has_savings'] = df.get('has_savings', False).astype(int)
+        df['has_credit_card'] = df.get('has_credit_card', False).astype(int)
+        df['has_loan'] = df.get('has_loan', False).astype(int)
+        df['has_investment'] = df.get('has_investment', False).astype(int)
         
-        if credit_score >= 750:
-            rating = 'EXCELLENT'
-        elif credit_score >= 700:
-            rating = 'VERY_GOOD'
-        elif credit_score >= 650:
-            rating = 'GOOD'
-        elif credit_score >= 600:
-            rating = 'FAIR'
-        else:
-            rating = 'POOR'
+        df['wallet_share'] = df.get('deposit_share', 0.5)  # Share of total banking deposits
+        df['tenure_months'] = df.get('tenure_months', 12)
+
+        # ===== FINANCIAL BEHAVIOR =====
+        df['total_balance'] = df.get('total_balance', 0)
+        df['avg_monthly_balance'] = df.get('avg_balance', 0)
+        df['balance_growth_3m'] = df.get('balance_growth', 0)
         
-        return credit_score, rating`,
+        df['monthly_deposits'] = df.get('monthly_deposits', 0)
+        df['monthly_withdrawals'] = df.get('monthly_withdrawals', 0)
+        df['savings_rate'] = (df['monthly_deposits'] - df['monthly_withdrawals']) / (df['annual_income'] / 12 + 1)
+        
+        df['avg_transaction_amount'] = df.get('avg_txn_amt', 0)
+        df['transaction_frequency'] = df.get('txn_count_90d', 0)
+
+        # ===== ENGAGEMENT & DIGITAL ADOPTION =====
+        df['digital_transactions_pct'] = df.get('digital_txn_pct', 0)
+        df['mobile_app_user'] = df.get('mobile_active', False).astype(int)
+        df['online_banking_user'] = df.get('online_active', False).astype(int)
+        df['days_since_last_login'] = df.get('days_since_login', 365)
+        
+        df['service_calls_90d'] = df.get('service_interactions', 0)
+        df['branch_visits_90d'] = df.get('branch_visits', 0)
+
+        # ===== LIFE EVENTS & TRIGGERS =====
+        df['recent_address_change'] = df.get('address_changed_180d', False).astype(int)
+        df['recent_job_change'] = df.get('employment_changed_180d', False).astype(int)
+        df['recent_marriage'] = df.get('marital_change_365d', False).astype(int)
+        df['recent_home_purchase'] = df.get('home_purchase_365d', False).astype(int)
+        
+        df['life_event_score'] = (
+            df['recent_address_change'] + df['recent_job_change'] +
+            df['recent_marriage'] + df['recent_home_purchase']
+        )
+
+        # ===== CREDIT & RISK =====
+        df['credit_score'] = df.get('credit_score', 680)
+        df['credit_tier'] = pd.cut(df['credit_score'], bins=[0, 650, 700, 750, 850],
+                                    labels=[0, 1, 2, 3]).astype(int)
+        df['debt_to_income'] = df.get('dti_ratio', 0.3)
+        df['payment_delinquencies'] = df.get('late_payments_12m', 0)
+
+        # ===== ENGAGEMENT RECENCY =====
+        df['days_since_last_transaction'] = df.get('days_since_txn', 30)
+        df['recently_active'] = (df['days_since_last_transaction'] < 30).astype(int)
+
+        # ===== INCOME TIER =====
+        df['income_tier'] = pd.cut(df['annual_income'], 
+                                    bins=[0, 40000, 75000, 125000, 250000, float('inf')],
+                                    labels=[0, 1, 2, 3, 4]).astype(int)
+
+        # Feature list
+        feature_cols = [
+            'age', 'annual_income', 'is_employed', 'is_married', 'has_dependents', 'homeowner',
+            'life_stage_encoded', 'product_count', 'has_dda', 'has_savings', 'has_credit_card',
+            'has_loan', 'has_investment', 'wallet_share', 'tenure_months',
+            'total_balance', 'avg_monthly_balance', 'balance_growth_3m',
+            'monthly_deposits', 'monthly_withdrawals', 'savings_rate',
+            'avg_transaction_amount', 'transaction_frequency',
+            'digital_transactions_pct', 'mobile_app_user', 'online_banking_user',
+            'days_since_last_login', 'service_calls_90d', 'branch_visits_90d',
+            'recent_address_change', 'recent_job_change', 'recent_marriage',
+            'recent_home_purchase', 'life_event_score',
+            'credit_score', 'credit_tier', 'debt_to_income', 'payment_delinquencies',
+            'days_since_last_transaction', 'recently_active', 'income_tier'
+        ]
+
+        X = df[feature_cols].fillna(0)
+        X = X.replace([np.inf, -np.inf], 0)
+        
+        self.feature_names = feature_cols
+        logger.info(f"Features engineered: {len(feature_cols)} features for {len(X)} customers")
+
+        return X, feature_cols
+
+    def fit(self, customer_data, product_adoptions, transaction_data=None, interaction_data=None):
+        """
+        Train separate propensity models for each product.
+        
+        Args:
+            customer_data: Customer profile and demographics
+            product_adoptions: Dict of {product_name: binary adoption labels}
+            transaction_data: Optional transaction history
+            interaction_data: Optional customer service interactions
+        """
+        X, self.feature_names = self.engineer_features(customer_data, transaction_data, interaction_data)
+
+        for product_name, y in product_adoptions.items():
+            logger.info(f"Training model for {product_name}")
+
+            # Initialize model and scaler for this product
+            self.models[product_name] = RandomForestClassifier(
+                n_estimators=200,
+                max_depth=12,
+                min_samples_split=20,
+                min_samples_leaf=10,
+                random_state=42,
+                class_weight='balanced'
+            )
+            self.scalers[product_name] = StandardScaler()
+
+            # Scale features
+            X_scaled = self.scalers[product_name].fit_transform(X)
+
+            # Train model
+            self.models[product_name].fit(X_scaled, y)
+
+            # Cross-validation
+            cv_scores = cross_val_score(self.models[product_name], X_scaled, y, 
+                                       cv=self.cv_folds, scoring='roc_auc')
+            logger.info(f"{product_name} - CV AUC: {cv_scores.mean():.4f} (+/- {cv_scores.std():.4f})")
+
+        return self
+
+    def predict_propensity(self, customer_data, transaction_data=None, interaction_data=None, top_n=5):
+        """
+        Generate product propensity scores and ranked recommendations.
+        
+        Returns DataFrame with:
+        - Propensity score for each product (0-1)
+        - Expected revenue from product adoption
+        - Product rank by propensity
+        - Recommended offer timing
+        """
+        if not self.models:
+            raise ValueError("Models not trained. Call fit() first.")
+
+        X, _ = self.engineer_features(customer_data, transaction_data, interaction_data)
+        
+        results = []
+        
+        for customer_idx, customer_row in customer_data.iterrows():
+            customer_id = customer_row['customer_id']
+            current_products = customer_row.get('current_products', [])
+            life_stage = self.determine_life_stage(customer_row)
+            
+            product_scores = []
+            
+            for product_name, model in self.models.items():
+                # Skip if customer already has this product
+                if product_name in current_products:
+                    continue
+
+                # Get propensity score
+                X_customer = X.iloc[[customer_idx]]
+                X_scaled = self.scalers[product_name].transform(X_customer)
+                propensity = model.predict_proba(X_scaled)[0, 1]
+
+                # Adjust for product affinity
+                affinity_boost = 0
+                for owned_product in current_products:
+                    if owned_product in self.AFFINITY_MATRIX:
+                        affinity_boost += self.AFFINITY_MATRIX[owned_product].get(product_name, 0)
+                
+                adjusted_propensity = min(1.0, propensity + (affinity_boost * 0.1))
+
+                # Adjust for life stage fit
+                life_stage_fit = 1.0
+                if life_stage in self.LIFE_STAGE_PRODUCTS:
+                    if product_name in self.LIFE_STAGE_PRODUCTS[life_stage]:
+                        life_stage_fit = 1.2
+                    else:
+                        life_stage_fit = 0.8
+                
+                final_propensity = min(1.0, adjusted_propensity * life_stage_fit)
+
+                # Expected revenue
+                expected_revenue = self.PRODUCT_CATALOG.get(product_name, {}).get('avg_revenue', 0) * final_propensity
+
+                product_scores.append({
+                    'product': product_name,
+                    'propensity': final_propensity,
+                    'expected_revenue': expected_revenue,
+                    'affinity_boost': affinity_boost,
+                    'life_stage_fit': life_stage_fit
+                })
+
+            # Rank products by propensity
+            product_scores = sorted(product_scores, key=lambda x: x['propensity'], reverse=True)
+            
+            # Take top N recommendations
+            for rank, rec in enumerate(product_scores[:top_n], 1):
+                results.append({
+                    'customer_id': customer_id,
+                    'product': rec['product'],
+                    'propensity_score': round(rec['propensity'], 4),
+                    'expected_revenue': round(rec['expected_revenue'], 2),
+                    'rank': rank,
+                    'offer_timing': 'Immediate' if rec['propensity'] > 0.7 else 'Next 30 Days' if rec['propensity'] > 0.5 else 'Next 90 Days',
+                    'channel_recommendation': 'Mobile App' if customer_row.get('mobile_active', False) else 'Email',
+                    'life_stage': life_stage
+                })
+
+        recommendations_df = pd.DataFrame(results)
+        logger.info(f"Generated {len(recommendations_df)} product recommendations for {len(customer_data)} customers")
+
+        return recommendations_df
+
+# Example usage:
+# model = ProductPropensityModel(cv_folds=5)
+# product_adoptions = {
+#     'SAVINGS': savings_labels,
+#     'REWARDS_CC': cc_labels,
+#     'PERSONAL_LOAN': loan_labels
+# }
+# model.fit(customer_df, product_adoptions, transaction_df, interaction_df)
+# recommendations = model.predict_propensity(new_customers_df, top_n=3)
+# print(recommendations[['customer_id', 'product', 'propensity_score', 'expected_revenue', 'rank']])`,
 };
 
 // ============================================================================
@@ -923,28 +1179,27 @@ class CreditRiskScorer:
 export const customerAIMLCatalog = {
   domain: "Customer Core",
   layer: "Advanced Analytics",
-  totalModels: 5,
-  description: "Production-grade AI/ML models for comprehensive customer analytics and engagement",
+  totalModels: 3,
+  description: "Production-grade AI/ML models for comprehensive customer analytics, retention, and value optimization",
   models: [
     customerChurnModel,
     customerLTVModel,
-    nextBestOfferModel,
-    customerSegmentationModel,
-    creditRiskModel,
+    productPropensityModel,
   ],
   keyCapabilities: [
-    "Real-time churn prediction with retention targeting",
-    "Comprehensive CLTV incorporating all revenue and cost components",
-    "Intelligent product recommendations with contextual relevance",
-    "RFM-based behavioral segmentation with actionable personas",
-    "Credit risk assessment with explainable scoring methodology",
+    "Real-time churn prediction with risk segmentation and actionable intervention strategies",
+    "Comprehensive CLTV incorporating full banking economics (NII, fees, credit costs, operations, cross-sell)",
+    "Product propensity scoring with life stage modeling and affinity-based recommendations",
+    "End-to-end feature engineering with behavioral, transactional, and demographic signals",
+    "Cross-validation and performance monitoring for model accuracy",
   ],
   implementationNotes: [
-    "All models trained on Silver layer cleansed customer data",
-    "End-to-end implementations with data validation and error handling",
-    "Integration with business logic (e.g., CLTV uses actual banking math)",
-    "Production logging and monitoring built-in",
-    "Modular design allows reuse across batch and real-time scoring",
+    "All models trained on Silver layer cleansed and deduplicated customer data",
+    "Churn model uses gradient boosting with class imbalance handling and stratified CV",
+    "CLTV calculator implements DCF methodology with customer-specific churn adjustment",
+    "Propensity model trains separate classifiers per product with affinity matrix boosting",
+    "Production logging and error handling built into all model classes",
+    "Models designed for both batch scoring and real-time prediction APIs",
   ],
 };
 
