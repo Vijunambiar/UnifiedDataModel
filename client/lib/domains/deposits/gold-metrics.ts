@@ -99,7 +99,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     },
     relatedMetrics: ["DEP-VOL-002", "DEP-GRO-001"],
     dependencies: ["DIM_ACCOUNT"],
-    grain: "Overall",
+    grain: "Daily",
   },
   {
     metricId: "DEP-VOL-002",
@@ -107,7 +107,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Accounts by product type with market share, ranking, and MoM growth trends",
     category: "Volume",
     type: "Operational",
-    grain: "Product",
+    grain: "Product, Daily",
     sqlDefinition: `
       WITH current_counts AS (
         SELECT
@@ -166,7 +166,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Count of active savings deposit accounts",
     category: "Volume",
     type: "Operational",
-    grain: "Product",
+    grain: "Product, Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT ACCOUNT_NUMBER) as savings_accounts
       FROM CORE_DEPOSIT.DIM_ACCOUNT
@@ -195,7 +195,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Count of active money market deposit accounts",
     category: "Volume",
     type: "Operational",
-    grain: "Product",
+    grain: "Product, Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT ACCOUNT_NUMBER) as mm_accounts
       FROM CORE_DEPOSIT.DIM_ACCOUNT
@@ -224,7 +224,7 @@ export const depositsGoldMetrics: GoldMetric[] = [
     description: "Count of active certificate of deposit accounts",
     category: "Volume",
     type: "Operational",
-    grain: "Product",
+    grain: "Product, Daily",
     sqlDefinition: `
       SELECT COUNT(DISTINCT ACCOUNT_NUMBER) as cd_accounts
       FROM CORE_DEPOSIT.DIM_ACCOUNT
