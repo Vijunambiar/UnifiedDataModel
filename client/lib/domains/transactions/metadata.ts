@@ -4,6 +4,7 @@
 import { transactionsBronzeTables, transactionsBronzeLayerComplete } from './bronze-layer';
 import { transactionsSilverTables, transactionsSilverLayerComplete } from './silver-layer';
 import { transactionsGoldLayerComplete } from './gold-layer';
+import { transactionsGoldTableCatalog } from './gold/ddl-scripts';
 import { transactionsGoldMetrics as transactionsGoldMetricsFromFile } from './gold-metrics';
 
 export interface DomainMetadata {
@@ -155,6 +156,11 @@ export const transactionsSubDomains = [
   },
 ];
 
+// Gold Table Dimension and Fact exports for UI display
+export const transactionsGoldDimensions = transactionsGoldTableCatalog.dimensions;
+export const transactionsGoldFacts = transactionsGoldTableCatalog.facts;
+export const transactionsGoldAggregates = transactionsGoldTableCatalog.aggregates;
+
 // Re-export layer definitions
 export {
   transactionsBronzeTables,
@@ -162,4 +168,5 @@ export {
   transactionsSilverTables,
   transactionsSilverLayerComplete,
   transactionsGoldLayerComplete,
+  transactionsGoldTableCatalog,
 };
