@@ -1,6 +1,6 @@
 /**
  * CUSTOMER DOMAIN - GOLD LAYER METRICS
- * 
+ *
  * Business metrics defined at the Gold layer for analytics and BI
  * Each metric is derived from ACTUAL source tables in the data model:
  * - CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY
@@ -14,7 +14,18 @@ export interface GoldMetric {
   metricId: string;
   name: string;
   description: string;
-  category: "Volume" | "Growth" | "Retention" | "Value" | "Risk" | "Engagement" | "Segmentation" | "Quality" | "Lifecycle" | "Profitability" | "Compliance";
+  category:
+    | "Volume"
+    | "Growth"
+    | "Retention"
+    | "Value"
+    | "Risk"
+    | "Engagement"
+    | "Segmentation"
+    | "Quality"
+    | "Lifecycle"
+    | "Profitability"
+    | "Compliance";
   type: "Operational" | "Strategic" | "Tactical";
   grain: string; // Comma-separated values: Customer, Account, Product, Channel, Daily, Monthly, Overall
   sqlDefinition: string;
@@ -41,7 +52,8 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-VOL-001",
     name: "Total Active Customers",
-    description: "Count of unique active customers with trend analysis (MoM, YoY, 7-day MA)",
+    description:
+      "Count of unique active customers with trend analysis (MoM, YoY, 7-day MA)",
     category: "Volume",
     type: "Operational",
     grain: "Daily",
@@ -84,7 +96,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "DISTINCT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Active customer count with LAG window functions for DoD, MoM, YoY trend analysis and 7-day moving average",
+    businessLogic:
+      "Active customer count with LAG window functions for DoD, MoM, YoY trend analysis and 7-day moving average",
     owner: "Data Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -97,7 +110,8 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-VOL-002",
     name: "New Customers (Month)",
-    description: "New customer acquisitions with MoM trend, channel breakdown, and running total",
+    description:
+      "New customer acquisitions with MoM trend, channel breakdown, and running total",
     category: "Growth",
     type: "Strategic",
     grain: "Monthly, Channel",
@@ -146,7 +160,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "DISTINCT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "New customer count with LAG for MoM comparison, 3-month MA, channel breakdown, and YTD cumulative total",
+    businessLogic:
+      "New customer count with LAG for MoM comparison, 3-month MA, channel breakdown, and YTD cumulative total",
     owner: "Growth Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -159,7 +174,8 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-VOL-003",
     name: "Churned Customers (Month)",
-    description: "Churned customers with churn rate calculation, tenure distribution, and trend analysis",
+    description:
+      "Churned customers with churn rate calculation, tenure distribution, and trend analysis",
     category: "Retention",
     type: "Strategic",
     grain: "Monthly",
@@ -210,7 +226,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "DISTINCT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Churned customers with churn rate calculation, tenure distribution using PERCENTILE_CONT, and 3-month MA trend analysis",
+    businessLogic:
+      "Churned customers with churn rate calculation, tenure distribution using PERCENTILE_CONT, and 3-month MA trend analysis",
     owner: "Retention Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -277,7 +294,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "percentage",
-    businessLogic: "Churned customers / Total customers * 100 from DIM_CUSTOMER_DEMOGRAPHY",
+    businessLogic:
+      "Churned customers / Total customers * 100 from DIM_CUSTOMER_DEMOGRAPHY",
     owner: "Retention Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -311,7 +329,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "percentage",
-    businessLogic: "100% - Churn Rate (month-over-month) from DIM_CUSTOMER_DEMOGRAPHY",
+    businessLogic:
+      "100% - Churn Rate (month-over-month) from DIM_CUSTOMER_DEMOGRAPHY",
     owner: "Retention Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -348,7 +367,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Customer count grouped by tenure length from acquisition date",
+    businessLogic:
+      "Customer count grouped by tenure length from acquisition date",
     owner: "Retention Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -376,12 +396,16 @@ export const customerGoldMetrics: GoldMetric[] = [
       WHERE BALANCE_DATE = CURRENT_DATE()
         AND CURRENT_BALANCE > 0
     `,
-    sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE", "CORE_DEPOSIT.DIM_ACCOUNT"],
+    sourceTables: [
+      "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE",
+      "CORE_DEPOSIT.DIM_ACCOUNT",
+    ],
     granularity: "Daily",
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "USD",
-    businessLogic: "Average of CURRENT_BALANCE from FCT_DEPOSIT_DAILY_BALANCE for current date",
+    businessLogic:
+      "Average of CURRENT_BALANCE from FCT_DEPOSIT_DAILY_BALANCE for current date",
     owner: "Financial Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -409,7 +433,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "SUM",
     dataType: "DECIMAL",
     unit: "USD",
-    businessLogic: "Sum of all deposit balances from FCT_DEPOSIT_DAILY_BALANCE on reporting date",
+    businessLogic:
+      "Sum of all deposit balances from FCT_DEPOSIT_DAILY_BALANCE on reporting date",
     owner: "Financial Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -438,7 +463,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "USD",
-    businessLogic: "50th percentile of account balances from FCT_DEPOSIT_DAILY_BALANCE",
+    businessLogic:
+      "50th percentile of account balances from FCT_DEPOSIT_DAILY_BALANCE",
     owner: "Financial Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -480,7 +506,8 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-VAL-005",
     name: "Customer Balance Growth MoM",
-    description: "Month-over-month percentage change in total customer deposits",
+    description:
+      "Month-over-month percentage change in total customer deposits",
     category: "Growth",
     type: "Strategic",
     grain: "Monthly",
@@ -504,7 +531,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "percentage",
-    businessLogic: "Current month balance - Previous month balance / Previous month * 100",
+    businessLogic:
+      "Current month balance - Previous month balance / Previous month * 100",
     owner: "Financial Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -536,7 +564,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "count",
-    businessLogic: "Total active accounts / distinct customers from DIM_ACCOUNT",
+    businessLogic:
+      "Total active accounts / distinct customers from DIM_ACCOUNT",
     owner: "Product Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -572,7 +601,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Count of customers with more than 1 account from DIM_ACCOUNT",
+    businessLogic:
+      "Count of customers with more than 1 account from DIM_ACCOUNT",
     owner: "Product Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -602,7 +632,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Distinct customers grouped by account type from DIM_ACCOUNT",
+    businessLogic:
+      "Distinct customers grouped by account type from DIM_ACCOUNT",
     owner: "Product Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -674,7 +705,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Count of customers with 3 or more accounts from DIM_ACCOUNT",
+    businessLogic:
+      "Count of customers with 3 or more accounts from DIM_ACCOUNT",
     owner: "Product Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -706,7 +738,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Count of transactions in last 12 months from FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    businessLogic:
+      "Count of transactions in last 12 months from FCT_DEPOSIT_ACCOUNT_TRANSACTION",
     owner: "Transaction Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -735,7 +768,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "USD",
-    businessLogic: "Average deposit transaction amounts from last 30 days in FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    businessLogic:
+      "Average deposit transaction amounts from last 30 days in FCT_DEPOSIT_ACCOUNT_TRANSACTION",
     owner: "Transaction Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -748,7 +782,8 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-ACT-003",
     name: "Daily Active Customers",
-    description: "Count of customers with at least one transaction on reporting day",
+    description:
+      "Count of customers with at least one transaction on reporting day",
     category: "Engagement",
     type: "Operational",
     grain: "Daily",
@@ -764,7 +799,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Count of distinct customers with completed transactions on reporting date",
+    businessLogic:
+      "Count of distinct customers with completed transactions on reporting date",
     owner: "Product Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -777,7 +813,8 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-ACT-004",
     name: "Monthly Active Customers",
-    description: "Count of customers with at least one transaction in current month",
+    description:
+      "Count of customers with at least one transaction in current month",
     category: "Engagement",
     type: "Operational",
     grain: "Monthly",
@@ -794,7 +831,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Count of distinct customers with completed transactions in current month",
+    businessLogic:
+      "Count of distinct customers with completed transactions in current month",
     owner: "Product Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -852,12 +890,16 @@ export const customerGoldMetrics: GoldMetric[] = [
       WHERE BALANCE_DATE = CURRENT_DATE()
         AND CURRENT_BALANCE >= 500000
     `,
-    sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE", "CORE_DEPOSIT.DIM_ACCOUNT"],
+    sourceTables: [
+      "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE",
+      "CORE_DEPOSIT.DIM_ACCOUNT",
+    ],
     granularity: "Daily",
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Count of customers with deposit balance >= $500K from FCT_DEPOSIT_DAILY_BALANCE",
+    businessLogic:
+      "Count of customers with deposit balance >= $500K from FCT_DEPOSIT_DAILY_BALANCE",
     owner: "Risk Management",
     sla: {
       maxLatencyHours: 24,
@@ -886,7 +928,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "percentage",
-    businessLogic: "Verified customers / Total customers * 100 from DIM_CUSTOMER_IDENTIFER",
+    businessLogic:
+      "Verified customers / Total customers * 100 from DIM_CUSTOMER_IDENTIFER",
     owner: "Compliance",
     sla: {
       maxLatencyHours: 24,
@@ -986,7 +1029,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "percentage",
-    businessLogic: "Current month new customers / Previous month customers * 100",
+    businessLogic:
+      "Current month new customers / Previous month customers * 100",
     owner: "Growth Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -1028,7 +1072,8 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-GRO-003",
     name: "Average Days to First Transaction",
-    description: "Average number of days from customer creation to first transaction",
+    description:
+      "Average number of days from customer creation to first transaction",
     category: "Engagement",
     type: "Tactical",
     grain: "Overall",
@@ -1040,12 +1085,16 @@ export const customerGoldMetrics: GoldMetric[] = [
       WHERE cd.IS_CURRENT = TRUE
         AND ft.TRANSACTION_DATE IS NOT NULL
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
     granularity: "Monthly",
     aggregationMethod: "AVG",
     dataType: "INTEGER",
     unit: "days",
-    businessLogic: "Average (First transaction date - Customer acquisition date) for active customers",
+    businessLogic:
+      "Average (First transaction date - Customer acquisition date) for active customers",
     owner: "Product Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -1053,12 +1102,16 @@ export const customerGoldMetrics: GoldMetric[] = [
       refreshFrequency: "Daily",
     },
     relatedMetrics: ["CUST-ENG-001", "CUST-GRO-001"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
   },
   {
     metricId: "CUST-GRO-004",
     name: "Customer Acquisition Cost Trend",
-    description: "Estimated monthly customer acquisition cost based on new accounts",
+    description:
+      "Estimated monthly customer acquisition cost based on new accounts",
     category: "Growth",
     type: "Strategic",
     grain: "Monthly",
@@ -1077,7 +1130,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "USD",
-    businessLogic: "Marketing budget / new customers per month (estimated with $5M annual budget)",
+    businessLogic:
+      "Marketing budget / new customers per month (estimated with $5M annual budget)",
     owner: "Marketing Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -1680,7 +1734,8 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-QUA-004",
     name: "Customer Record Completeness",
-    description: "Percentage of customer records with all required fields populated",
+    description:
+      "Percentage of customer records with all required fields populated",
     category: "Quality",
     type: "Operational",
     grain: "Daily",
@@ -1732,12 +1787,17 @@ export const customerGoldMetrics: GoldMetric[] = [
         GROUP BY cd.CUSTOMER_NUMBER
       )
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.DIM_ACCOUNT", "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.DIM_ACCOUNT",
+      "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE",
+    ],
     granularity: "Daily",
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "USD",
-    businessLogic: "Average total account balance for premium segment customers",
+    businessLogic:
+      "Average total account balance for premium segment customers",
     owner: "Strategy & Planning",
     sla: {
       maxLatencyHours: 24,
@@ -1745,7 +1805,11 @@ export const customerGoldMetrics: GoldMetric[] = [
       refreshFrequency: "Daily",
     },
     relatedMetrics: ["CUST-SEG-001", "CUST-VAL-002"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "DIM_ACCOUNT", "FCT_DEPOSIT_DAILY_BALANCE"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "DIM_ACCOUNT",
+      "FCT_DEPOSIT_DAILY_BALANCE",
+    ],
   },
   {
     metricId: "CUST-PER-002",
@@ -1764,7 +1828,10 @@ export const customerGoldMetrics: GoldMetric[] = [
         AND cd.RECORD_STATUS = 'ACTIVE'
         AND ft.TRANSACTION_ID IS NULL
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
     granularity: "Monthly",
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
@@ -1777,7 +1844,10 @@ export const customerGoldMetrics: GoldMetric[] = [
       refreshFrequency: "Daily",
     },
     relatedMetrics: ["CUST-RET-001"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
   },
   {
     metricId: "CUST-PER-003",
@@ -1866,7 +1936,11 @@ export const customerGoldMetrics: GoldMetric[] = [
         GROUP BY cd.CUSTOMER_NUMBER
       )
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.DIM_ACCOUNT", "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.DIM_ACCOUNT",
+      "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE",
+    ],
     granularity: "Daily",
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
@@ -1879,7 +1953,11 @@ export const customerGoldMetrics: GoldMetric[] = [
       refreshFrequency: "Daily",
     },
     relatedMetrics: ["CUST-VAL-002"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "DIM_ACCOUNT", "FCT_DEPOSIT_DAILY_BALANCE"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "DIM_ACCOUNT",
+      "FCT_DEPOSIT_DAILY_BALANCE",
+    ],
   },
   {
     metricId: "CUST-PROF-002",
@@ -1904,7 +1982,11 @@ export const customerGoldMetrics: GoldMetric[] = [
         HAVING (SUM(fdb.CURRENT_BALANCE) * 0.05 - SUM(fdb.DAILY_INTEREST_ACCRUAL) * 365) > 0
       )
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.DIM_ACCOUNT", "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.DIM_ACCOUNT",
+      "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE",
+    ],
     granularity: "Daily",
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
@@ -1917,7 +1999,11 @@ export const customerGoldMetrics: GoldMetric[] = [
       refreshFrequency: "Daily",
     },
     relatedMetrics: ["CUST-PROF-001"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "DIM_ACCOUNT", "FCT_DEPOSIT_DAILY_BALANCE"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "DIM_ACCOUNT",
+      "FCT_DEPOSIT_DAILY_BALANCE",
+    ],
   },
   {
     metricId: "CUST-PROF-003",
@@ -1942,7 +2028,11 @@ export const customerGoldMetrics: GoldMetric[] = [
         HAVING (SUM(fdb.CURRENT_BALANCE) * 0.05 - SUM(fdb.DAILY_INTEREST_ACCRUAL) * 365) < 0
       )
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.DIM_ACCOUNT", "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.DIM_ACCOUNT",
+      "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE",
+    ],
     granularity: "Daily",
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
@@ -1955,7 +2045,11 @@ export const customerGoldMetrics: GoldMetric[] = [
       refreshFrequency: "Daily",
     },
     relatedMetrics: ["CUST-PROF-001"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "DIM_ACCOUNT", "FCT_DEPOSIT_DAILY_BALANCE"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "DIM_ACCOUNT",
+      "FCT_DEPOSIT_DAILY_BALANCE",
+    ],
   },
 
   // ============================================================================
@@ -1981,7 +2075,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Count of unique customers with mobile app activity in last month",
+    businessLogic:
+      "Count of unique customers with mobile app activity in last month",
     owner: "Digital Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -2011,7 +2106,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Count of unique customers with online banking activity in last month",
+    businessLogic:
+      "Count of unique customers with online banking activity in last month",
     owner: "Digital Analytics",
     sla: {
       maxLatencyHours: 24,
@@ -2261,7 +2357,10 @@ export const customerGoldMetrics: GoldMetric[] = [
       GROUP BY cd.CUSTOMER_NUMBER
       HAVING COUNT(DISTINCT ft.TRANSACTION_ID) <= 2
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
     granularity: "Monthly",
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
@@ -2274,7 +2373,10 @@ export const customerGoldMetrics: GoldMetric[] = [
       refreshFrequency: "Daily",
     },
     relatedMetrics: ["CUST-BEH-001"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
   },
   {
     metricId: "CUST-BEH-003",
@@ -2893,7 +2995,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "count",
     businessLogic: "Count of customers with assigned RM",
     owner: "Relationship Management",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.9, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.9,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY"],
   },
@@ -2912,7 +3018,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "count",
     businessLogic: "Count of customer service calls",
     owner: "Customer Service",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.9, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.9,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["FCT_CALL_CENTER"],
   },
@@ -2931,7 +3041,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "seconds",
     businessLogic: "Average call duration in seconds",
     owner: "Customer Service",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["FCT_CALL_CENTER"],
   },
@@ -2950,7 +3064,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "percentage",
     businessLogic: "First contact resolution rate",
     owner: "Customer Service",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["FCT_CALL_CENTER"],
   },
@@ -2969,7 +3087,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "score",
     businessLogic: "Average customer credit score",
     owner: "Credit Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY"],
   },
@@ -2988,7 +3110,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "count",
     businessLogic: "Count of prime earning age customers",
     owner: "Market Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY"],
   },
@@ -3007,7 +3133,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "count",
     businessLogic: "Count of retired customers",
     owner: "Wealth Management",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY"],
   },
@@ -3026,7 +3156,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "count",
     businessLogic: "Count of government employee customers",
     owner: "Market Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY"],
   },
@@ -3045,7 +3179,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "count",
     businessLogic: "Count of healthcare professionals",
     owner: "Market Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY"],
   },
@@ -3064,7 +3202,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "count",
     businessLogic: "Count of self-employed customers",
     owner: "Business Banking",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY"],
   },
@@ -3083,7 +3225,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "count",
     businessLogic: "Count of real estate professionals",
     owner: "Market Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY"],
   },
@@ -3102,7 +3248,11 @@ export const customerGoldMetrics: GoldMetric[] = [
     unit: "count",
     businessLogic: "Count of lawyer/attorney customers",
     owner: "Market Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: [],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY"],
   },
@@ -3110,7 +3260,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     metricId: "CUST-CRIT-001",
     name: "Customer Lifetime Value (Actual)",
     grain: "Customer",
-    description: "Actual revenue generated by customer over relationship lifetime",
+    description:
+      "Actual revenue generated by customer over relationship lifetime",
     category: "Value",
     type: "Strategic",
     sqlDefinition: `
@@ -3124,16 +3275,27 @@ export const customerGoldMetrics: GoldMetric[] = [
       GROUP BY CUSTOMER_NUMBER
       HAVING SUM(TRANSACTION_AMOUNT) > 0
     `,
-    sourceTables: ["CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION", "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY"],
+    sourceTables: [
+      "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+    ],
     granularity: "Quarterly",
     aggregationMethod: "SUM",
     dataType: "DECIMAL",
     unit: "currency",
-    businessLogic: "Total revenue generated per customer across entire lifetime based on transaction history",
+    businessLogic:
+      "Total revenue generated per customer across entire lifetime based on transaction history",
     owner: "Customer Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: ["CUST-VAL-001", "CUST-PROF-001"],
-    dependencies: ["FCT_DEPOSIT_ACCOUNT_TRANSACTION", "DIM_CUSTOMER_DEMOGRAPHY"],
+    dependencies: [
+      "FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+      "DIM_CUSTOMER_DEMOGRAPHY",
+    ],
   },
   {
     metricId: "CUST-CRIT-002",
@@ -3150,14 +3312,22 @@ export const customerGoldMetrics: GoldMetric[] = [
       WHERE dcd.RECORD_STATUS = 'ACTIVE'
         AND ccs.CALCULATION_DATE = CURRENT_DATE()
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_CUSTOMERS.FCT_CUSTOMER_CHURN_SCORE"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_CUSTOMERS.FCT_CUSTOMER_CHURN_SCORE",
+    ],
     granularity: "Daily",
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "percentage",
-    businessLogic: "Percentage of active customers with high churn probability indicating customer retention risk",
+    businessLogic:
+      "Percentage of active customers with high churn probability indicating customer retention risk",
     owner: "Risk Management",
-    sla: {maxLatencyHours: 12, targetAccuracy: 99.5, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 12,
+      targetAccuracy: 99.5,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: ["CUST-RET-001"],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "FCT_CUSTOMER_CHURN_SCORE"],
   },
@@ -3165,7 +3335,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     metricId: "CUST-CRIT-003",
     name: "Cross-Sell Opportunity Count",
     grain: "Customer, Weekly",
-    description: "Customers eligible for cross-sell based on product gap analysis",
+    description:
+      "Customers eligible for cross-sell based on product gap analysis",
     category: "Engagement",
     type: "Strategic",
     sqlDefinition: `
@@ -3183,14 +3354,22 @@ export const customerGoldMetrics: GoldMetric[] = [
           HAVING COUNT(DISTINCT ACCOUNT_TYPE) >= 3
         )
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.DIM_ACCOUNT"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.DIM_ACCOUNT",
+    ],
     granularity: "Weekly",
     aggregationMethod: "COUNT",
     dataType: "INTEGER",
     unit: "count",
-    businessLogic: "Number of customers with product gap opportunity and engagement history qualifying them for cross-sell campaigns",
+    businessLogic:
+      "Number of customers with product gap opportunity and engagement history qualifying them for cross-sell campaigns",
     owner: "Sales Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Weekly"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.0,
+      refreshFrequency: "Weekly",
+    },
     relatedMetrics: ["CUST-ENG-001"],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "DIM_ACCOUNT"],
   },
@@ -3217,9 +3396,14 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "score",
-    businessLogic: "Net Promoter Score calculated from last 3 months of customer satisfaction surveys",
+    businessLogic:
+      "Net Promoter Score calculated from last 3 months of customer satisfaction surveys",
     owner: "Customer Experience",
-    sla: {maxLatencyHours: 24, targetAccuracy: 98.0, refreshFrequency: "Weekly"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 98.0,
+      refreshFrequency: "Weekly",
+    },
     relatedMetrics: ["CUST-ENG-005"],
     dependencies: ["FCT_CUSTOMER_SATISFACTION_SURVEY"],
   },
@@ -3227,7 +3411,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     metricId: "CUST-CRIT-005",
     name: "Customer Health Score",
     grain: "Customer, Weekly",
-    description: "Composite health indicator combining engagement, balance, and activity metrics",
+    description:
+      "Composite health indicator combining engagement, balance, and activity metrics",
     category: "Value",
     type: "Tactical",
     sqlDefinition: `
@@ -3248,16 +3433,29 @@ export const customerGoldMetrics: GoldMetric[] = [
       LEFT JOIN CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE fdb ON dcd.CUSTOMER_NUMBER = fdb.CUSTOMER_NUMBER
       WHERE dcd.RECORD_STATUS = 'ACTIVE'
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION", "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+      "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE",
+    ],
     granularity: "Weekly",
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "score (0-100)",
-    businessLogic: "Composite health score combining transaction activity (30%), deposit balance (30%), and account recency (40%)",
+    businessLogic:
+      "Composite health score combining transaction activity (30%), deposit balance (30%), and account recency (40%)",
     owner: "Customer Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Weekly"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.0,
+      refreshFrequency: "Weekly",
+    },
     relatedMetrics: ["CUST-ENG-001", "CUST-VAL-001"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "FCT_DEPOSIT_ACCOUNT_TRANSACTION", "FCT_DEPOSIT_DAILY_BALANCE"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+      "FCT_DEPOSIT_DAILY_BALANCE",
+    ],
   },
   {
     metricId: "CUST-CRIT-006",
@@ -3277,22 +3475,34 @@ export const customerGoldMetrics: GoldMetric[] = [
         AND dcd.IS_CURRENT = TRUE
       GROUP BY DATEPART(month, CURRENT_DATE())
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
     granularity: "Monthly",
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "currency",
-    businessLogic: "Total annual revenue divided by count of active customers - key profitability metric",
+    businessLogic:
+      "Total annual revenue divided by count of active customers - key profitability metric",
     owner: "Financial Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.5, refreshFrequency: "Monthly"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.5,
+      refreshFrequency: "Monthly",
+    },
     relatedMetrics: ["CUST-PROF-001", "CUST-VAL-001"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
   },
   {
     metricId: "CUST-AGG-001",
     name: "Customer Balance Percentile Distribution",
     grain: "Daily",
-    description: "Customer segmentation by balance percentiles (P25, P50, P75, P90, P95)",
+    description:
+      "Customer segmentation by balance percentiles (P25, P50, P75, P90, P95)",
     category: "Segmentation",
     type: "Strategic",
     sqlDefinition: `
@@ -3316,22 +3526,36 @@ export const customerGoldMetrics: GoldMetric[] = [
         COUNT(*) as total_customers
       FROM customer_balances
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.DIM_ACCOUNT", "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.DIM_ACCOUNT",
+      "CORE_DEPOSIT.FCT_DEPOSIT_DAILY_BALANCE",
+    ],
     granularity: "Daily",
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "currency",
-    businessLogic: "Percentile-based customer segmentation using PERCENTILE_CONT for balance distribution analysis and tier assignment",
+    businessLogic:
+      "Percentile-based customer segmentation using PERCENTILE_CONT for balance distribution analysis and tier assignment",
     owner: "Customer Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.5, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.5,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: ["CUST-VAL-001", "CUST-SEG-001"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "DIM_ACCOUNT", "FCT_DEPOSIT_DAILY_BALANCE"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "DIM_ACCOUNT",
+      "FCT_DEPOSIT_DAILY_BALANCE",
+    ],
   },
   {
     metricId: "CUST-AGG-002",
     name: "Customer Cohort Retention Analysis",
     grain: "Customer",
-    description: "Month-over-month retention rates by customer acquisition cohort with cohort age",
+    description:
+      "Month-over-month retention rates by customer acquisition cohort with cohort age",
     category: "Retention",
     type: "Strategic",
     sqlDefinition: `
@@ -3371,9 +3595,14 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "percentage",
-    businessLogic: "Cohort analysis tracking retention rates over time using window functions for average retention by cohort age",
+    businessLogic:
+      "Cohort analysis tracking retention rates over time using window functions for average retention by cohort age",
     owner: "Retention Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Weekly"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.0,
+      refreshFrequency: "Weekly",
+    },
     relatedMetrics: ["CUST-RET-001", "CUST-RET-002"],
     dependencies: ["DIM_CUSTOMER_DEMOGRAPHY"],
   },
@@ -3381,7 +3610,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     metricId: "CUST-AGG-003",
     name: "Customer Lifetime Value Ranking with Running Total",
     grain: "Customer",
-    description: "Top customers ranked by CLV with cumulative percentage of total revenue",
+    description:
+      "Top customers ranked by CLV with cumulative percentage of total revenue",
     category: "Value",
     type: "Strategic",
     sqlDefinition: `
@@ -3430,22 +3660,34 @@ export const customerGoldMetrics: GoldMetric[] = [
       WHERE revenue_rank <= 1000
       ORDER BY revenue_rank
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
     granularity: "Monthly",
     aggregationMethod: "SUM",
     dataType: "DECIMAL",
     unit: "currency",
-    businessLogic: "Window functions (ROW_NUMBER, SUM OVER) to rank customers by CLV with running total for Pareto analysis and tier assignment",
+    businessLogic:
+      "Window functions (ROW_NUMBER, SUM OVER) to rank customers by CLV with running total for Pareto analysis and tier assignment",
     owner: "Customer Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.8, refreshFrequency: "Weekly"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.8,
+      refreshFrequency: "Weekly",
+    },
     relatedMetrics: ["CUST-CRIT-001", "CUST-VAL-001"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
   },
   {
     metricId: "CUST-AGG-004",
     name: "Customer Activity Trend - 3-Month Moving Average",
     grain: "Overall",
-    description: "Rolling 3-month average of customer transaction activity with trend indicators",
+    description:
+      "Rolling 3-month average of customer transaction activity with trend indicators",
     category: "Engagement",
     type: "Tactical",
     sqlDefinition: `
@@ -3494,9 +3736,14 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "count",
-    businessLogic: "Moving average analysis using window functions (AVG OVER, LAG) to identify customer activity trends and month-over-month changes",
+    businessLogic:
+      "Moving average analysis using window functions (AVG OVER, LAG) to identify customer activity trends and month-over-month changes",
     owner: "Customer Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.5, refreshFrequency: "Daily"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.5,
+      refreshFrequency: "Daily",
+    },
     relatedMetrics: ["CUST-ACT-001", "CUST-ENG-001"],
     dependencies: ["FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
   },
@@ -3504,7 +3751,8 @@ export const customerGoldMetrics: GoldMetric[] = [
     metricId: "CUST-AGG-005",
     name: "Customer RFM Segmentation Score",
     grain: "Customer",
-    description: "Recency, Frequency, Monetary (RFM) composite score with quintile rankings",
+    description:
+      "Recency, Frequency, Monetary (RFM) composite score with quintile rankings",
     category: "Segmentation",
     type: "Strategic",
     sqlDefinition: `
@@ -3552,22 +3800,34 @@ export const customerGoldMetrics: GoldMetric[] = [
       FROM rfm_scores
       ORDER BY rfm_composite_score DESC
     `,
-    sourceTables: ["CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY", "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    sourceTables: [
+      "CORE_CUSTOMERS.DIM_CUSTOMER_DEMOGRAPHY",
+      "CORE_DEPOSIT.FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
     granularity: "Weekly",
     aggregationMethod: "AVG",
     dataType: "INTEGER",
     unit: "score",
-    businessLogic: "RFM segmentation using NTILE window function to create quintile scores for Recency, Frequency, and Monetary value with composite scoring",
+    businessLogic:
+      "RFM segmentation using NTILE window function to create quintile scores for Recency, Frequency, and Monetary value with composite scoring",
     owner: "Marketing Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.0, refreshFrequency: "Weekly"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.0,
+      refreshFrequency: "Weekly",
+    },
     relatedMetrics: ["CUST-SEG-001", "CUST-VAL-001", "CUST-ENG-001"],
-    dependencies: ["DIM_CUSTOMER_DEMOGRAPHY", "FCT_DEPOSIT_ACCOUNT_TRANSACTION"],
+    dependencies: [
+      "DIM_CUSTOMER_DEMOGRAPHY",
+      "FCT_DEPOSIT_ACCOUNT_TRANSACTION",
+    ],
   },
   {
     metricId: "CUST-AGG-006",
     name: "Customer Product Affinity Matrix",
     grain: "Customer",
-    description: "Cross-product holdings analysis with propensity scores for cross-sell targeting",
+    description:
+      "Cross-product holdings analysis with propensity scores for cross-sell targeting",
     category: "Engagement",
     type: "Tactical",
     sqlDefinition: `
@@ -3623,9 +3883,14 @@ export const customerGoldMetrics: GoldMetric[] = [
     aggregationMethod: "AVG",
     dataType: "DECIMAL",
     unit: "percentage",
-    businessLogic: "Product affinity analysis using aggregations across product categories to identify cross-sell opportunities and market penetration",
+    businessLogic:
+      "Product affinity analysis using aggregations across product categories to identify cross-sell opportunities and market penetration",
     owner: "Product Analytics",
-    sla: {maxLatencyHours: 24, targetAccuracy: 99.5, refreshFrequency: "Weekly"},
+    sla: {
+      maxLatencyHours: 24,
+      targetAccuracy: 99.5,
+      refreshFrequency: "Weekly",
+    },
     relatedMetrics: ["CUST-CRIT-003", "CUST-PROD-004"],
     dependencies: ["DIM_ACCOUNT"],
   },
@@ -3637,17 +3902,26 @@ export const customerGoldMetricsComplete = {
   categories: {
     Volume: customerGoldMetrics.filter((m) => m.category === "Volume").length,
     Growth: customerGoldMetrics.filter((m) => m.category === "Growth").length,
-    Retention: customerGoldMetrics.filter((m) => m.category === "Retention").length,
+    Retention: customerGoldMetrics.filter((m) => m.category === "Retention")
+      .length,
     Value: customerGoldMetrics.filter((m) => m.category === "Value").length,
-    Engagement: customerGoldMetrics.filter((m) => m.category === "Engagement").length,
+    Engagement: customerGoldMetrics.filter((m) => m.category === "Engagement")
+      .length,
     Risk: customerGoldMetrics.filter((m) => m.category === "Risk").length,
-    Segmentation: customerGoldMetrics.filter((m) => m.category === "Segmentation").length,
+    Segmentation: customerGoldMetrics.filter(
+      (m) => m.category === "Segmentation",
+    ).length,
     Quality: customerGoldMetrics.filter((m) => m.category === "Quality").length,
-    Profitability: customerGoldMetrics.filter((m) => m.category === "Profitability").length,
-    Compliance: customerGoldMetrics.filter((m) => m.category === "Compliance").length,
-    Lifecycle: customerGoldMetrics.filter((m) => m.category === "Lifecycle").length,
+    Profitability: customerGoldMetrics.filter(
+      (m) => m.category === "Profitability",
+    ).length,
+    Compliance: customerGoldMetrics.filter((m) => m.category === "Compliance")
+      .length,
+    Lifecycle: customerGoldMetrics.filter((m) => m.category === "Lifecycle")
+      .length,
   },
-  description: "Customer domain Gold layer metrics derived from actual CORE_CUSTOMERS and CORE_DEPOSIT source tables",
+  description:
+    "Customer domain Gold layer metrics derived from actual CORE_CUSTOMERS and CORE_DEPOSIT source tables",
 };
 
 export default customerGoldMetricsComplete;
