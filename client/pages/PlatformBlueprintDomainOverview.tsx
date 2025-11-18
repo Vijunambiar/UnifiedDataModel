@@ -58,7 +58,6 @@ import {
   Map,
   Cpu,
   CheckCircle,
-  BookOpen,
   Lightbulb,
   Loader,
   TrendingUp,
