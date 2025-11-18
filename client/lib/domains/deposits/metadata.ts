@@ -139,8 +139,9 @@ export const depositsSubDomains = [
 ];
 
 // Gold Table Dimension and Fact exports for UI display
+// Note: For UI purposes, aggregates are exported as "facts" since they're fact-like tables
 export const depositsGoldDimensions = depositsGoldTableCatalog.dimensions;
-export const depositsGoldFacts = depositsGoldTableCatalog.facts;
+export const depositsGoldFacts = [...(depositsGoldTableCatalog.facts || []), ...(depositsGoldTableCatalog.aggregates || [])];
 export const depositsGoldAggregates = depositsGoldTableCatalog.aggregates;
 
 // Re-export layer definitions
