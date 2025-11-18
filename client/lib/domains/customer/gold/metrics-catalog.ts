@@ -1739,7 +1739,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PER-002",
     name: "Inactive Customer Count",
-    grain: "Overall",
+    grain: "Monthly",
     description: "Number of customers with no transactions in last 90 days",
     category: "Engagement",
     type: "Operational",
@@ -1771,7 +1771,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PER-003",
     name: "Customer Satisfaction Score",
-    grain: "Overall",
+    grain: "Monthly",
     description: "Average customer satisfaction rating from surveys",
     category: "Engagement",
     type: "Strategic",
@@ -1799,7 +1799,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-PER-004",
     name: "Net Promoter Score (NPS)",
-    grain: "Overall",
+    grain: "Monthly",
     description: "NPS sentiment index ranging from -100 to +100",
     category: "Engagement",
     type: "Strategic",
