@@ -503,7 +503,7 @@ export const achTransactionDetailEntity: LogicalEntity = {
       businessRules: ["Must be valid IRS Employer Identification Number"]
     },
     {
-      attributeName:="Company Name",
+      attributeName: "Company Name",
       businessDefinition: "Name of the originating company",
       dataType: "Text",
       isMandatory: true,
