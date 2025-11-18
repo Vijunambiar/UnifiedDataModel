@@ -1,0 +1,423 @@
+// Deposits Domain - COMPLETE Source to Target Mapping (STTM) - 100% Coverage
+// Includes: Direct mappings + Derived/Calculated + System/Audit + SCD Type 2
+
+export interface ColumnMapping {
+  sourceSystem: string;
+  sourceTable: string;
+  sourceColumn: string;
+  bronzeSchema: string;
+  bronzeTable: string;
+  bronzeColumn: string;
+  silverSchema: string;
+  silverTable: string;
+  silverColumn: string;
+  goldSchema: string;
+  goldTable: string;
+  goldColumn: string | null;
+  dataType: string;
+  businessLogic: string;
+  businessMeaning: string;
+  mappingType?: "Direct" | "Derived" | "System" | "SCD2";
+}
+
+// Import existing mappings
+import {
+  depositAccountMasterMappings,
+  depositAccountBalanceMappings,
+  depositDailyBalanceFactMappings,
+} from "./sttm-mapping";
+
+// ============================================================================
+// ADDITIONAL DERIVED & SYSTEM COLUMNS - DIM_ACCOUNT & DIM_DEPOSIT
+// ============================================================================
+export const depositsDerivedMappings: ColumnMapping[] = [
+  {
+    sourceSystem: "SYSTEM",
+    sourceTable: "N/A",
+    sourceColumn: "AUTO_GENERATED",
+    bronzeSchema: "N/A",
+    bronzeTable: "N/A",
+    bronzeColumn: "N/A",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "ACCOUNT_SK",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "BIGINT",
+    businessLogic: "Auto-generated surrogate key sequence",
+    businessMeaning: "Surrogate key for dimension table joins",
+    mappingType: "System",
+  },
+  {
+    sourceSystem: "SYSTEM",
+    sourceTable: "N/A",
+    sourceColumn: "UUID_STRING()",
+    bronzeSchema: "N/A",
+    bronzeTable: "N/A",
+    bronzeColumn: "N/A",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "ACCOUNT_UUID",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "STRING",
+    businessLogic: "Generated using UUID_STRING()",
+    businessMeaning: "Global unique identifier for distributed systems",
+    mappingType: "Derived",
+  },
+  {
+    sourceSystem: "FIS-ADS",
+    sourceTable: "TB_DP_OZZ_ACCT_ARD",
+    sourceColumn: "AC_ACCT_NBR",
+    bronzeSchema: "FIS_ADS",
+    bronzeTable: "TB_DP_OZZ_ACCT_ARD",
+    bronzeColumn: "AC_ACCT_NBR",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "ACCOUNT_NUMBER_FORMATTED",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "VARCHAR(30)",
+    businessLogic: "Format as XXX-XXXX-XXXXXXXXX with masking for display",
+    businessMeaning: "Account number in standardized display format",
+    mappingType: "Derived",
+  },
+  {
+    sourceSystem: "REFERENCE_DATA",
+    sourceTable: "BRG_CUSTOMER_ACCOUNT",
+    sourceColumn: "CUSTOMER_NUMBER",
+    bronzeSchema: "CORE_CUSTOMER",
+    bronzeTable: "BRG_CUSTOMER_ACCOUNT",
+    bronzeColumn: "CUSTOMER_NUMBER",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "PRIMARY_CUSTOMER_ID",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "VARCHAR(20)",
+    businessLogic: "Lookup from BRG_CUSTOMER_ACCOUNT where RELATIONSHIP_ROLE='PRIMARY'",
+    businessMeaning: "Primary account owner customer ID",
+    mappingType: "Derived",
+  },
+  {
+    sourceSystem: "FIS-ADS",
+    sourceTable: "TB_DP_OZZ_ACCT_ARD",
+    sourceColumn: "AC_ACCT_TYP",
+    bronzeSchema: "FIS_ADS",
+    bronzeTable: "TB_DP_OZZ_ACCT_ARD",
+    bronzeColumn: "AC_ACCT_TYP",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "ACCOUNT_SUBTYPE",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "VARCHAR(50)",
+    businessLogic: "Derived from account type and product flags for granular classification",
+    businessMeaning: "More granular account classification",
+    mappingType: "Derived",
+  },
+  {
+    sourceSystem: "REFERENCE_DATA",
+    sourceTable: "BRG_CUSTOMER_ACCOUNT",
+    sourceColumn: "CUSTOMER_NUMBER",
+    bronzeSchema: "CORE_CUSTOMER",
+    bronzeTable: "BRG_CUSTOMER_ACCOUNT",
+    bronzeColumn: "CUSTOMER_NUMBER",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "OWNERSHIP_TYPE",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "VARCHAR(50)",
+    businessLogic: "CASE WHEN COUNT(DISTINCT customer_id)=1 THEN 'INDIVIDUAL' WHEN relationship_type LIKE '%JOINT%' THEN 'JOINT' WHEN business_type IS NOT NULL THEN 'CORPORATE' ELSE 'INDIVIDUAL' END",
+    businessMeaning: "Ownership structure: INDIVIDUAL, JOINT, TRUST, CORPORATE",
+    mappingType: "Derived",
+  },
+  {
+    sourceSystem: "REFERENCE_DATA",
+    sourceTable: "BRG_CUSTOMER_ACCOUNT",
+    sourceColumn: "CUSTOMER_NUMBER",
+    bronzeSchema: "CORE_CUSTOMER",
+    bronzeTable: "BRG_CUSTOMER_ACCOUNT",
+    bronzeColumn: "CUSTOMER_NUMBER",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "TOTAL_OWNERS",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "INTEGER",
+    businessLogic: "COUNT(DISTINCT customer_id) from BRG_CUSTOMER_ACCOUNT for this account",
+    businessMeaning: "Number of account owners",
+    mappingType: "Derived",
+  },
+  {
+    sourceSystem: "FIS-ADS",
+    sourceTable: "TB_DP_OZZ_ACCT_ARD",
+    sourceColumn: "AC_OPEN_DTE, AC_CLSE_DTE",
+    bronzeSchema: "FIS_ADS",
+    bronzeTable: "TB_DP_OZZ_ACCT_ARD",
+    bronzeColumn: "MULTIPLE",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "ACCOUNT_TENURE_DAYS",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "INTEGER",
+    businessLogic: "DATEDIFF(day, AC_OPEN_DTE, COALESCE(AC_CLSE_DTE, CURRENT_DATE()))",
+    businessMeaning: "Days account has been open",
+    mappingType: "Derived",
+  },
+  {
+    sourceSystem: "FIS-ADS",
+    sourceTable: "TB_DP_OZZ_ACCT_ARD",
+    sourceColumn: "AC_OPEN_DTE, AC_MATURITY_DTE",
+    bronzeSchema: "FIS_ADS",
+    bronzeTable: "TB_DP_OZZ_ACCT_ARD",
+    bronzeColumn: "MULTIPLE",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "TERM_MONTHS",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "INTEGER",
+    businessLogic: "DATEDIFF(month, AC_OPEN_DTE, AC_MATURITY_DTE) for CDs",
+    businessMeaning: "Term of CD in months",
+    mappingType: "Derived",
+  },
+];
+
+// ============================================================================
+// TRANSACTION FACT TABLE MAPPINGS - FCT_DEPOSIT_DAILY_BALANCE
+// ============================================================================
+export const depositsTransactionMappings: ColumnMapping[] = [
+  {
+    sourceSystem: "SYSTEM",
+    sourceTable: "N/A",
+    sourceColumn: "AUTO_GENERATED",
+    bronzeSchema: "N/A",
+    bronzeTable: "N/A",
+    bronzeColumn: "N/A",
+    silverSchema: "CORE_TRANSACTIONS",
+    silverTable: "FCT_DEPOSIT_DAILY_BALANCE",
+    silverColumn: "BALANCE_SNAPSHOT_SK",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "BIGINT",
+    businessLogic: "Auto-generated surrogate key",
+    businessMeaning: "Surrogate key for balance snapshot",
+    mappingType: "System",
+  },
+  {
+    sourceSystem: "FIS-ADS",
+    sourceTable: "TB_DP_SZ9_DP_ACCT_D_FACT",
+    sourceColumn: "COL_BAL_AMT, PR_DAY_LGR_BAL_AMT",
+    bronzeSchema: "FIS_ADS",
+    bronzeTable: "TB_DP_SZ9_DP_ACCT_D_FACT",
+    bronzeColumn: "MULTIPLE",
+    silverSchema: "CORE_TRANSACTIONS",
+    silverTable: "FCT_DEPOSIT_DAILY_BALANCE",
+    silverColumn: "NET_CHANGE",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "DECIMAL(18,2)",
+    businessLogic: "COL_BAL_AMT - PR_DAY_LGR_BAL_AMT",
+    businessMeaning: "Net change in balance for the day",
+    mappingType: "Derived",
+  },
+];
+
+// ============================================================================
+// SCD TYPE 2 COLUMNS - DIM_ACCOUNT
+// ============================================================================
+export const depositsSCD2Mappings: ColumnMapping[] = [
+  {
+    sourceSystem: "FIS-ADS",
+    sourceTable: "TB_DP_OZZ_ACCT_ARD",
+    sourceColumn: "REFRESH_TIME",
+    bronzeSchema: "FIS_ADS",
+    bronzeTable: "TB_DP_OZZ_ACCT_ARD",
+    bronzeColumn: "REFRESH_TIME",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "EFFECTIVE_DATE",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "DATE",
+    businessLogic: "Set to source refresh timestamp date on insert",
+    businessMeaning: "Date this SCD Type 2 record version became effective",
+    mappingType: "SCD2",
+  },
+  {
+    sourceSystem: "SYSTEM",
+    sourceTable: "N/A",
+    sourceColumn: "SCD2_LOGIC",
+    bronzeSchema: "N/A",
+    bronzeTable: "N/A",
+    bronzeColumn: "N/A",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "EXPIRATION_DATE",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "DATE",
+    businessLogic: "9999-12-31 for current records; yesterday when superseded",
+    businessMeaning: "Date this SCD Type 2 record version expired",
+    mappingType: "SCD2",
+  },
+  {
+    sourceSystem: "SYSTEM",
+    sourceTable: "N/A",
+    sourceColumn: "SCD2_LOGIC",
+    bronzeSchema: "N/A",
+    bronzeTable: "N/A",
+    bronzeColumn: "N/A",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "IS_CURRENT",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "BOOLEAN",
+    businessLogic: "TRUE if EXPIRATION_DATE = '9999-12-31'",
+    businessMeaning: "Flag indicating if this is the current version",
+    mappingType: "SCD2",
+  },
+];
+
+// ============================================================================
+// SYSTEM & AUDIT COLUMNS
+// ============================================================================
+export const depositsSystemMappings: ColumnMapping[] = [
+  {
+    sourceSystem: "SYSTEM",
+    sourceTable: "N/A",
+    sourceColumn: "CURRENT_TIMESTAMP",
+    bronzeSchema: "N/A",
+    bronzeTable: "N/A",
+    bronzeColumn: "N/A",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "CREATED_TIMESTAMP",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "TIMESTAMP_NTZ",
+    businessLogic: "CURRENT_TIMESTAMP() on insert",
+    businessMeaning: "Timestamp when record was created",
+    mappingType: "System",
+  },
+  {
+    sourceSystem: "SYSTEM",
+    sourceTable: "N/A",
+    sourceColumn: "CURRENT_TIMESTAMP",
+    bronzeSchema: "N/A",
+    bronzeTable: "N/A",
+    bronzeColumn: "N/A",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "UPDATED_TIMESTAMP",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "TIMESTAMP_NTZ",
+    businessLogic: "CURRENT_TIMESTAMP() on update",
+    businessMeaning: "Timestamp when record was last updated",
+    mappingType: "System",
+  },
+  {
+    sourceSystem: "DATA_QUALITY",
+    sourceTable: "DQ_ENGINE",
+    sourceColumn: "QUALITY_SCORE",
+    bronzeSchema: "N/A",
+    bronzeTable: "N/A",
+    bronzeColumn: "N/A",
+    silverSchema: "CORE_DEPOSIT",
+    silverTable: "DIM_ACCOUNT",
+    silverColumn: "DATA_QUALITY_SCORE",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "DECIMAL(5,2)",
+    businessLogic: "Based on completeness and validation checks",
+    businessMeaning: "Data quality score 0-100",
+    mappingType: "Derived",
+  },
+  {
+    sourceSystem: "SYSTEM",
+    sourceTable: "N/A",
+    sourceColumn: "CURRENT_TIMESTAMP",
+    bronzeSchema: "N/A",
+    bronzeTable: "N/A",
+    bronzeColumn: "N/A",
+    silverSchema: "CORE_TRANSACTIONS",
+    silverTable: "FCT_DEPOSIT_DAILY_BALANCE",
+    silverColumn: "CREATED_TIMESTAMP",
+    goldSchema: "ANALYTICS",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+    goldColumn: null,
+    dataType: "TIMESTAMP_NTZ",
+    businessLogic: "CURRENT_TIMESTAMP() on insert",
+    businessMeaning: "Record creation timestamp",
+    mappingType: "System",
+  },
+];
+
+// ============================================================================
+// COMBINE ALL DEPOSITS STTM MAPPINGS - 100% Coverage
+// ============================================================================
+export const depositsSTTMMapping_Complete: ColumnMapping[] = [
+  ...depositAccountMasterMappings,
+  ...depositAccountBalanceMappings,
+  ...depositDailyBalanceFactMappings,
+  ...depositsDerivedMappings,
+  ...depositsTransactionMappings,
+  ...depositsSCD2Mappings,
+  ...depositsSystemMappings,
+];
+
+export const depositsSTTMGaps_Complete: ColumnMapping[] = [];
+
+export const depositsTableCoverage_Complete = [
+  {
+    fisTable: "TB_DP_OZZ_ACCT_ARD",
+    columnCount: 82,
+    mappedCount: 82,
+    coverage: "100%",
+    businessKey: "AC_ACCT_NBR",
+    silverTable: "DIM_ACCOUNT, DIM_DEPOSIT",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+  },
+  {
+    fisTable: "TB_DP_OZX_BAL_ARD",
+    columnCount: 5,
+    mappedCount: 5,
+    coverage: "100%",
+    businessKey: "BL_ACCT_NBR",
+    silverTable: "FCT_DEPOSIT_DAILY_BALANCE",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+  },
+  {
+    fisTable: "TB_DP_SZ9_DP_ACCT_D_FACT",
+    columnCount: 15,
+    mappedCount: 15,
+    coverage: "100%",
+    businessKey: "ACCT_NBR",
+    silverTable: "FCT_DEPOSIT_DAILY_BALANCE",
+    goldTable: "CUSTOMER_DEPOSIT_AGGR",
+  },
+];
+
+export default depositsSTTMMapping_Complete;
