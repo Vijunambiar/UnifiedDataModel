@@ -3003,7 +3003,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-OTHER-008",
     name: "Government Employee Customers",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Customers employed by federal/state government",
     category: "Segmentation",
     type: "Operational",
@@ -3022,7 +3022,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-OTHER-009",
     name: "Healthcare Professional Count",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Customers working in healthcare professions",
     category: "Segmentation",
     type: "Operational",
@@ -3041,7 +3041,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-OTHER-010",
     name: "Solo Practitioner/Self-Employed",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Self-employed and solo practitioners",
     category: "Segmentation",
     type: "Operational",
@@ -3060,7 +3060,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-OTHER-011",
     name: "Real Estate Professional Customers",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Customers working in real estate",
     category: "Segmentation",
     type: "Operational",
@@ -3079,7 +3079,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-FINAL-001",
     name: "Lawyer/Attorney Customers",
-    grain: "Overall",
+    grain: "Customer, Daily",
     description: "Customers in legal profession",
     category: "Segmentation",
     type: "Operational",
@@ -3127,7 +3127,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CRIT-002",
     name: "Churn Risk Score Distribution",
-    grain: "Overall",
+    grain: "Daily",
     description: "Percentage of customers with high churn probability (>70%)",
     category: "Risk",
     type: "Strategic",
@@ -3153,7 +3153,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CRIT-003",
     name: "Cross-Sell Opportunity Count",
-    grain: "Customer",
+    grain: "Customer, Weekly",
     description: "Customers eligible for cross-sell based on product gap analysis",
     category: "Engagement",
     type: "Strategic",
@@ -3186,7 +3186,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CRIT-004",
     name: "Net Promoter Score (NPS)",
-    grain: "Overall",
+    grain: "Monthly",
     description: "Customer satisfaction and loyalty measured through NPS",
     category: "Engagement",
     type: "Strategic",
@@ -3215,7 +3215,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CRIT-005",
     name: "Customer Health Score",
-    grain: "Customer",
+    grain: "Customer, Weekly",
     description: "Composite health indicator combining engagement, balance, and activity metrics",
     category: "Value",
     type: "Tactical",
@@ -3251,7 +3251,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-CRIT-006",
     name: "Revenue Per Available Customer",
-    grain: "Overall",
+    grain: "Monthly",
     description: "Average revenue generated per active customer",
     category: "Profitability",
     type: "Strategic",
@@ -3280,7 +3280,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-AGG-001",
     name: "Customer Balance Percentile Distribution",
-    grain: "Overall",
+    grain: "Daily",
     description: "Customer segmentation by balance percentiles (P25, P50, P75, P90, P95)",
     category: "Segmentation",
     type: "Strategic",
