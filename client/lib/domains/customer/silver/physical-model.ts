@@ -76,7 +76,7 @@ export interface SilverTableDefinition {
 export const customerMasterSilver: SilverTableDefinition = {
   name: "silver.customer_master_golden",
   schema: "silver",
-  description: "Golden customer record with MDM deduplication, standardization, and SCD Type 2 history",
+  description: "Golden customer record with deduplication, standardization, and SCD Type 2 history",
   businessKey: "customer_id",
   surrogatePrimaryKey: "customer_sk",
   sourceTables: [
@@ -1327,7 +1327,7 @@ export const customerSilverLayerComplete = {
   description:
     "Customer domain silver layer - cleansed, conformed, and deduplicated data from FIS bronze layer",
   layerPurpose:
-    "Golden customer records with MDM, PII encryption, and SCD Type 2 history tracking",
+    "Golden customer records with PII encryption, and SCD Type 2 history tracking",
 };
 
 export default customerSilverTables;
