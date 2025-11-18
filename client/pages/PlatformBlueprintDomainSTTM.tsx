@@ -147,6 +147,7 @@ export default function PlatformBlueprintDomainSTTM() {
                   <TableHead>Source Column</TableHead>
                   <TableHead>Silver Table</TableHead>
                   <TableHead>Silver Column</TableHead>
+                  <TableHead>Mapping Type</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -167,6 +168,22 @@ export default function PlatformBlueprintDomainSTTM() {
                     </TableCell>
                     <TableCell className="font-mono text-xs">
                       {mapping.targetColumn || mapping.silverColumn}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={
+                          mapping.mappingType === "Direct" ? "bg-green-50 text-green-700 border-green-300" :
+                          mapping.mappingType === "Derived" ? "bg-purple-50 text-purple-700 border-purple-300" :
+                          mapping.mappingType === "System" ? "bg-gray-50 text-gray-700 border-gray-300" :
+                          mapping.mappingType === "SCD2" ? "bg-orange-50 text-orange-700 border-orange-300" :
+                          mapping.mappingType === "Compliance" ? "bg-red-50 text-red-700 border-red-300" :
+                          mapping.mappingType === "Fraud" ? "bg-red-50 text-red-700 border-red-300" :
+                          "bg-blue-50 text-blue-700 border-blue-300"
+                        }
+                      >
+                        {mapping.mappingType || "Direct"}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <CheckCircle className="h-4 w-4 text-green-600" />
