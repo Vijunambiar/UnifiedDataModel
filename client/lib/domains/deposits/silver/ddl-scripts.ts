@@ -458,46 +458,11 @@ export const depositsSilverDDLCatalog = {
       grain: "ACCOUNT_NUMBER"
     },
     {
-      name: "FCT_DEPOSIT_ACCOUNT_TRANSACTION",
-      ddl: depositAccountTransactionFactDDL,
-      scdType: "Type 1",
-      estimatedRows: "500M",
-      grain: "ACCOUNT_NUMBER X TRANSACTION_ID"
-    },
-    {
-      name: "FCT_DEPOSIT_CERTIFICATE_TRANSACTION",
-      ddl: depositCertificateTransactionFactDDL,
-      scdType: "Type 1",
-      estimatedRows: "50M",
-      grain: "ACCOUNT_NUMBER X TRANSACTION_ID"
-    },
-    {
       name: "FCT_DEPOSIT_DAILY_BALANCE",
       ddl: depositDailyBalanceFactDDL,
       scdType: "Type 1",
       estimatedRows: "100M",
       grain: "ACCOUNT_NUMBER X BALANCE_DATE"
-    },
-    {
-      name: "FCT_DEPOSIT_HOLD_TRANSACTION",
-      ddl: depositHoldTransactionFactDDL,
-      scdType: "Type 1",
-      estimatedRows: "20M",
-      grain: "ACCOUNT_NUMBER X TRANSACTION_ID"
-    },
-    {
-      name: "FCT_DEPOSIT_MAINTENANCE_TRANSACTION",
-      ddl: depositMaintenanceTransactionFactDDL,
-      scdType: "Type 1",
-      estimatedRows: "30M",
-      grain: "ACCOUNT_NUMBER X TRANSACTION_ID"
-    },
-    {
-      name: "FCT_DEPOSIT_STOP_TRANSACTION",
-      ddl: depositStopTransactionFactDDL,
-      scdType: "Type 1",
-      estimatedRows: "15M",
-      grain: "ACCOUNT_NUMBER X TRANSACTION_ID"
     }
   ]
 };
