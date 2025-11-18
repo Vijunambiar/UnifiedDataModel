@@ -142,10 +142,14 @@ export default function PlatformBlueprintDomainSTTM() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-1/4">Source System</TableHead>
-                  <TableHead className="w-1/4">Source Column</TableHead>
-                  <TableHead className="w-1/4">Target Table</TableHead>
-                  <TableHead className="w-1/4">Target Column</TableHead>
+                  <TableHead>Source System</TableHead>
+                  <TableHead>Source Table</TableHead>
+                  <TableHead>Source Column</TableHead>
+                  <TableHead>Bronze Schema</TableHead>
+                  <TableHead>Bronze Table</TableHead>
+                  <TableHead>Silver Schema</TableHead>
+                  <TableHead>Silver Table</TableHead>
+                  <TableHead>Silver Column</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -156,13 +160,31 @@ export default function PlatformBlueprintDomainSTTM() {
                       {mapping.sourceSystem}
                     </TableCell>
                     <TableCell className="font-mono text-xs">
+                      {mapping.sourceTable}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
                       {mapping.sourceField || mapping.sourceColumn}
                     </TableCell>
                     <TableCell className="font-mono text-xs">
-                      {mapping.targetTable}
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+                        {mapping.bronzeSchema}
+                      </Badge>
                     </TableCell>
                     <TableCell className="font-mono text-xs">
-                      {mapping.targetColumn}
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+                        {mapping.bronzeTable}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
+                        {mapping.silverSchema}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {mapping.targetTable || mapping.silverTable}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {mapping.targetColumn || mapping.silverColumn}
                     </TableCell>
                     <TableCell>
                       <CheckCircle className="h-4 w-4 text-green-600" />
