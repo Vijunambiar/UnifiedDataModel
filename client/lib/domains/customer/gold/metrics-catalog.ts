@@ -2908,7 +2908,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-OTHER-003",
     name: "Average Call Duration",
-    grain: "Weekly",
+    grain: "Daily",
     description: "Average length of customer service calls",
     category: "Engagement",
     type: "Operational",
@@ -3555,7 +3555,7 @@ export const customerGoldMetrics: GoldMetric[] = [
   {
     metricId: "CUST-AGG-006",
     name: "Customer Product Affinity Matrix",
-    grain: "Segment",
+    grain: "Customer",
     description: "Cross-product holdings analysis with propensity scores for cross-sell targeting",
     category: "Engagement",
     type: "Tactical",
